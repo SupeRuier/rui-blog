@@ -3,48 +3,75 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Rui 的个人博客：记录经历、判断与仍在形成中的认识。">
-  <title>Rui — 经历与认识</title>
+  <meta name="description" content="Rui 的技术笔记：多模态数据、生成式场景、具身智能与 Robot Agent。">
+  <title>Rui — Technical Notes</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="site-header wrap">
     <a class="brand" href="./" aria-label="返回首页">Rui<span class="brand-dot">.</span></a>
-    <nav aria-label="主导航">
-      <a href="#writing">文章</a>
-      <a href="#about">关于</a>
-    </nav>
+    <nav aria-label="主导航"><a href="#notes">技术笔记</a><a href="#scope">范围</a></nav>
   </header>
 
   <main>
     <section class="intro wrap">
-      <p class="eyebrow">EXPERIENCE · THINKING · ACTION</p>
-      <h1>记录经历，<br>也记录认识如何改变。</h1>
-      <p class="lede">这里存放一些走过的路、做过的判断，以及在现实反馈中不断修正的方法论。</p>
+      <p class="eyebrow">DATA · EMBODIED AI · ROBOT AGENT</p>
+      <h1>Technical Notes</h1>
+      <p class="lede">记录从多模态数据生产、生成式场景与基础模型训练，到具身数据、动作模型和 Robot Agent 系统的技术实践。</p>
     </section>
 
-    <section class="writing wrap" id="writing">
-      <div class="section-heading">
-        <h2>最近文章</h2>
-        <span>01</span>
-      </div>
-      <article class="post-card">
-        <a href="posts/build-your-base.html" aria-label="阅读：在不确定中，建立自己的基本盘">
-          <div class="post-meta"><time datetime="2026-09-15">2026.09.15</time><span>思考</span></div>
-          <h3>在不确定中，建立自己的基本盘</h3>
-          <p>真正可靠的安全感，不来自某个职位或环境的承诺，而来自一套能够被自己带走、验证并持续复利的能力结构。</p>
-          <span class="read-more">阅读全文 <span aria-hidden="true">↗</span></span>
-        </a>
-      </article>
+    <section class="writing wrap" id="notes">
+      <div class="section-heading"><h2>技术主题</h2><span>07 NOTES</span></div>
+      <article class="post-card"><a href="posts/robot-agent-system2.html">
+        <div class="post-meta"><span>07</span><span>Robot Agent</span></div>
+        <h3>Robot Agent System 2：规划、执行与系统闭环</h3>
+        <p>Planner–Policy 调度、Robot Harness、执行监控、仿真评测，以及 ROS 与端云部署。</p>
+        <span class="read-more">查看框架 ↗</span>
+      </a></article>
+      <article class="post-card"><a href="posts/embodied-models.html">
+        <div class="post-meta"><span>06</span><span>Embodied Model</span></div>
+        <h3>具身模型：从数据输入到机器人动作</h3>
+        <p>以数据接口为主线，概览 VLA、WAM、World Model 与 Action Representation。</p>
+        <span class="read-more">查看框架 ↗</span>
+      </a></article>
+      <article class="post-card"><a href="posts/embodied-data-pyramid.html">
+        <div class="post-meta"><span>05</span><span>Embodied Data</span></div>
+        <h3>具身智能的数据金字塔</h3>
+        <p>从互联网视频、仿真与遥操作数据，到真机示教和自主 Rollout。</p>
+        <span class="read-more">查看框架 ↗</span>
+      </a></article>
+      <article class="post-card"><a href="posts/vlm-data-engineering.html">
+        <div class="post-meta"><span>04</span><span>VLM Data</span></div>
+        <h3>通用 VLM 的训练数据工程</h3>
+        <p>多源数据转换、训练样本构造、质量控制、数据配比与 CoC 数据建设。</p>
+        <span class="read-more">查看框架 ↗</span>
+      </a></article>
+      <article class="post-card"><a href="posts/generative-data.html">
+        <div class="post-meta"><span>03</span><span>Generative Data</span></div>
+        <h3>Diffusion 与 Flow Matching 驱动的数据增强</h3>
+        <p>条件生成、参考图引导、对象插入，以及稀有目标和复杂场景的可控生成。</p>
+        <span class="read-more">查看框架 ↗</span>
+      </a></article>
+      <article class="post-card"><a href="posts/3dgs-scene-reconstruction.html">
+        <div class="post-meta"><span>02</span><span>3D Reconstruction</span></div>
+        <h3>基于 3DGS 的场景重建与可编辑合成</h3>
+        <p>LiDAR 深度监督、地面与天空建模、资源优化，以及三维数字资产插入。</p>
+        <span class="read-more">查看框架 ↗</span>
+      </a></article>
+      <article class="post-card"><a href="posts/multimodal-retrieval.html">
+        <div class="post-meta"><span>01</span><span>Data Retrieval</span></div>
+        <h3>大规模视觉数据的多模态检索与长尾挖掘</h3>
+        <p>视觉—语言表征、自监督视觉特征、向量检索，以及道路数据中的长尾发现。</p>
+        <span class="read-more">查看框架 ↗</span>
+      </a></article>
     </section>
 
-    <section class="about wrap" id="about">
-      <div class="section-heading"><h2>关于</h2><span>ABOUT</span></div>
-      <p>我是 Rui，从事 AI 与机器人相关工作。比起展示确定的答案，我更希望诚实地记录：一个判断是如何形成的，它依赖哪些条件，又怎样被行动和现实更新。</p>
+    <section class="about wrap" id="scope">
+      <div class="section-heading"><h2>技术范围</h2><span>SCOPE</span></div>
+      <p>聚焦 AI 与机器人软件算法链路：数据、模型、训练、评测、Agent Runtime 与部署。内容以公开技术和可复用的方法为边界。</p>
     </section>
   </main>
-
-  <footer class="wrap"><span>© 2026 Rui</span><span>Keep thinking in public.</span></footer>
+  <footer class="wrap"><span>© 2026 Rui</span><span>Technical notes on embodied intelligence.</span></footer>
 </body>
 </html>

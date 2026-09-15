@@ -1,0 +1,7 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="基于 3DGS 的场景重建与可编辑合成。"><title>3DGS 场景重建 — Rui</title><link rel="icon" href="../favicon.svg"><link rel="stylesheet" href="../styles.css"></head><body>
+<header class="site-header wrap"><a class="brand" href="../">Rui<span class="brand-dot">.</span></a><a class="back" href="../">← 返回技术笔记</a></header><main>
+<header class="article-header wrap"><p class="article-meta">3D RECONSTRUCTION · FRAMEWORK</p><h1>基于 3DGS 的场景重建与可编辑合成</h1></header>
+<article class="article-body"><div class="draft-note">框架草稿：整理道路场景从重建、优化到可编辑数据生产的完整链路。</div>
+<p>3D Gaussian Splatting 为大规模真实场景提供了高质量、可实时渲染的显式表示。面向数据生产时，目标不仅是新视角合成，还包括几何可信、结构可编辑和资源成本可控。</p>
+<h2>重建问题</h2><ul><li>相机位姿、图像与 LiDAR 深度监督</li><li>动态物体、地面和天空的分层处理</li><li>远近区域的表示精度与资源分配</li><li>大规模场景训练和渲染优化</li></ul>
+<h2>从重建到合成</h2><p>完成静态世界重建后，可以进一步编辑道路标线、插入三维数字资产并重新渲染多视角数据。此时需要保证遮挡、尺度、光照和标签在不同传感器视角下保持一致。</p></article></main><footer class="wrap"><span>© 2026 Rui</span><span>3D Reconstruction</span></footer></body></html>

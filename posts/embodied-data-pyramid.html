@@ -1,0 +1,7 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="具身智能的数据金字塔。"><title>具身智能的数据金字塔 — Rui</title><link rel="icon" href="../favicon.svg"><link rel="stylesheet" href="../styles.css"></head><body>
+<header class="site-header wrap"><a class="brand" href="../">Rui<span class="brand-dot">.</span></a><a class="back" href="../">← 返回技术笔记</a></header><main>
+<header class="article-header wrap"><p class="article-meta">EMBODIED DATA · FRAMEWORK</p><h1>具身智能的数据金字塔</h1></header>
+<article class="article-body"><div class="draft-note">框架草稿：从规模、成本、真实性和动作监督强度组织具身数据。</div>
+<p>具身数据不是单一数据集，而是一组规模和监督强度不同的数据来源。越靠近真实机器人闭环，数据越稀缺、昂贵，但动作和环境反馈也越直接。</p>
+<h2>数据层级</h2><ul><li>互联网图文与视频：规模大，动作监督弱</li><li>人类操作视频：包含交互过程，但机器人动作不可直接获得</li><li>仿真与生成数据：可控、可扩展，存在域差异</li><li>遥操作与真机示教：动作标签明确，采集成本较高</li><li>自主 Rollout：与当前 Policy 分布最接近，可用于持续改进</li></ul>
+<h2>关键问题</h2><p>数据金字塔的核心不是用某一层替代其他层，而是确定各层数据在预训练、适配、后训练和在线改进中的作用，并建立统一的数据格式、质量指标和混合策略。</p></article></main><footer class="wrap"><span>© 2026 Rui</span><span>Embodied Data</span></footer></body></html>

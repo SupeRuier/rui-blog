@@ -1,0 +1,8 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Robot Agent System 2 的规划、执行与系统闭环。"><title>Robot Agent System 2 — Rui</title><link rel="icon" href="../favicon.svg"><link rel="stylesheet" href="../styles.css"></head><body>
+<header class="site-header wrap"><a class="brand" href="../">Rui<span class="brand-dot">.</span></a><a class="back" href="../">← 返回技术笔记</a></header><main>
+<header class="article-header wrap"><p class="article-meta">ROBOT AGENT · FRAMEWORK</p><h1>Robot Agent System 2：规划、执行与系统闭环</h1></header>
+<article class="article-body"><div class="draft-note">框架草稿：用于整理 Robot Agent Runtime 的核心模块与工程边界。</div>
+<p>Robot Agent 的关键不只是生成一个计划，而是让长期任务在物理环境中持续运行。上层 Planner、底层 Policy、环境观测和执行反馈需要由一个长期存在的 Runtime 组织起来。</p>
+<h2>系统主链路</h2><p>总体任务首先被解释为可执行的阶段或子任务，Policy 根据当前指令和观测产生动作，Harness 持续维护任务状态，并在完成、失败或环境变化时决定继续、重试或重新规划。</p>
+<h2>核心模块</h2><ul><li>Task 与 Goal 状态管理</li><li>Planner–Policy 调度</li><li>Context 与 Memory</li><li>执行监控、完成判定和失败恢复</li><li>仿真评测、Trace 与 Replay</li><li>ROS 集成、模型服务和端云通信</li></ul>
+<p>后续将重点整理不同系统在规划粒度、调度频率、上下文生命周期和闭环恢复方式上的差异。</p></article></main><footer class="wrap"><span>© 2026 Rui</span><span>Robot Agent</span></footer></body></html>
