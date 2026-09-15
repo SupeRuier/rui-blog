@@ -31,14 +31,16 @@
       </table>
 
       <h2>Agent RSI：改进对象不限于模型</h2>
-      <p>在软件 Agent 中，任务、工具调用和执行 Trace 往往可以回放，因此 Prompt / Memory、可执行 Skill / Code、工具协议、任务工作流和 Verifier 都可能成为更新对象。要分别记录执行者改了什么、改进器是否还能改进自己的选择／验证机制，以及提案是否通过独立测试。单纯更换基础模型不等于 Agent 自我改进；只有系统根据自身经验产生、验证并持久化变化，才能讨论它的持续性。</p>
+      <p>在软件 Agent 中，任务、工具调用和执行 Trace 往往可以回放，因此 Prompt / Memory、可执行 Skill / Code、工具协议、任务工作流和 Verifier 都可能成为更新对象。<a href="https://arxiv.org/abs/2305.16291">Voyager</a> 的可执行 Skill Library 是其中一种公开例子。要分别记录执行者改了什么、改进器是否还能改进自己的选择／验证机制，以及提案是否通过独立测试。单纯更换基础模型不等于 Agent 自我改进；只有系统根据自身经验产生、验证并持久化变化，才能讨论它的持续性。</p>
 
       <h2>Robo RSI：同一框架在物理环境中的特化</h2>
-      <p>具身 Agent 的执行者可以是 System 2 Planner / Harness 与 System 1 Policy / Skill 的组合。WHAT 要分清是训练了底层 VLA Policy，还是修改上层 Planner、Memory、调度和恢复机制；其中 Skill / Code 是一条值得单独观察的非参数路径。HOW 的经验既有成功示教，也有自主 Rollout 的失败、状态变化和安全事件；WHERE 则要区别离线、仿真和真机，不能把模拟验证直接视为真机有效。</p>
+      <p>具身 Agent 的执行者可以是 System 2 Planner / Harness 与 System 1 Policy / Skill 的组合。WHAT 要分清是训练了底层 VLA Policy，还是修改上层 Planner、Memory、调度和恢复机制；其中 Skill / Code 是一条值得单独观察的非参数路径（可参看<a href="https://github.com/nssmd/RoboRSI">RoboRSI 项目</a>）。HOW 的经验既有成功示教，也有自主 Rollout 的失败、状态变化和安全事件；WHERE 则要区别离线、仿真和真机，不能把模拟验证直接视为真机有效。</p>
       <p>一个 Robo RSI 的可检验例子是：失败 → 根因诊断 → 定位受影响的 Skill / Code → 提出局部修订 → 仿真 Replay 与旧技能 no-regression gate → 持久化新版本 → 真机复核。另一条路径是用 Rollout 更新 VLA 参数。两条路径可以并行，但改善的是不同层级的能力，不能因为成功率变化就笼统称作「机器人会自我改进」。若初始任务几乎没有成功，特别要说明系统是从失败信号、探索或额外监督中习得新能力，还是仅仅对已经能做的任务进行 refinement。</p>
 
       <h2>验证边界与后续补充</h2>
       <p>Executable Verifier 应尽量给出可复现的任务结果、Trace / Replay、成功与失败判定；晋级同时检查目标能力收益、旧能力回归、安全、资源成本与持久性。把「训练方法 SFT 还是 RL」作为 HOW 的一小部分即可，能力获得、更新对象和反馈来源通常更能解释一项工作是否真的形成 RSI。后续再把代表性 Agent RSI / 具身 RSI 工作映射到六轴；当前先固定框架，不堆论文。</p>
+      <h2 id="references">参考文献</h2>
+      <ol class="reference-list"><li><a href="https://arxiv.org/abs/2305.16291">Voyager: An Open-Ended Embodied Agent with Large Language Models</a>，2023。可执行技能库和环境反馈。</li><li><a href="https://github.com/nssmd/RoboRSI">RoboRSI</a>，项目仓库。机器人 Agent 的 Harness / Skill 路线资料入口；本文 taxonomy 为作者分析框架，并非该项目原有分类。</li></ol>
     </article>
   </main>
   <footer class="wrap"><span>© 2026 Rui</span><span>Agent RSI · Robo RSI</span></footer>
