@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Robo RSI 的方法文献目录：数据、Policy、奖励与 Skill / Harness 的具身持续改进路线。">
+  <title>Robo RSI 方法文献目录 — Rui</title>
+  <link rel="icon" href="../favicon.svg">
+  <link rel="stylesheet" href="../styles.css?v=3">
+</head>
+<body>
+  <header class="site-header wrap"><a class="brand" href="../">Rui<span class="brand-dot">.</span></a><a class="back" href="agent-robo-rsi.html#robo-rsi">← 返回 Robo RSI 主文章</a></header>
+  <main>
+    <header class="article-header wrap"><p class="article-meta">ROBO RSI · METHODS · INDEX</p><h1>Robo RSI：方法文献目录</h1></header>
+    <article class="article-body">
+      <div class="draft-note">方法索引 mock · 首批代表工作，不是穷尽清单。下面只记录改进对象、数据 / 反馈来源及适用边界；<a href="agent-robo-rsi.html">主文章</a>负责解释六轴框架与验证标准。</div>
+      <p>读具身自我改进的工作，先分清<strong>数据生产</strong>、<strong>Policy 更新</strong>、<strong>奖励生成</strong>和<strong>Skill / Harness 演化</strong>。产生更多数据不自动等于执行系统已自我更新；只从成功轨迹中学习，也不能自动证明具备 zero-success 的新能力习得。</p>
+
+      <h2>经验生产与数据闭环</h2>
+      <ul class="method-list">
+        <li><a href="https://arxiv.org/abs/2306.11706">RoboCat ↗</a><a class="citation" href="#ref-1">[1]</a><span>多任务 / 多本体机器人策略 · 模型生成后续训练数据并进行适配；自生成数据是改进循环的基础模块。</span></li>
+        <li><a href="https://arxiv.org/abs/2401.12963">AutoRT ↗</a><a class="citation" href="#ref-2">[2]</a><span>自主指令与真机数据采集 · VLM / LLM 指导机器人群体采集；主要是经验生产，不单独当作持久自更新方法。</span></li>
+      </ul>
+
+      <h2>Policy / 模型更新</h2>
+      <ul class="method-list">
+        <li><a href="https://arxiv.org/abs/2407.20635">SOAR ↗</a><a class="citation" href="#ref-3">[3]</a><span>目标条件 Policy · 自主 Rollout 与自监督改进；要核对成功筛选的依赖，不能把失败采集等同于失败学习。</span></li>
+        <li><a href="https://arxiv.org/abs/2509.15155">Self-Improving Embodied Foundation Models ↗</a><a class="citation" href="#ref-4">[4]</a><span>具身基础模型 · steps-to-go 预测用于构建奖励和成功检测，再用于后续自我改进。</span></li>
+        <li><a href="https://arxiv.org/abs/2602.11075">RISE ↗</a><a class="citation" href="#ref-5">[5]</a><span>机器人 Policy · 组合世界模型中的想象 Rollout 与优势估计；需分别验证模型预测和真实任务结果。</span></li>
+      </ul>
+
+      <h2>奖励与学习信号</h2>
+      <ul class="method-list"><li><a href="https://arxiv.org/abs/2310.12931">Eureka ↗</a><a class="citation" href="#ref-6">[6]</a><span>奖励函数代码 · LLM 生成、测试并演化 RL 奖励；改进的是学习信号，不是机器人直接改自己的 Harness。</span></li></ul>
+
+      <h2>Skill / Code / Harness 演化</h2>
+      <ul class="method-list">
+        <li><a href="https://arxiv.org/abs/2305.16291">Voyager（跨域参照） ↗</a><a class="citation" href="#ref-7">[7]</a><span>Minecraft 中的可执行 Skill Library · 展示非参数技能积累，但不是物理真机实验。</span></li>
+        <li><a href="https://arxiv.org/abs/2608.11350">SHAPER ↗</a><a class="citation" href="#ref-8">[8]</a><span>文本技能与 Context / Code Harness · Rollout 反馈驱动可复用的技能和上下文演化，模型权重保持固定。</span></li>
+        <li><a href="https://github.com/nssmd/RoboRSI">RoboRSI ↗</a><a class="citation" href="#ref-9">[9]</a><span>分层 Skill Tree 与多角色 Harness · 失败根因定位 → 局部代码修订 → 仿真 no-regression gate → 版本复用；效果以项目自身报告为准。</span></li>
+      </ul>
+
+      <h2>基础设施参照，不计作独立 RSI</h2>
+      <ul class="method-list"><li><a href="https://arxiv.org/abs/2608.11246">Thea: Towards the Harness of Embodied Agents ↗</a><a class="citation" href="#ref-10">[10]</a><span>具身 Agent Harness、工具与任务评价 · 提供执行 / 评估底座；若没有跨轮持久更新，不单独判为 RSI 方法。</span></li></ul>
+
+      <h2>后续扩充记录什么</h2>
+      <p>新工作优先填 WHAT（Policy / Data / Reward / Skill / Harness）、Rollout 所在环境、Verifier、是否跨轮保留，及能力是 refinement 还是 acquisition。另记录对 zero-success / failed rollout 的处理：只依赖成功样本、能复用失败、通过探索获得信号，还是需要外部示教。严格区分仿真成绩与真机闭环。</p>
+
+      <h2 id="references">参考文献</h2>
+      <ol class="reference-list">
+        <li id="ref-1"><a href="https://arxiv.org/abs/2306.11706">RoboCat: A Self-Improving Generalist Agent for Robotic Manipulation</a>，2023。</li>
+        <li id="ref-2"><a href="https://arxiv.org/abs/2401.12963">AutoRT: Embodied Foundation Models for Large Scale Orchestration of Robotic Agents</a>，2024。</li>
+        <li id="ref-3"><a href="https://arxiv.org/abs/2407.20635">Autonomous Improvement of Instruction Following Skills via Foundation Models</a>，2024。</li>
+        <li id="ref-4"><a href="https://arxiv.org/abs/2509.15155">Self-Improving Embodied Foundation Models</a>，2025。</li>
+        <li id="ref-5"><a href="https://arxiv.org/abs/2602.11075">RISE: Self-Improving Robot Policy with Compositional World Model</a>，2026。</li>
+        <li id="ref-6"><a href="https://arxiv.org/abs/2310.12931">Eureka: Human-Level Reward Design via Coding Large Language Models</a>，2023。</li>
+        <li id="ref-7"><a href="https://arxiv.org/abs/2305.16291">Voyager: An Open-Ended Embodied Agent with Large Language Models</a>，2023。</li>
+        <li id="ref-8"><a href="https://arxiv.org/abs/2608.11350">Self-Evolving Embodied Agents via Skill-Harness Evolution (SHAPER)</a>，2026。</li>
+        <li id="ref-9"><a href="https://github.com/nssmd/RoboRSI">RoboRSI</a>，项目仓库与自述技术报告。</li>
+        <li id="ref-10"><a href="https://arxiv.org/abs/2608.11246">Towards the Harness of Embodied Agents (Thea)</a>，2026。</li>
+      </ol>
+    </article>
+  </main>
+  <footer class="wrap"><span>© 2026 Rui</span><span>Robo RSI · Methods</span></footer>
+  <script src="../toc.js?v=2" defer></script>
+</body>
+</html>

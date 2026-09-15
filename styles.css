@@ -59,6 +59,16 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 .article-body .reference-list li { margin: .7em 0; font-size: .96rem; line-height: 1.7; color: var(--muted); overflow-wrap: anywhere; }
 .article-body .citation { margin-left: .12em; font-family: system-ui, sans-serif; font-size: .68em; vertical-align: super; white-space: nowrap; }
 .article-body .reference-list li:target { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.article-body .rsi-method-link { margin: 1rem 0 2rem; padding: 14px 18px; border: 1px solid var(--line); font-family: inherit; font-size: .93rem; line-height: 1.5; }
+.rsi-method-link > a { display: block; font-weight: 600; }
+.rsi-method-link > a:hover { color: var(--accent); }
+.rsi-method-link > span { display: block; margin-top: 5px; color: var(--muted); font-size: .78rem; }
+.article-body .method-list { margin: 0 0 2rem; padding: 0; list-style: none; }
+.article-body .method-list li { margin: 0; padding: 17px 0; border-bottom: 1px solid var(--line); font-family: inherit; font-size: .94rem; line-height: 1.55; }
+.method-list li:first-child { border-top: 1px solid var(--line); }
+.method-list li > a:first-child { font-weight: 600; }
+.method-list li > a:first-child:hover { color: var(--accent); }
+.method-list li > span { display: block; margin-top: 5px; color: var(--muted); font-size: .85rem; }
 .article-body h2, .article-body h3 { scroll-margin-top: 36px; }
 .article-toc { position: fixed; z-index: 20; top: 120px; left: calc(50% + 380px); width: 200px; max-width: calc(100vw - 32px); border: 1px solid var(--line); background: var(--paper); box-shadow: 0 10px 30px rgb(0 0 0 / .05); }
 .article-toc:not(.is-open) { width: auto; }

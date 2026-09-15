@@ -6,7 +6,7 @@
   <meta name="description" content="Agent RSI 与具身 Robo RSI 的两级分类框架：WHAT、WHEN、HOW、WHERE、CAPABILITY、GOVERNANCE。">
   <title>Agent RSI 与 Robo RSI — Rui</title>
   <link rel="icon" href="../favicon.svg">
-  <link rel="stylesheet" href="../styles.css?v=2">
+  <link rel="stylesheet" href="../styles.css?v=3">
 </head>
 <body>
   <header class="site-header wrap"><a class="brand" href="../">Rui<span class="brand-dot">.</span></a><a class="back" href="../">← 返回技术笔记</a></header>
@@ -62,9 +62,13 @@
         <p>一个提案只有进入可复现的版本管理、经独立任务与旧能力集合验证、能在失败时回滚，才是持久改进。晋级同时报告目标能力收益、旧能力回退、Verifier 误判、算力和交互成本；真机系统还需要独立的安全门槛。人类是否必须批准、系统是否能自行生成并筛选更新，也要作为自治程度记录。</p>
       </section>
 
-      <h2>同一框架，Agent 与 Robo 的着力点不同</h2>
-      <p>软件 Agent 的 Trace、工具调用与可执行代码通常更容易回放，Prompt / Memory 与 Skill / Code 都能成为 WHAT 的更新对象。<a href="https://arxiv.org/abs/2305.16291">Voyager</a> 的可执行 Skill Library 是一条公开的非参数化路线<a class="citation" href="#ref-1" aria-label="跳转到参考文献 1">[1]</a>。具身系统的执行者则可能由 System 2 Planner / Harness 与 System 1 Policy / Skill 共同构成：须区分底层 VLA 的参数更新和上层调度、记忆、恢复或 Skill / Code 的变化，相关 Harness 路线可参看<a href="https://github.com/nssmd/RoboRSI">RoboRSI 项目</a><a class="citation" href="#ref-2" aria-label="跳转到参考文献 2">[2]</a>。两类系统可以共用分类轴，但真机反馈成本、物理安全与仿真到真机的验证边界不同。</p>
-      <p>例如 Robo RSI 的一个<strong>待检验工程路线</strong>是：失败 → 根因诊断 → 局部修订 Skill / Code → 仿真 Replay 与 no-regression gate → 持久化版本 → 真机复核。另一条路线用 Rollout 更新 VLA 参数。两条路线改进的是不同层级；不能只因为某次成功率提高，就笼统宣称机器人会自我改进。后续可把代表性工作映射到六轴，目前先明确框架与可验证的能力边界。</p>
+      <h2 id="agent-rsi">Agent RSI：方法与文献入口</h2>
+      <p>软件 Agent 的 Trace、工具调用与可执行代码通常更容易回放，Prompt / Memory 与 Skill / Code 都能成为 WHAT 的更新对象。<a href="https://arxiv.org/abs/2305.16291">Voyager</a> 的可执行 Skill Library 是一条公开的非参数化路线<a class="citation" href="#ref-1" aria-label="跳转到参考文献 1">[1]</a>。要区分任务内自我反思、跨任务持久更新，以及进一步修改改进器本身；这里只解释判别标准，不在正文铺满论文清单。</p>
+      <p class="rsi-method-link"><a href="agent-rsi-methods.html">查看 Agent RSI 方法文献目录 <span aria-hidden="true">↗</span></a><span>记忆、Prompt、Skill / Code 与 Harness 的代表路线</span></p>
+
+      <h2 id="robo-rsi">Robo RSI：方法与文献入口</h2>
+      <p>具身系统的执行者可能由 System 2 Planner / Harness 与 System 1 Policy / Skill 共同构成：须区分底层 VLA 的参数更新和上层调度、记忆、恢复或 Skill / Code 的变化，相关 Harness 路线可参看<a href="https://github.com/nssmd/RoboRSI">RoboRSI 项目</a><a class="citation" href="#ref-2" aria-label="跳转到参考文献 2">[2]</a>。例如一个<strong>待检验工程路线</strong>是：失败 → 根因诊断 → 局部修订 Skill / Code → 仿真 Replay 与 no-regression gate → 持久化版本 → 真机复核；另一条路线用 Rollout 更新 VLA 参数。两条路线改进的是不同层级；不能只因为某次成功率提高，就笼统宣称机器人会自我改进。真机反馈成本、物理安全与仿真到真机的验证边界需要单独看。</p>
+      <p class="rsi-method-link"><a href="robo-rsi-methods.html">查看 Robo RSI 方法文献目录 <span aria-hidden="true">↗</span></a><span>数据、Policy、奖励、Skill / Harness 的代表路线</span></p>
       <h2 id="references">参考文献</h2>
       <ol class="reference-list"><li id="ref-1"><a href="https://arxiv.org/abs/2305.16291">Voyager: An Open-Ended Embodied Agent with Large Language Models</a>，2023。可执行技能库和环境反馈。</li><li id="ref-2"><a href="https://github.com/nssmd/RoboRSI">RoboRSI</a>，项目仓库。机器人 Agent 的 Harness / Skill 路线资料入口；本文 taxonomy 为作者分析框架，并非该项目原有分类。</li></ol>
     </article>
