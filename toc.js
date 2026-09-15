@@ -36,7 +36,7 @@
   });
   panel.append(list);
   aside.append(button, panel);
-  document.body.append(aside);
+  article.before(aside);
 
   function setOpen(open) {
     panel.hidden = !open;
