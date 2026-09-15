@@ -59,11 +59,27 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 .article-body .reference-list li { margin: .7em 0; font-size: .96rem; line-height: 1.7; color: var(--muted); overflow-wrap: anywhere; }
 .article-body .citation { margin-left: .12em; font-family: system-ui, sans-serif; font-size: .68em; vertical-align: super; white-space: nowrap; }
 .article-body .reference-list li:target { background: color-mix(in srgb, var(--accent) 10%, transparent); }
-.taxonomy-table { width: 100%; border-collapse: collapse; margin: 2rem 0 2.5rem; font-size: .95rem; line-height: 1.8; }
-.taxonomy-table th, .taxonomy-table td { padding: 14px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-.taxonomy-table thead th { border-top: 1px solid var(--ink); color: var(--muted); font-size: .78rem; letter-spacing: .03em; }
-.taxonomy-table tbody th { width: 26%; font-weight: 600; }
-.taxonomy-table td strong { font-weight: 600; }
+.article-body .rsi-question { padding-left: 18px; border-left: 3px solid var(--accent); font-size: 1.32rem; line-height: 1.65; }
+.rsi-axis { scroll-margin-top: 28px; }
+.article-body .rsi-axis h2 { margin-top: 2.7em; }
+.rsi-overview, .rsi-mini { margin: 2.1rem 0 2.5rem; padding: 24px; border: 1px solid var(--line); background: var(--paper); }
+.rsi-overview figcaption, .rsi-mini figcaption { color: var(--muted); font-size: .75rem; letter-spacing: .04em; }
+.rsi-loop { position: relative; margin: 30px auto 35px; padding: 16px 14px; border: 1px solid var(--ink); text-align: center; font-weight: 600; font-size: .94rem; letter-spacing: .01em; }
+.rsi-loop span { color: var(--accent); margin: 0 .38em; }
+.rsi-loop::after { content: ""; position: absolute; left: 50%; top: 100%; height: 35px; border-left: 1px solid var(--line); }
+.rsi-axis-map { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.rsi-axis-map a { display: flex; flex-direction: column; gap: 2px; min-height: 65px; padding: 12px 14px; border: 1px solid var(--line); transition: border-color .2s; }
+.rsi-axis-map a:hover, .rsi-axis-map a:focus-visible { border-color: var(--accent); }
+.rsi-axis-map strong { font-size: .78rem; letter-spacing: .04em; }
+.rsi-axis-map span { color: var(--muted); font-size: .8rem; }
+.rsi-mini { padding-top: 18px; }
+.rsi-mini-branches { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 36px; }
+.rsi-mini-branches::before { content: ""; position: absolute; top: -15px; left: 16.67%; right: 16.67%; border-top: 1px solid var(--line); }
+.rsi-mini-branches::after { content: ""; position: absolute; top: -36px; left: 50%; height: 21px; border-left: 1px solid var(--line); }
+.rsi-mini-branches > div { position: relative; padding: 13px 14px 15px; border: 1px solid var(--line); border-top: 2px solid var(--accent); }
+.rsi-mini-branches > div::before { content: ""; position: absolute; left: 50%; top: -17px; height: 15px; border-left: 1px solid var(--line); }
+.rsi-mini-branches strong { display: block; font-size: .85rem; line-height: 1.4; overflow-wrap: anywhere; }
+.rsi-mini-branches span { display: block; margin-top: 5px; color: var(--muted); font-size: .76rem; line-height: 1.5; }
 .draft-note { margin-bottom: 2.5rem; padding: 14px 18px; border: 1px solid var(--line); color: var(--muted); font-size: .88rem; }
 .back { color: var(--muted); font-size: .86rem; }
 .back:hover { color: var(--ink); }
@@ -78,6 +94,13 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
   .read-more { grid-column: 1; }
   .article-header { padding: 70px 0 52px; }
   .article-body { margin-top: 52px; }
+  .rsi-overview, .rsi-mini { padding: 18px; }
+  .rsi-axis-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rsi-loop { font-size: .79rem; padding: 14px 8px; }
+  .rsi-loop span { margin: 0 .12em; }
+  .rsi-mini-branches { grid-template-columns: 1fr; gap: 9px; margin: 24px 0 0 13px; padding-left: 16px; border-left: 1px solid var(--line); }
+  .rsi-mini-branches::before, .rsi-mini-branches::after { display: none; }
+  .rsi-mini-branches > div::before { left: -17px; top: 50%; width: 16px; height: 0; border-left: 0; border-top: 1px solid var(--line); }
   footer { align-items: flex-start; flex-direction: column; justify-content: center; gap: 4px; }
 }
 

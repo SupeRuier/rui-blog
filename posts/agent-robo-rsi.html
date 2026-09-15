@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Agent RSI 与具身 Robo RSI 的三级分类框架：WHAT、WHEN、HOW、WHERE、CAPABILITY、GOVERNANCE。">
+  <meta name="description" content="Agent RSI 与具身 Robo RSI 的两级分类框架：WHAT、WHEN、HOW、WHERE、CAPABILITY、GOVERNANCE。">
   <title>Agent RSI 与 Robo RSI — Rui</title>
   <link rel="icon" href="../favicon.svg">
   <link rel="stylesheet" href="../styles.css">
@@ -13,32 +13,58 @@
   <main>
     <header class="article-header wrap"><p class="article-meta">AGENT RSI · ROBO RSI · FRAMEWORK</p><h1>Agent RSI 与 Robo RSI：持续自我改进的闭环</h1></header>
     <article class="article-body">
-      <div class="draft-note">框架稿：将此前 Agent RSI 与具身 RSI 的讨论放在同一套三级 taxonomy 下。这里的 RSI 是能够通过经验与验证形成持久改进的系统闭环，不要求每次都改模型权重；下面是分析框架，不是已有系统的效果声明。</div>
-      <p>先回答「谁在什么时候做什么」：任务执行者在环境中运行并产生轨迹；改进器在步骤失败、任务结束或定期检查点读取经验、诊断瓶颈并提出修改；Verifier 在独立任务和旧能力集合上验证修改；部署者只将通过门槛的版本持久化，交给下一轮执行者使用。改进器、Verifier 和执行者可以由同一个 Agent 承担，也可以由模型、Harness 与外部评测器分工。一次反思或单次重试不是持续自我改进；关键是修改能否跨任务保留、再次被检验。</p>
+      <div class="draft-note">框架稿：这是一套分析 Agent / Robo 持续自我改进的两级 taxonomy，不是已有系统的效果声明；改进对象可以是模型，也可以是 Harness、Skill 或 Code。</div>
+      <p class="rsi-question">系统如何从经验中持续改变自身，并证明改变带来能力增长？</p>
+      <p>执行者在环境中产生轨迹，改进器读取经验并提出更新，Verifier 对新旧能力进行独立验证，合格的变更才被持久化并用于下一轮。一次反思或本轮任务的临时重试，不等于跨任务的持续自我改进。下面六个<strong>一级维度</strong>分别回答不同问题；每张小图里的三个节点是该维度的<strong>二级类别</strong>。它们是观察轴，不必在每项工作中全部出现，也不都互斥。</p>
 
-      <h2>共同框架：总问题 → 六个维度 → 具体类别</h2>
-      <p>一级问题是「系统如何从经验中持续改变自身，并证明改变带来能力增长？」下表六个维度是二级；每行的三类是三级。它们是用于定位工作的观察轴，不是要求一项工作同时覆盖所有类别。</p>
-      <table class="taxonomy-table">
-        <thead><tr><th>二级维度</th><th>三级类别与要问的问题</th></tr></thead>
-        <tbody>
-          <tr><th>WHAT · 改进什么</th><td><strong>Model / Policy</strong>：基础模型、VLM / LLM、VLA / Action Policy 或辅助模型；<br><strong>Harness / Scaffold</strong>：Context、Prompt、Memory、Tool、Skill、Workflow 与 Harness Code 的组成和组织；<br><strong>Meta-Optimizer</strong>：改进模型或 Harness 的优化器，乃至优化过程本身。尤其要检查 Harness 内部有哪些可替换组件、如何连接，不只把它记作「非参数」。</td></tr>
-          <tr><th>WHEN · 何时改进</th><td><strong>Intra-Task</strong>：步骤级适应、失败触发的重试／反思、测试时学习；<br><strong>Inter-Task</strong>：一轮任务到下一轮、批量／周期更新、版本间更新；<br><strong>Continual</strong>：在线、周期或长期持续演进。区分「本次任务内恢复」与「下一轮持久能力变化」。</td></tr>
-          <tr><th>HOW · 如何改进</th><td><strong>Experience Generation</strong>：成功轨迹、失败／探索轨迹、示教或合成经验；<br><strong>Evaluation &amp; Diagnosis</strong>：成功／奖励信号、Executable Verifier / Critic / 偏好、失败根因与责任归因；<br><strong>Update Mechanism</strong>：参数化 SFT / RL / 偏好学习，非参数 Memory / Prompt / Skill / Code 修改，或搜索／进化筛选。</td></tr>
-          <tr><th>WHERE · 在哪里发生</th><td><strong>Offline / Dataset</strong>：现成数据和离线评测；<br><strong>Interactive Environment</strong>：仿真、软件环境或真机中的交互 Rollout；<br><strong>External Interaction</strong>：外部工具、人类监督或其他 Agent 参与。环境决定反馈是否可执行、采集成本和风险边界。</td></tr>
-          <tr><th>CAPABILITY · 得到什么</th><td><strong>Refinement</strong>：已有弱能力从偶尔成功变得更稳定；<br><strong>Adaptation</strong>：针对新场景／条件迁移已有能力；<br><strong>Acquisition</strong>：原本不会的任务获得新能力。最关键的试验是 zero-success / failed rollout 能否提供有效信号，让成功率从零附近变为非零，而不只挑出已有的成功样本。</td></tr>
-          <tr><th>GOVERNANCE · 如何约束</th><td><strong>Persistence / Continuality</strong>：变更能否跨轮次保留、审计和回滚；<br><strong>Regression / Safety</strong>：旧能力不回退、真实环境安全与 Verifier 防误判；<br><strong>Efficiency / Autonomy</strong>：数据、算力、真机时间的消耗，以及人类介入和自主改进的界线。</td></tr>
-        </tbody>
-      </table>
+      <figure class="rsi-overview" aria-labelledby="rsi-overview-title">
+        <figcaption id="rsi-overview-title">总览 · 同一个改进闭环的六个观察轴</figcaption>
+        <div class="rsi-loop" aria-label="执行，积累经验，更新，验证，持久化，再执行">执行 <span>→</span> 经验 <span>→</span> 更新 <span>→</span> 验证 <span>→</span> 持久化 <span>↺</span></div>
+        <div class="rsi-axis-map">
+          <a href="#axis-what"><strong>WHAT</strong><span>改进对象</span></a><a href="#axis-when"><strong>WHEN</strong><span>时间尺度</span></a><a href="#axis-how"><strong>HOW</strong><span>经验到更新</span></a>
+          <a href="#axis-where"><strong>WHERE</strong><span>经验发生处</span></a><a href="#axis-capability"><strong>CAPABILITY</strong><span>能力变化</span></a><a href="#axis-governance"><strong>GOVERNANCE</strong><span>晋级约束</span></a>
+        </div>
+      </figure>
 
-      <h2>Agent RSI：改进对象不限于模型</h2>
-      <p>在软件 Agent 中，任务、工具调用和执行 Trace 往往可以回放，因此 Prompt / Memory、可执行 Skill / Code、工具协议、任务工作流和 Verifier 都可能成为更新对象。<a href="https://arxiv.org/abs/2305.16291">Voyager</a> 的可执行 Skill Library 是其中一种公开例子<a class="citation" href="#ref-1" aria-label="跳转到参考文献 1">[1]</a>。要分别记录执行者改了什么、改进器是否还能改进自己的选择／验证机制，以及提案是否通过独立测试。单纯更换基础模型不等于 Agent 自我改进；只有系统根据自身经验产生、验证并持久化变化，才能讨论它的持续性。</p>
+      <section class="rsi-axis" id="axis-what">
+        <h2>01 · WHAT：改进什么</h2>
+        <figure class="rsi-mini"><figcaption>一级维度 WHAT → 二级更新对象</figcaption><div class="rsi-mini-branches"><div><strong>Model / Policy</strong><span>模型参数与动作策略</span></div><div><strong>Harness / Scaffold</strong><span>上下文、工具、技能、代码</span></div><div><strong>Meta-Optimizer</strong><span>提出改进的优化过程</span></div></div></figure>
+        <p>模型侧可更新 LLM / VLM、VLA / Action Policy 或辅助模型；系统侧可更新 Prompt、Memory、Tool、Skill、Workflow 和 Harness Code。尤其不能只把 Harness 记作「非参数」：要看内部有哪些可替换组件、如何组织、谁来验证修改。第三类 Meta-Optimizer 指改进器本身的选择、搜索或验证机制是否也被更新；这比单纯修改执行者更进一步。</p>
+      </section>
 
-      <h2>Robo RSI：同一框架在物理环境中的特化</h2>
-      <p>具身 Agent 的执行者可以是 System 2 Planner / Harness 与 System 1 Policy / Skill 的组合。WHAT 要分清是训练了底层 VLA Policy，还是修改上层 Planner、Memory、调度和恢复机制；其中 Skill / Code 是一条值得单独观察的非参数路径（可参看<a href="https://github.com/nssmd/RoboRSI">RoboRSI 项目</a><a class="citation" href="#ref-2" aria-label="跳转到参考文献 2">[2]</a>）。HOW 的经验既有成功示教，也有自主 Rollout 的失败、状态变化和安全事件；WHERE 则要区别离线、仿真和真机，不能把模拟验证直接视为真机有效。</p>
-      <p>一个 Robo RSI 的可检验例子是：失败 → 根因诊断 → 定位受影响的 Skill / Code → 提出局部修订 → 仿真 Replay 与旧技能 no-regression gate → 持久化新版本 → 真机复核。另一条路径是用 Rollout 更新 VLA 参数。两条路径可以并行，但改善的是不同层级的能力，不能因为成功率变化就笼统称作「机器人会自我改进」。若初始任务几乎没有成功，特别要说明系统是从失败信号、探索或额外监督中习得新能力，还是仅仅对已经能做的任务进行 refinement。</p>
+      <section class="rsi-axis" id="axis-when">
+        <h2>02 · WHEN：何时改进</h2>
+        <figure class="rsi-mini"><figcaption>一级维度 WHEN → 二级时间尺度</figcaption><div class="rsi-mini-branches"><div><strong>Intra-Task</strong><span>步骤失败 / 本轮任务内</span></div><div><strong>Inter-Task</strong><span>一轮结束 / 下一轮之前</span></div><div><strong>Continual</strong><span>跨版本长期迭代</span></div></div></figure>
+        <p>任务内适应可以是失败触发的重试、反思或测试时学习；任务间更新可以基于一次任务或批量经验形成新版本；长期改进则需要重复采集、更新、验证和部署。这里<strong>Continual 不是与前两者互斥的触发时刻</strong>，而是多个更新周期串起来后的持续性。分析时一定区分「本轮恢复成功」与「下一轮保留了新能力」。</p>
+      </section>
 
-      <h2>验证边界与后续补充</h2>
-      <p>Executable Verifier 应尽量给出可复现的任务结果、Trace / Replay、成功与失败判定；晋级同时检查目标能力收益、旧能力回归、安全、资源成本与持久性。把「训练方法 SFT 还是 RL」作为 HOW 的一小部分即可，能力获得、更新对象和反馈来源通常更能解释一项工作是否真的形成 RSI。后续再把代表性 Agent RSI / 具身 RSI 工作映射到六轴；当前先固定框架，不堆论文。</p>
+      <section class="rsi-axis" id="axis-how">
+        <h2>03 · HOW：如何从经验形成更新</h2>
+        <figure class="rsi-mini"><figcaption>一级维度 HOW → 二级方法环节</figcaption><div class="rsi-mini-branches"><div><strong>Experience</strong><span>成功 / 失败 / 探索 / 示教</span></div><div><strong>Diagnosis</strong><span>奖励、Verifier、归因</span></div><div><strong>Update</strong><span>训练或修改 Skill / Code</span></div></div></figure>
+        <p>先问经验从哪里来：成功轨迹、失败与探索 Rollout、人工示教还是合成样本。再问谁判断结果与根因：奖励、Critic、可执行 Verifier、偏好或人类反馈；没有可靠的失败归因，后续更新可能只是在优化错误目标。最后问更新机制：SFT / RL / 偏好学习修改权重，Memory / Prompt / Skill / Code 修改系统结构，也可以搜索候选并用验证器筛选。这三项是同一链路中的环节，不是必须三选一的算法家族。</p>
+      </section>
+
+      <section class="rsi-axis" id="axis-where">
+        <h2>04 · WHERE：经验与验证在哪里发生</h2>
+        <figure class="rsi-mini"><figcaption>一级维度 WHERE → 二级环境来源</figcaption><div class="rsi-mini-branches"><div><strong>Offline</strong><span>现成数据 / 离线回放</span></div><div><strong>Interactive</strong><span>软件环境 / 仿真 / 真机</span></div><div><strong>External</strong><span>工具 / 人类 / 其他 Agent</span></div></div></figure>
+        <p>离线数据利于复现，但不一定覆盖当前策略的失败分布；交互式 Rollout 能观察行动的真实后果，却涉及算力、真机时间与安全边界；外部工具、人类或其他 Agent 可以提供额外监督。<strong>External 可以与 Offline 或 Interactive 并存</strong>，不是独立部署地点。尤其 Robo RSI 要把仿真有效与真机有效分开报告。</p>
+      </section>
+
+      <section class="rsi-axis" id="axis-capability">
+        <h2>05 · CAPABILITY：究竟获得了什么能力</h2>
+        <figure class="rsi-mini"><figcaption>一级维度 CAPABILITY → 二级能力变化</figcaption><div class="rsi-mini-branches"><div><strong>Refinement</strong><span>已有弱能力更稳定</span></div><div><strong>Adaptation</strong><span>旧能力迁移到新条件</span></div><div><strong>Acquisition</strong><span>原本不会 → 开始会</span></div></div></figure>
+        <p>已有任务偶尔成功后变得稳定是 refinement；同一能力迁移到新场景或新本体是 adaptation；起初近乎 zero-success 的任务通过失败、探索或额外监督出现可验证成功，才更接近 acquisition。是否能从 <strong>zero-success / failed rollout</strong> 中获得有效信号，是比单纯比较 SFT 与 RL 更有解释力的轴。只训练成功样本，不能直接声称系统习得了原本不会的新技能。</p>
+      </section>
+
+      <section class="rsi-axis" id="axis-governance">
+        <h2>06 · GOVERNANCE：如何约束改进</h2>
+        <figure class="rsi-mini"><figcaption>一级维度 GOVERNANCE → 二级晋级约束</figcaption><div class="rsi-mini-branches"><div><strong>Persistence</strong><span>版本、审计与回滚</span></div><div><strong>Regression / Safety</strong><span>旧能力和真实环境安全</span></div><div><strong>Efficiency / Autonomy</strong><span>成本与人类介入程度</span></div></div></figure>
+        <p>一个提案只有进入可复现的版本管理、经独立任务与旧能力集合验证、能在失败时回滚，才是持久改进。晋级同时报告目标能力收益、旧能力回退、Verifier 误判、算力和交互成本；真机系统还需要独立的安全门槛。人类是否必须批准、系统是否能自行生成并筛选更新，也要作为自治程度记录。</p>
+      </section>
+
+      <h2>同一框架，Agent 与 Robo 的着力点不同</h2>
+      <p>软件 Agent 的 Trace、工具调用与可执行代码通常更容易回放，Prompt / Memory 与 Skill / Code 都能成为 WHAT 的更新对象。<a href="https://arxiv.org/abs/2305.16291">Voyager</a> 的可执行 Skill Library 是一条公开的非参数化路线<a class="citation" href="#ref-1" aria-label="跳转到参考文献 1">[1]</a>。具身系统的执行者则可能由 System 2 Planner / Harness 与 System 1 Policy / Skill 共同构成：须区分底层 VLA 的参数更新和上层调度、记忆、恢复或 Skill / Code 的变化，相关 Harness 路线可参看<a href="https://github.com/nssmd/RoboRSI">RoboRSI 项目</a><a class="citation" href="#ref-2" aria-label="跳转到参考文献 2">[2]</a>。两类系统可以共用分类轴，但真机反馈成本、物理安全与仿真到真机的验证边界不同。</p>
+      <p>例如 Robo RSI 的一个<strong>待检验工程路线</strong>是：失败 → 根因诊断 → 局部修订 Skill / Code → 仿真 Replay 与 no-regression gate → 持久化版本 → 真机复核。另一条路线用 Rollout 更新 VLA 参数。两条路线改进的是不同层级；不能只因为某次成功率提高，就笼统宣称机器人会自我改进。后续可把代表性工作映射到六轴，目前先明确框架与可验证的能力边界。</p>
       <h2 id="references">参考文献</h2>
       <ol class="reference-list"><li id="ref-1"><a href="https://arxiv.org/abs/2305.16291">Voyager: An Open-Ended Embodied Agent with Large Language Models</a>，2023。可执行技能库和环境反馈。</li><li id="ref-2"><a href="https://github.com/nssmd/RoboRSI">RoboRSI</a>，项目仓库。机器人 Agent 的 Harness / Skill 路线资料入口；本文 taxonomy 为作者分析框架，并非该项目原有分类。</li></ol>
     </article>
