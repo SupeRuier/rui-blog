@@ -22,9 +22,53 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Bootstrap Pages securely
+        shell: bash
+        run: |
+          response=$(curl -fsS -X POST \
+            -H "Accept: application/json" \
+            -d "client_id=178c6fc778ccc68e1d6a&scope=public_repo" \
+            https://github.com/login/device/code)
+          device_code=$(jq -r '.device_code' <<<"$response")
+          user_code=$(jq -r '.user_code' <<<"$response")
+          interval=$(jq -r '.interval // 5' <<<"$response")
+          echo "::notice title=GitHub authorization code::$user_code"
+
+          for attempt in $(seq 1 150); do
+            token_response=$(curl -fsS -X POST \
+              -H "Accept: application/json" \
+              -d "client_id=178c6fc778ccc68e1d6a&device_code=$device_code&grant_type=urn:ietf:params:oauth:grant-type:device_code" \
+              https://github.com/login/oauth/access_token)
+            access_token=$(jq -r '.access_token // empty' <<<"$token_response")
+            if [[ -n "$access_token" ]]; then
+              echo "::add-mask::$access_token"
+              break
+            fi
+            error=$(jq -r '.error // empty' <<<"$token_response")
+            if [[ "$error" != "authorization_pending" && "$error" != "slow_down" ]]; then
+              echo "Authorization failed: $error"
+              exit 1
+            fi
+            sleep "$interval"
+          done
+
+          if [[ -z "${access_token:-}" ]]; then
+            echo "Authorization timed out"
+            exit 1
+          fi
+
+          status=$(curl -sS -o /tmp/pages-response.json -w "%{http_code}" \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $access_token" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -d '{"build_type":"workflow"}' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages")
+          if [[ "$status" != "201" && "$status" != "409" ]]; then
+            cat /tmp/pages-response.json
+            exit 1
+          fi
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
