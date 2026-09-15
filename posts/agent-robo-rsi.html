@@ -15,7 +15,7 @@
     <article class="article-body">
       <div class="draft-note">RSI Unified Taxonomy V1.0：只保留一套通用分类。Robo / Embodied RSI 是同一框架中带有物理交互、动作策略、本体差异及物理成本与安全约束的实例；下文是研究分析框架，不是任何具体系统的效果声明。</div>
       <p class="rsi-question">系统如何从经验中持续改变自身，并证明改变带来能力增长？</p>
-      <p><strong>框架来源与扩展。</strong>本文的 RSI Unified Taxonomy V1.0 一定程度上借鉴了 Gao 等人的综述 <a href="https://arxiv.org/pdf/2507.21046">A Survey of Self-Evolving Agents</a><a class="citation" href="#ref-1" aria-label="跳转到参考文献 1">[1]</a>：以 WHAT（改什么）、WHEN（何时改）、HOW（如何改）作为分析 self-evolution 的起点，而非按 SFT / RL 单一算法划分。它并非该综述分类表的直接复刻：原文的 WHERE 主要讨论通用与特定<strong>应用领域</strong>，本文则将 WHERE 明确定义为经验 / 监督的<strong>学习场域和外部交互来源</strong>；进一步单列一次更新的 CAPABILITY、持续更新的 GOVERNANCE，并扩展经验处理与归因、Skill / Code / Harness 以及 Robo RSI 的物理执行和本体约束。原文的领域比较在本文移入后面的 Domain / Topic Analysis。</p>
+      <p><strong>框架来源与扩展。</strong>本文的 RSI Unified Taxonomy V1.0 一定程度上借鉴了 Gao 等人的综述 <a href="https://arxiv.org/pdf/2507.21046">A Survey of Self-Evolving Agents</a><a class="citation" href="#ref-1" aria-label="跳转到参考文献 1">[1]</a>：以 WHAT（改什么）、WHEN（何时改）、HOW（如何改）作为分析 self-evolution 的起点，而非按 SFT / RL 单一算法划分。它并非该综述分类表的直接复刻：原文的 WHERE 主要讨论通用与特定<strong>应用领域</strong>，本文则将 WHERE 明确定义为经验 / 监督的<strong>学习场域和外部交互来源</strong>；进一步单列一次更新的 CAPABILITY、持续更新的 GOVERNANCE，并扩展经验处理与归因、Skill / Code / Harness 以及 Robo RSI 的物理执行和本体约束。原文的领域比较在本文移入后面的系统级问题分析。</p>
       <p>执行者在环境中产生经验，改进器利用反馈和归因提出修改；验证与部署门槛决定它能否成为下一轮系统的持久能力。一次任务内的反思或恢复，只说明有<strong>任务内适应</strong>，不能单凭一次成功声称发生了持续 RSI。下面六个维度各回答一个固定问题；图中的节点是二级分类，正文举出典型三级形式。单篇工作可以跨多个节点标注，不要求每个环节都存在。</p>
 
       <figure class="rsi-overview" aria-labelledby="rsi-overview-title">
@@ -54,7 +54,7 @@
       <section class="rsi-axis" id="axis-capability">
         <h2>05 · CAPABILITY：单次更新产生何种能力变化</h2>
         <figure class="rsi-mini"><figcaption>CAPABILITY · 三种变化不能混写</figcaption><div class="rsi-mini-branches"><div><strong>Enhancement / Refinement</strong><span>已经会 → 成功率、稳健性、效率或执行质量更好</span></div><div><strong>Acquisition</strong><span>原本不会 → 出现可验证的新能力 / 可执行物理技能</span></div><div><strong>Generalization / Transfer</strong><span>已有能力 → 在新任务、物体、环境或机器人本体仍有效</span></div></div></figure>
-        <p>Enhancement 的前提是<strong>更新前已有成功能力</strong>；Acquisition 则要测试原来不会的任务是否真的从零成功、少量成功、失败诊断、探索或教师监督中获得可执行成功；Generalization / Transfer 关注的是能力越过原始任务或分布仍成立，包括场景、物体和跨本体。对 Robo RSI，<strong>learn from failed rollouts</strong> 与 <strong>zero-success capability acquisition</strong> 比「用了 SFT 还是 RL」更能区分强弱：只保留成功轨迹并提高成功率，不等于利用失败学习了新动作技能。多轮的 capability set 累积属于后面的 Domain / Topic Analysis，不能混进单次 CAPABILITY。</p>
+        <p>Enhancement 的前提是<strong>更新前已有成功能力</strong>；Acquisition 则要测试原来不会的任务是否真的从零成功、少量成功、失败诊断、探索或教师监督中获得可执行成功；Generalization / Transfer 关注的是能力越过原始任务或分布仍成立，包括场景、物体和跨本体。对 Robo RSI，<strong>learn from failed rollouts</strong> 与 <strong>zero-success capability acquisition</strong> 比「用了 SFT 还是 RL」更能区分强弱：只保留成功轨迹并提高成功率，不等于利用失败学习了新动作技能。多轮的 capability set 累积属于后面的系统级问题分析，不能混进单次 CAPABILITY。</p>
       </section>
 
       <section class="rsi-axis" id="axis-governance">
@@ -67,7 +67,7 @@
       <figure class="rsi-mini"><figcaption>具身系统给统一分类增加的四组约束与实例</figcaption><div class="rsi-mini-branches rsi-four"><div><strong>Physical Interaction</strong><span>仿真、真机、fleet 与可观测物理反馈</span></div><div><strong>Policy / Action</strong><span>VLA、Action-level 归因、底层 Controller</span></div><div><strong>Embodiment</strong><span>物体可供性、新场景与跨本体迁移</span></div><div><strong>World Cost &amp; Safety</strong><span>Robot Hours、磨损、碰撞与部署门槛</span></div></div></figure>
       <p>标注一篇 Robo 方法时，仍然按 WHAT / WHEN / HOW / WHERE / CAPABILITY / GOVERNANCE 六轴走，只在对应节点注明具身实例。比如同一条<strong>失败 → 诊断 → 修订 → 回放 → 验证 → 上线</strong>链路：失败可能来自真机；归因需要定位物理动作；被改的可能是 VLA 参数，也可能是 Skill / Controller Code 或 Planner–Policy 编排；验收还必须覆盖真实执行的安全与旧任务回归。<strong>仿真成功不是「真机习得能力」的同义词</strong>。</p>
 
-      <h2 id="topic-analysis">Domain / Topic Analysis：跨论文、跨轮次的问题</h2>
+      <h2 id="topic-analysis">系统级问题分析：跨论文与跨轮次</h2>
       <p>以下议题不是单篇方法的第七条工程分类轴，而是综述后半部分的横向分析：比较多轮更新前后的 capability set、学习成本和安全边界。尤其<strong>Accumulation</strong> 问的是多轮后整体能力集合是否增长，与 CAPABILITY 的「一次更新改变了什么」不同。</p>
       <div class="rsi-topics" aria-label="跨论文研究议题"><div><strong>能力动力学</strong><span>Capability Accumulation、Retention / Catastrophic Forgetting、Forward / Backward Transfer、Zero-success Learning、Failure Utility（舍弃 → 负例 → 重标 → 纠错 → 新能力）</span></div><div><strong>改进深度与规模</strong><span>Autonomy Level、Improvement Scope、Parametric vs Non-parametric RSI、Self-improvement Scalability、Recursive Depth、Open-endedness</span></div><div><strong>具身横向议题</strong><span>Sim-to-Real / Real-to-Sim Loop、Cross-Embodiment Transfer、Fleet-level Self-improvement</span></div></div>
       <p>一个实用的判断顺序是：先比较初始是否 zero-success，再看失败轨迹到底被丢弃、重标、诊断还是产生了新技能；随后检查新能力是否保留、能否正向 / 反向迁移，最后观察系统是否开始改自己的学习流水线、能否以合理的 robot-hour 与人工成本长期扩张。这里是<strong>研究问题</strong>，不能把尚未验证的能力积累写成具体论文的实验结论。</p>
