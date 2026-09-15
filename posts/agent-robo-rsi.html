@@ -1,0 +1,10 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Agent RSI 与 Robo RSI：改进对象、反馈数据和可执行验证构成的持续自我改进技术报告。"><title>Agent RSI 与 Robo RSI — Rui</title><link rel="icon" href="../favicon.svg"><link rel="stylesheet" href="../styles.css"></head><body>
+<header class="site-header wrap"><a class="brand" href="../">Rui<span class="brand-dot">.</span></a><a class="back" href="../">← 返回技术笔记</a></header><main>
+<header class="article-header wrap"><p class="article-meta">AGENT RSI · ROBO RSI · REPORT</p><h1>Agent RSI 与 Robo RSI：持续自我改进的闭环</h1></header>
+<article class="article-body"><div class="draft-note">技术报告框架：先明确参与者、改进时机与可持久化对象，再展开反馈和验证。这里的 RSI 指受评测约束的持续自我改进，不预设模型参数必须更新。</div>
+<p>Agent RSI 的基本问题是：执行者完成任务并留下轨迹后，改进者能否从成功和失败中找到可复用的变化，经验证后写回系统，并让下一轮任务真正受益。软件 Agent 与机器人 Agent 共享这个闭环，但可修改对象、反馈来源和验证代价不同。</p>
+<h2>谁在何时改进什么</h2><p>在线执行阶段，Agent / Robot Agent 按当前任务运行，Harness 记录动作、工具调用、状态与结果；在任务结束或阶段性失败后，改进器诊断问题、提出候选变化；验证器在隔离的评测环境中决定是否接受；通过的变化才进入下一轮执行。被改进的对象可以是模型参数，也可以是 Memory、Skill / Code，或 Harness 的工具、上下文、调度与恢复机制。不同系统在 Harness 的组成和组织方式上差异很大，应把它作为一等分析对象。</p>
+<h2>Agent RSI：从轨迹到可复用能力</h2><p>软件 Agent 的改进可落在记忆整理、技能与代码沉淀、工具使用策略及 Harness 结构上。成功轨迹可用于提炼稳定做法；失败轨迹则用于定位瓶颈、生成修复提案。这里要区分对已有能力的 refinement 与对新任务能力的 acquisition，不能仅凭重试次数或自称的总结判断能力真的增长。</p>
+<h2>Robo RSI：从物理失败到技能修订</h2><p>机器人执行还会面对观测偏差、动作失配、物体状态变化与安全约束。一个可研究的非参数闭环是：收集失败 Rollout，诊断根因，定位受影响的 Skill / Code 节点，生成最小修订，先在仿真中回放并检查旧能力回归，再将通过验证的版本持久化。对没有成功样本的任务，重点是失败信号是否足以指向可操作的修复，而不是把失败轨迹直接当作成功示教。</p>
+<h2>反馈、验证与治理</h2><p>反馈需要同时记录目标是否达成、失败发生在哪里、用了多少资源，以及变更前后的能力边界。Executable Verifier 应尽可能使用任务可执行结果、Replay 与对照评测，而非仅靠主观评语；晋级门槛同时覆盖新任务收益、旧能力不回退、安全约束和时间 / 算力成本。真机改进还需先区分仿真通过与真实环境有效，避免将离线成绩直接等同于部署可靠性。</p>
+<p>后续报告将沿「改进对象 — 反馈信号 — 验证门槛」三条轴补充代表性系统与实证边界，保持分类简洁，不做论文罗列。</p></article></main><footer class="wrap"><span>© 2026 Rui</span><span>Agent RSI · Robo RSI</span></footer></body></html>
