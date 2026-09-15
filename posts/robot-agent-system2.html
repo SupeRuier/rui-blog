@@ -1,8 +1,9 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Robot Agent System 2 的规划、执行与系统闭环。"><title>Robot Agent System 2 — Rui</title><link rel="icon" href="../favicon.svg"><link rel="stylesheet" href="../styles.css"></head><body>
 <header class="site-header wrap"><a class="brand" href="../">Rui<span class="brand-dot">.</span></a><a class="back" href="../">← 返回技术笔记</a></header><main>
 <header class="article-header wrap"><p class="article-meta">ROBOT AGENT · FRAMEWORK</p><h1>Robot Agent System 2：规划、执行与系统闭环</h1></header>
-<article class="article-body"><div class="draft-note">框架草稿：用于整理 Robot Agent Runtime 的核心模块与工程边界。</div>
-<p>Robot Agent 的关键不只是生成一个计划，而是让长期任务在物理环境中持续运行。上层 Planner、底层 Policy、环境观测和执行反馈需要由一个长期存在的 Runtime 组织起来。</p>
-<h2>系统主链路</h2><p>总体任务首先被解释为可执行的阶段或子任务，Policy 根据当前指令和观测产生动作，Harness 持续维护任务状态，并在完成、失败或环境变化时决定继续、重试或重新规划。</p>
-<h2>核心模块</h2><ul><li>Task 与 Goal 状态管理</li><li>Planner–Policy 调度</li><li>Context 与 Memory</li><li>执行监控、完成判定和失败恢复</li><li>仿真评测、Trace 与 Replay</li><li>ROS 集成、模型服务和端云通信</li></ul>
-<p>后续将重点整理不同系统在规划粒度、调度频率、上下文生命周期和闭环恢复方式上的差异。</p></article></main><footer class="wrap"><span>© 2026 Rui</span><span>Robot Agent</span></footer></body></html>
+<article class="article-body"><div class="draft-note">框架草稿：按能力、调度和系统边界整理 Embodied System 2；原 survey 的 init.md 待核对后补齐引用与具体系统实例。</div>
+<p>System 2 不是一个更慢的动作模型，而是在长期任务中承担目标分解、状态理解和异常恢复的上层系统。System 1 的 Policy / Skill 处理高频执行，System 2 需要通过 Runtime 和环境持续闭环。</p>
+<h2>功能分类：上层到底做什么</h2><ul><li><strong>Planner：</strong>把总体目标拆成子任务，选择下一阶段的 Skill / Policy、目标和执行条件。</li><li><strong>Monitor / Critic：</strong>读取观测与执行反馈，识别环境变化、偏航、失败和需要重新规划的时刻。</li><li><strong>Completion：</strong>判断子任务及总任务是否真正完成，而不只依赖动作步数或模型的自述。</li><li><strong>Memory / Context：</strong>维护任务历史、已完成阶段、关键环境事实和恢复所需的状态。</li></ul>
+<h2>运行分类：System 2 何时介入</h2><p>比较系统时应区分一次性计划与闭环计划：按固定步数轮询、在子任务边界调用、由 Monitor 事件触发，或者在失败后重新规划。再比较输入是单帧、短期观测窗口还是带历史的上下文，输出是自然语言计划、结构化子任务还是可直接下发的 Skill 参数。触发频率决定云端推理延迟、任务连续性和 System 1 是否必须等待。</p>
+<h2>系统分类：怎样和执行层接起来</h2><p>Runtime 管理 Goal 状态、并发请求与超时，隔离云端 System 2 和端侧高频控制。Planner 输出经可校验的接口交给 Policy / Skill；执行反馈、失败原因和完成信号沿另一条链路回传。端侧负责安全、实时动作和必要的降级，云端更适合长时程推理与记忆；两者之间还需要定义抢占、重试和幂等边界。</p>
+<h2>评估轴</h2><p>在相同任务和执行能力下记录成功率、子任务完成判定准确性、失败后的恢复率、Planner 调用次数与端云延迟，并保留 Trace / Replay。这样才能区分规划本身的收益、底层 Policy 的收益与调度策略的系统成本。</p></article></main><footer class="wrap"><span>© 2026 Rui</span><span>Robot Agent</span></footer></body></html>
