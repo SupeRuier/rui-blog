@@ -1,0 +1,9 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="主动学习：在预算约束下选择样本，以标注反馈和下游模型评测验证数据价值。"><title>主动学习 — Rui</title><link rel="icon" href="../favicon.svg"><link rel="stylesheet" href="../styles.css"></head><body>
+<header class="site-header wrap"><a class="brand" href="../">Rui<span class="brand-dot">.</span></a><a class="back" href="../">← 返回技术笔记</a></header><main>
+<header class="article-header wrap"><p class="article-meta">ACTIVE LEARNING · FRAMEWORK</p><h1>主动学习：从样本选择到数据价值闭环</h1></header>
+<article class="article-body"><div class="draft-note">框架草稿：整理主动学习在视觉数据中的样本选择、标注投入与效果验证。</div>
+<p>数据规模越来越大时，关键问题不是把全部样本都标注一遍，而是在有限预算下决定哪些数据最值得进入训练集。主动学习从未标注数据池出发，让当前模型或任务需求指导选择，再用标注结果更新模型和下一轮选择策略。</p>
+<h2>基本闭环</h2><p>明确目标任务与评测集 → 在数据池中选择样本 → 标注和质量检查 → 更新训练集与模型 → 对照评测 → 再次选择。选择策略可以考虑模型不确定性、样本代表性、重复程度和长尾覆盖；这些信号需要组合使用，因为“模型不会”不必然等于“这条数据值得标”。</p>
+<h2>从标注选择扩展到数据选择</h2><p>主动学习的视角可延伸到 Data Pruning、数据精选和任务驱动的数据价值评价：不仅决定标注哪条，还要判断哪些已有样本应保留、哪些数据分布需要补齐。在视觉与自动驾驶场景中，稀有目标、极端条件和复杂交互是需要重点检查的覆盖缺口；多模态检索与生成式数据可帮助找到或构造候选数据，但是否纳入训练仍要由实际任务效果决定。</p>
+<h2>如何判断数据有价值</h2><p>对照随机采样、相同标注预算下的其他选择策略，以及更大数据量的训练结果，观察目标任务和长尾切片的变化。除了总体指标，还应记录标注成本、样本重复率、分布偏移及旧能力回退。这样才能区分“选到了看起来难的样本”与“用更合理的成本带来了可验证的能力提升”。</p>
+<p>后续将沿「选择信号 — 数据成本 — 下游收益」三条线补充具体方法与实践边界，保持这里的框架简洁。</p></article></main><footer class="wrap"><span>© 2026 Rui</span><span>Active Learning</span></footer></body></html>
