@@ -36,11 +36,21 @@
       <p><strong>它证明了什么。</strong>这比“在训练房间里完成长任务”向前走了一步：广泛的人类 Ego 数据预训练显著提高了全身 humanoid policy 在未见家庭、布局和物体上的迁移能力，而且这种收益是在严格控制任务数据后测得的。它初步支持“广泛预训练一次、用少量机器人数据定义行为、部署时跨环境泛化”的路线。</p>
       <p><strong>边界。</strong>Zero-shot 指评测环境和物体，而不是任务本身：三类行为仍使用了其他环境收集的 task-specification data 做适配。56% 也说明家庭级全身泛化远未解决；目前只有三类任务、单一公司系统和官方盲测，尚不能外推到任意家庭任务或跨机器人本体。</p>
 
+      <h2 id="deployment-adaptation">部署时适应</h2>
+      <h3 id="gpt-policy">GPT-Policy：固定通用 VLM 从上下文中获得机器人行为</h3>
+      <p class="frontier-entry-date"><time datetime="2026-09-16">发布时间 · 2026 年 9 月 16 日</time></p>
+      <p>GPT-Policy 将固定的通用 VLM 连接到一组受约束的机器人 Tool：Context Compiler 把任务指令、当前多视角观测、机器人状态和任务参考组织成图文输入，VLM 每轮只产生一个结构化工具请求；执行适配器负责目标解析、轨迹采样、逆运动学残差检查和动作执行，再将新观测与执行或拒绝反馈返回下一轮。模型参数在任务过程中保持不变，适应发生在<strong>上下文和闭环决策</strong>中，而不是权重更新<a class="citation" href="#ref-4" aria-label="跳转到参考文献 4">[4]</a>。</p>
+      <figure class="frontier-figure"><img src="../assets/gpt-policy-icl.svg" alt="GPT-Policy 将人类视频、机器人示范、目标图、交互历史等上下文输入固定通用 VLM，由 VLM 调用受约束机器人工具，并将执行反馈送入下一轮决策。"><figcaption>图 3 · GPT-Policy 的 Context → VLM → Robot Tool 闭环。本图依据论文 Figure 2 与 Figure 3 重新绘制。</figcaption></figure>
+      <p><strong>关键结果。</strong>论文在两种真机平台上评估 10 个任务，每个条件仅做 3 次试验。对于 Pick Red Towel 和 Pick Up Notebook，在没有参考视频时均为 <strong>0/3</strong>，加入一段不含机器人动作标签的人类视频后均达到 <strong>2/3</strong>；决策次数分别从 96.3 降至 76.7、从 94.0 降至 66.7，平均执行时间从 24.6 分钟降至 18.9 和 16.1 分钟。对于更依赖接触细节的任务，机器人视频提供程序信息，而对齐的动作参考继续提供增益：开瓶盖从无示范的 0/3、视频的 2/3 提升至视频加动作的 3/3；拔出并重新插入插头则为 0/3、0/3 和 2/3<a class="citation" href="#ref-4" aria-label="跳转到参考文献 4">[4]</a>。</p>
+      <p><strong>它证明了什么。</strong>至少在小规模真机实验中，通用 VLM 已能把部署时提供的<strong>程序性视觉上下文</strong>转化为新的工具调用序列：人类视频即使没有机器人动作标签，也能改变策略并带来此前未成功任务的完成案例；当任务涉及精细接触时，跨本体视觉过程不够，机器人动作参考仍然重要。它提供了一条不同于 VLA 参数训练的路线：让通用模型承担低频理解、规划、观察和恢复，把连续运动交给可验证的工具与控制器。</p>
+      <p><strong>边界。</strong>这是 test-time / in-context adaptation，不是跨任务持久保存的参数学习，也不能据此声称形成了 Robo RSI。每个条件只有 3 次试验，结果的统计稳定性有限；单任务需要约 24–96 次 VLM 决策和 5–25 分钟，离实时低层控制仍很远。受约束 Tool 内部承担了轨迹生成和 IK 校验，而论文也观察到双臂碰撞，因此“VLM 知道做什么”与“机器人安全、稳定地执行”仍是两层问题。</p>
+
       <h2 id="references">参考文献</h2>
       <ol class="reference-list">
         <li id="ref-1"><a href="https://www.dyna.co/dyna-2">Dyna Robotics, Dyna-2: A 1-Million-Hour Scaling Law for World-Action Models</a>，2026-08。</li>
         <li id="ref-2"><a href="https://www.figure.ai/news/introducing-index">Figure, Introducing Index: Building The World’s Largest and Most Diverse Physical Dataset</a>，2026-08-25。</li>
         <li id="ref-3"><a href="https://www.figure.ai/news/helix-2-5-zero-shot-30-home-generalization">Figure, Helix 2.5: Zero-Shot 30-Home Generalization</a>，2026-09-17。</li>
+        <li id="ref-4"><a href="https://cheng-haha.github.io/GPT-Policy/paper.pdf">Cheng et al., In-Context Robot Learning with VLM Agents</a>，2026-09-16。<a href="https://cheng-haha.github.io/GPT-Policy/">项目页</a>；<a href="https://github.com/cheng-haha/GPT-Policy">代码</a>。</li>
       </ol>
     </article>
   </main>
