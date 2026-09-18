@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="持续更新具身智能业界中由数据、效果和性能证据支撑的重要进展。">
+  <title>具身业界前沿：有实证价值的进展 — Rui</title>
+  <link rel="icon" href="../favicon.svg">
+  <link rel="stylesheet" href="../styles.css?v=5">
+</head>
+<body>
+  <header class="site-header wrap"><a class="brand" href="../">Rui<span class="brand-dot">.</span></a><a class="back" href="../">← 返回技术笔记</a></header>
+  <main>
+    <header class="article-header wrap"><p class="article-meta">EMBODIED AI · INDUSTRY FRONTIER · LIVING NOTE</p><h1>具身业界前沿：有实证价值的进展</h1></header>
+    <article class="article-body">
+      <div class="draft-note">持续更新 · 最近更新于 2026-09-18。这里只收录能够用明确数据、对照实验或真实部署结果支撑，并对具身技术路线提供新证据的业界进展；发布视频但缺少可核验设置的项目不作为核心条目。</div>
+      <p class="rsi-question">哪些结果真正改变了我们对具身数据规模、模型能力与泛化边界的判断？</p>
+      <p>这份笔记不按公司罗列新闻，而按<strong>它证明了什么</strong>归档。每条记录优先保留数据规模、评测设置、核心结果、成立边界与我的判断，便于随着新结果出现持续修订。</p>
+
+      <h2 id="data-scale">数据量</h2>
+      <h3 id="dyna-2">Dyna-2：百万小时 Ego 数据出现 Human-to-Robot Scaling</h3>
+      <p>Dyna-2 是基于视频扩散骨干和 Flow Matching 训练的 World-Action Model。其预训练数据主要是头戴式、第一视角的人类日常双手操作视频，规模超过 <strong>100 万小时</strong>；通过 3D hand pose 得到 wrist trajectory 与 grasp signal 作为伪动作监督，并构造 1K、10K、100K、1M 小时的嵌套数据档位。模型预训练阶段不使用机器人轨迹，也没有专门做 human–robot 视觉或运动学对齐<a class="citation" href="#ref-1" aria-label="跳转到参考文献 1">[1]</a>。</p>
+      <figure class="frontier-figure"><img src="../assets/dyna2-scaling.svg" alt="Dyna-2 从一千到一百万小时人类第一视角视频预训练时，十四项机器人任务的平均归一化得分从百分之二十升至百分之五十三。"><figcaption>图 1 · 人类 Ego 预训练规模与实机后训练性能。数值来自 Dyna 官方报告；本图重新绘制。</figcaption></figure>
+      <p><strong>关键结果。</strong>在未参与预训练的机器人数据上，离线动作预测指标随人类视频规模单调改善，且 10K→100K 小时附近出现明显拐点。进一步固定每项任务的机器人后训练数据与训练方案，在 14 项、3 类机器人本体的盲测中，平均归一化实机得分随预训练规模从 <strong>20%→28%→45%→53%</strong> 上升；1M 小时模型在 14 项任务中的 9 项最好。瓶盖旋拧只用了约 10 分钟机器人示范，其成功率仍随人类预训练规模提升至 50%；锁孔转钥匙则直到 1M 小时档才达到 90% 成功率<a class="citation" href="#ref-1" aria-label="跳转到参考文献 1">[1]</a>。</p>
+      <p><strong>它证明了什么。</strong>这项工作的价值不是单纯刷新数据量，而是在控制变量下提供了较强证据：大规模人类第一视角操作视频能够形成跨本体迁移的 scaling law，并最终反映到机器人后训练与实机性能。消融还表明，未来视频预测是关键——action-only 方案没有稳定随规模改善；固定动作标注数据后，只增加 video-only 数据仍能提升未见机器人数据上的泛化。因此，更准确的结论是<strong>具备世界动态预测目标的大规模 Ego 视频预训练，可以成为机器人策略的新 scaling axis</strong>，而不是“只要堆任意人类视频就会自动得到机器人能力”。</p>
+      <p><strong>边界。</strong>实机任务仍使用少量任务相关机器人数据进行后训练；离线 cross-embodiment scaling 也不等同于完全 zero-shot 控制。报告来自公司自身，任务、数据与模型尚未完整开放，第三方复现仍然缺失。</p>
+
+      <h2 id="generalization">泛化性能</h2>
+      <h3 id="helix-25">Helix 2.5：Index 预训练支撑 30 个家庭的 Zero-shot 泛化</h3>
+      <p>Helix 2.5 先在 Figure 的人类行为数据集 <strong>Index</strong> 上从随机初始化预训练，再分别适配整理客厅、折毛巾和铺床三类全身任务。Index 通过面向全球用户的数据采集 App 获得真实人类活动视频；Figure 披露其上线四个月后已覆盖 108 个国家、44,000 余名周活跃采集者与 1,600 万段视频，并通过过滤、反作弊、去重、重平衡和分层文本标注形成训练数据<a class="citation" href="#ref-2" aria-label="跳转到参考文献 2">[2]</a>。</p>
+      <figure class="frontier-figure"><img src="../assets/helix25-generalization.svg" alt="Helix 2.5 在三十个未见家庭中，从头训练策略的成功率为百分之九，Index 预训练策略为百分之五十六。"><figcaption>图 2 · Index 预训练对 30 个未见家庭零样本成功率的贡献。数值来自 Figure 官方盲测；本图重新绘制。</figcaption></figure>
+      <p><strong>评测设置。</strong>30 个湾区家庭、室内布局和被操作物体均未出现在任务数据中；到达评测家庭后不采集数据、不微调、不适应，也不使用评测 rollout 选择 checkpoint。三个任务分别要求完成全部物体整理、全部毛巾折叠入篮或完整铺床，不给部分分；同一任务使用同一个固定 checkpoint 覆盖全部家庭<a class="citation" href="#ref-3" aria-label="跳转到参考文献 3">[3]</a>。</p>
+      <p><strong>关键结果。</strong>在架构、优化、超参数、任务数据和评测全部固定时，从头训练策略的严格端到端成功率为 <strong>9%</strong>，Index 预训练策略达到 <strong>56%</strong>，提升超过 6 倍。相较一个代表性的 Helix 02 行为，Helix 2.5 用一半任务特定数据匹配其成功率，同时把部署范围扩展至 30 个未见家庭。随着 Index 预训练数据扩大 8 倍，下游机器人动作预测损失平滑下降，最大档结果可由较小档实验预估，报告的预测误差为全区间变化量的 0.54%<a class="citation" href="#ref-3" aria-label="跳转到参考文献 3">[3]</a>。</p>
+      <p><strong>它证明了什么。</strong>这比“在训练房间里完成长任务”向前走了一步：广泛的人类 Ego 数据预训练显著提高了全身 humanoid policy 在未见家庭、布局和物体上的迁移能力，而且这种收益是在严格控制任务数据后测得的。它初步支持“广泛预训练一次、用少量机器人数据定义行为、部署时跨环境泛化”的路线。</p>
+      <p><strong>边界。</strong>Zero-shot 指评测环境和物体，而不是任务本身：三类行为仍使用了其他环境收集的 task-specification data 做适配。56% 也说明家庭级全身泛化远未解决；目前只有三类任务、单一公司系统和官方盲测，尚不能外推到任意家庭任务或跨机器人本体。</p>
+
+      <h2 id="references">参考文献</h2>
+      <ol class="reference-list">
+        <li id="ref-1"><a href="https://www.dyna.co/dyna-2">Dyna Robotics, Dyna-2: A 1-Million-Hour Scaling Law for World-Action Models</a>，2026-08。</li>
+        <li id="ref-2"><a href="https://www.figure.ai/news/introducing-index">Figure, Introducing Index: Building The World’s Largest and Most Diverse Physical Dataset</a>，2026-08-25。</li>
+        <li id="ref-3"><a href="https://www.figure.ai/news/helix-2-5-zero-shot-30-home-generalization">Figure, Helix 2.5: Zero-Shot 30-Home Generalization</a>，2026-09-17。</li>
+      </ol>
+    </article>
+  </main>
+  <footer class="wrap"><span>© 2026 Rui</span><span>Embodied Industry Frontier · Living Note</span></footer>
+  <script src="../toc.js?v=2" defer></script>
+</body>
+</html>

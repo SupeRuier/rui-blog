@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Helix 2.5 在三十个未见家庭中的零样本泛化</title>
+  <desc id="desc">在架构、任务数据和评估不变时，从头训练策略成功率为百分之九，Index 预训练策略成功率为百分之五十六。</desc>
+  <rect width="1200" height="700" fill="#fff"/>
+  <text x="72" y="75" fill="#171817" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="700">HELIX 2.5 · ZERO-SHOT GENERALIZATION</text>
+  <text x="72" y="121" fill="#686b67" font-family="Inter,Arial,sans-serif" font-size="22">30 unseen homes · unseen objects · no in-home collection, tuning, or adaptation</text>
+  <line x1="130" y1="550" x2="760" y2="550" stroke="#d9dad5" stroke-width="2"/>
+  <rect x="205" y="474" width="170" height="76" fill="#bfc1bb"/>
+  <rect x="505" y="157" width="170" height="393" fill="#e85434"/>
+  <g font-family="Inter,Arial,sans-serif" text-anchor="middle">
+    <text x="290" y="445" fill="#171817" font-size="40" font-weight="700">9%</text>
+    <text x="590" y="215" fill="#fff" font-size="48" font-weight="700">56%</text>
+    <text x="290" y="590" fill="#171817" font-size="21" font-weight="700">From scratch</text>
+    <text x="290" y="620" fill="#686b67" font-size="18">same task data</text>
+    <text x="590" y="590" fill="#171817" font-size="21" font-weight="700">Index pretrained</text>
+    <text x="590" y="620" fill="#686b67" font-size="18">pretraining is the only variable</text>
+  </g>
+  <line x1="820" y1="170" x2="1120" y2="170" stroke="#d9dad5"/>
+  <text x="820" y="225" fill="#e85434" font-family="Georgia,serif" font-size="62" font-weight="700">3</text>
+  <text x="890" y="218" fill="#171817" font-family="Inter,Arial,sans-serif" font-size="21" font-weight="700">whole-body tasks</text>
+  <text x="820" y="260" fill="#686b67" font-family="Inter,Arial,sans-serif" font-size="18">room tidy · towel fold · bed making</text>
+  <text x="820" y="360" fill="#e85434" font-family="Georgia,serif" font-size="62" font-weight="700">6.2×</text>
+  <text x="820" y="402" fill="#686b67" font-family="Inter,Arial,sans-serif" font-size="18">strict end-to-end success gain</text>
+  <text x="820" y="500" fill="#e85434" font-family="Georgia,serif" font-size="62" font-weight="700">50%</text>
+  <text x="965" y="492" fill="#171817" font-family="Inter,Arial,sans-serif" font-size="21" font-weight="700">task data</text>
+  <text x="820" y="535" fill="#686b67" font-family="Inter,Arial,sans-serif" font-size="18">vs. a representative Helix 02 behavior</text>
+</svg>

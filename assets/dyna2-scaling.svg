@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Dyna-2 人类第一视角数据规模与机器人性能</title>
+  <desc id="desc">Dyna-2 使用一千、一万、十万和一百万小时的人类第一视角视频预训练。在相同机器人后训练条件下，十四项任务的平均归一化得分从百分之二十提升到百分之五十三。</desc>
+  <rect width="1200" height="700" fill="#fff"/>
+  <text x="72" y="75" fill="#171817" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="700">DYNA-2 · HUMAN EGO DATA SCALING</text>
+  <text x="72" y="121" fill="#686b67" font-family="Inter,Arial,sans-serif" font-size="22">Fixed evaluation and robot post-training · only human-video pretraining scale changes</text>
+  <text x="72" y="226" fill="#e85434" font-family="Georgia,serif" font-size="72" font-weight="700">1,000,000 h</text>
+  <text x="74" y="265" fill="#686b67" font-family="Inter,Arial,sans-serif" font-size="20">Head-mounted egocentric manipulation video · about 170 waking years</text>
+  <line x1="120" y1="535" x2="1080" y2="535" stroke="#d9dad5" stroke-width="2"/>
+  <polyline points="150,475 450,430 750,330 1050,275" fill="none" stroke="#e85434" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <g font-family="Inter,Arial,sans-serif" text-anchor="middle">
+    <g><circle cx="150" cy="475" r="12" fill="#171817"/><text x="150" y="445" fill="#171817" font-size="28" font-weight="700">20%</text><text x="150" y="575" fill="#171817" font-size="23" font-weight="700">1K h</text></g>
+    <g><circle cx="450" cy="430" r="12" fill="#171817"/><text x="450" y="400" fill="#171817" font-size="28" font-weight="700">28%</text><text x="450" y="575" fill="#171817" font-size="23" font-weight="700">10K h</text></g>
+    <g><circle cx="750" cy="330" r="12" fill="#171817"/><text x="750" y="300" fill="#171817" font-size="28" font-weight="700">45%</text><text x="750" y="575" fill="#171817" font-size="23" font-weight="700">100K h</text></g>
+    <g><circle cx="1050" cy="275" r="15" fill="#e85434"/><text x="1050" y="240" fill="#e85434" font-size="32" font-weight="700">53%</text><text x="1050" y="575" fill="#e85434" font-size="23" font-weight="700">1M h</text></g>
+  </g>
+  <text x="72" y="640" fill="#686b67" font-family="Inter,Arial,sans-serif" font-size="18">On-robot result: mean normalized score across 14 tasks; identical robot-data post-training</text>
+</svg>

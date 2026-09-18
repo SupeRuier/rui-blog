@@ -59,6 +59,10 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 .article-body .reference-list li { margin: .7em 0; font-size: .96rem; line-height: 1.7; color: var(--muted); overflow-wrap: anywhere; }
 .article-body .citation { margin-left: .12em; font-family: system-ui, sans-serif; font-size: .68em; vertical-align: super; white-space: nowrap; }
 .article-body .reference-list li:target { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.article-body h3 { margin: 2.1em 0 .85em; font-family: Georgia, "Noto Serif SC", serif; font-size: 1.35rem; line-height: 1.5; }
+.frontier-figure { margin: 2.2rem 0 2.5rem; }
+.frontier-figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); background: #fff; }
+.frontier-figure figcaption { margin-top: .7rem; color: var(--muted); font-size: .78rem; line-height: 1.6; }
 .article-body .rsi-method-link { margin: 1rem 0 2rem; padding: 14px 18px; border: 1px solid var(--line); font-family: inherit; font-size: .93rem; line-height: 1.5; }
 .rsi-method-link > a { display: block; font-weight: 600; }
 .rsi-method-link > a:hover { color: var(--accent); }
