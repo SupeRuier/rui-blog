@@ -19,6 +19,7 @@
 
       <h2 id="data-scale">数据量</h2>
       <h3 id="dyna-2">Dyna-2：百万小时 Ego 数据出现 Human-to-Robot Scaling</h3>
+      <p class="frontier-entry-date"><time datetime="2026-08">发布时间 · 2026 年 8 月</time></p>
       <p>Dyna-2 是基于视频扩散骨干和 Flow Matching 训练的 World-Action Model。其预训练数据主要是头戴式、第一视角的人类日常双手操作视频，规模超过 <strong>100 万小时</strong>；通过 3D hand pose 得到 wrist trajectory 与 grasp signal 作为伪动作监督，并构造 1K、10K、100K、1M 小时的嵌套数据档位。模型预训练阶段不使用机器人轨迹，也没有专门做 human–robot 视觉或运动学对齐<a class="citation" href="#ref-1" aria-label="跳转到参考文献 1">[1]</a>。</p>
       <figure class="frontier-figure"><img src="../assets/dyna2-scaling.svg" alt="Dyna-2 从一千到一百万小时人类第一视角视频预训练时，十四项机器人任务的平均归一化得分从百分之二十升至百分之五十三。"><figcaption>图 1 · 人类 Ego 预训练规模与实机后训练性能。数值来自 Dyna 官方报告；本图重新绘制。</figcaption></figure>
       <p><strong>关键结果。</strong>在未参与预训练的机器人数据上，离线动作预测指标随人类视频规模单调改善，且 10K→100K 小时附近出现明显拐点。进一步固定每项任务的机器人后训练数据与训练方案，在 14 项、3 类机器人本体的盲测中，平均归一化实机得分随预训练规模从 <strong>20%→28%→45%→53%</strong> 上升；1M 小时模型在 14 项任务中的 9 项最好。瓶盖旋拧只用了约 10 分钟机器人示范，其成功率仍随人类预训练规模提升至 50%；锁孔转钥匙则直到 1M 小时档才达到 90% 成功率<a class="citation" href="#ref-1" aria-label="跳转到参考文献 1">[1]</a>。</p>
@@ -27,6 +28,7 @@
 
       <h2 id="generalization">泛化性能</h2>
       <h3 id="helix-25">Helix 2.5：Index 预训练支撑 30 个家庭的 Zero-shot 泛化</h3>
+      <p class="frontier-entry-date"><time datetime="2026-09-17">发布时间 · 2026 年 9 月 17 日</time></p>
       <p>Helix 2.5 先在 Figure 的人类行为数据集 <strong>Index</strong> 上从随机初始化预训练，再分别适配整理客厅、折毛巾和铺床三类全身任务。Index 通过面向全球用户的数据采集 App 获得真实人类活动视频；Figure 披露其上线四个月后已覆盖 108 个国家、44,000 余名周活跃采集者与 1,600 万段视频，并通过过滤、反作弊、去重、重平衡和分层文本标注形成训练数据<a class="citation" href="#ref-2" aria-label="跳转到参考文献 2">[2]</a>。</p>
       <figure class="frontier-figure"><img src="../assets/helix25-generalization.svg" alt="Helix 2.5 在三十个未见家庭中，从头训练策略的成功率为百分之九，Index 预训练策略为百分之五十六。"><figcaption>图 2 · Index 预训练对 30 个未见家庭零样本成功率的贡献。数值来自 Figure 官方盲测；本图重新绘制。</figcaption></figure>
       <p><strong>评测设置。</strong>30 个湾区家庭、室内布局和被操作物体均未出现在任务数据中；到达评测家庭后不采集数据、不微调、不适应，也不使用评测 rollout 选择 checkpoint。三个任务分别要求完成全部物体整理、全部毛巾折叠入篮或完整铺床，不给部分分；同一任务使用同一个固定 checkpoint 覆盖全部家庭<a class="citation" href="#ref-3" aria-label="跳转到参考文献 3">[3]</a>。</p>
