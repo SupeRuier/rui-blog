@@ -42,9 +42,9 @@ h1 { margin: 0; max-width: 900px; font-family: Georgia, "Noto Serif SC", serif; 
 .post-card a { display: grid; grid-template-columns: 135px minmax(280px, 1fr) minmax(220px, 300px); gap: 34px; padding: 32px 0 38px; transition: opacity .2s; }
 .post-card a:hover { opacity: .68; }
 .post-meta { color: var(--muted); font-size: .78rem; display: flex; flex-direction: column; gap: 3px; }
+.post-meta span:last-child { color: var(--accent); font-weight: 700; }
 .post-card h3 { margin: 0; font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(1.4rem, 2.6vw, 2.05rem); line-height: 1.38; font-weight: 500; }
 .post-card p { margin: 0; color: var(--muted); }
-.read-more { grid-column: 2; font-size: .82rem; color: var(--accent); }
 .about > p { max-width: 700px; margin: 0; font-family: Georgia, "Noto Serif SC", serif; font-size: 1.35rem; line-height: 1.85; }
 footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: .75rem; }
 
@@ -133,7 +133,6 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
   .lede { font-size: 1rem; }
   .post-card a { grid-template-columns: 1fr; gap: 14px; }
   .post-meta { flex-direction: row; gap: 12px; }
-  .read-more { grid-column: 1; }
   .article-header { padding: 70px 0 52px; }
   .article-body { margin-top: 52px; }
   .rsi-overview, .rsi-mini { padding: 18px; }
