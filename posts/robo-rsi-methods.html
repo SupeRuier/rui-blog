@@ -27,6 +27,7 @@
         <li><a href="https://arxiv.org/abs/2407.20635">SOAR ↗</a><a class="citation" href="#ref-3">[3]</a><span>目标条件 Policy · 自主 Rollout 与自监督改进；要核对成功筛选的依赖，不能把失败采集等同于失败学习。</span></li>
         <li><a href="https://arxiv.org/abs/2509.15155">Self-Improving Embodied Foundation Models ↗</a><a class="citation" href="#ref-4">[4]</a><span>具身基础模型 · steps-to-go 预测用于构建奖励和成功检测，再用于后续自我改进。</span></li>
         <li><a href="https://arxiv.org/abs/2602.11075">RISE ↗</a><a class="citation" href="#ref-5">[5]</a><span>机器人 Policy · 组合世界模型中的想象 Rollout 与优势估计；需分别验证模型预测和真实任务结果。</span></li>
+        <li><a href="https://q-planning.github.io/">Q-Planning ↗</a><a class="citation" href="#ref-11">[11]</a><span>冻结 BC / VLA Policy，持续更新外挂的 off-policy Q-function · Q 对 Policy 采样的 action chunks 评分并加权执行，成功与失败 deployment rollouts 都进入 Replay Buffer 更新 Q。LIBERO-10 从 93% 提升至 99%，RoboTwin 从 83.8% 提升至 91.4%；真机 stack-cups 从 40% 提升至 90%，insert-wallet 从 25% 提升至 80%。它明确利用失败反馈，但不能突破 BC 几乎不可能采样到的动作边界，因此主要属于 capability refinement，而非已证明的 zero-success acquisition。</span></li>
       </ul>
 
       <h2>奖励与学习信号</h2>
@@ -57,6 +58,7 @@
         <li id="ref-8"><a href="https://arxiv.org/abs/2608.11350">Self-Evolving Embodied Agents via Skill-Harness Evolution (SHAPER)</a>，2026。</li>
         <li id="ref-9"><a href="https://github.com/nssmd/RoboRSI">RoboRSI</a>，项目仓库与自述技术报告。</li>
         <li id="ref-10"><a href="https://arxiv.org/abs/2608.11246">Towards the Harness of Embodied Agents (Thea)</a>，2026。</li>
+        <li id="ref-11"><a href="https://arxiv.org/abs/2608.21204">Beyond Imitation: Self-Improving Robot Policies via Off-Policy Q-Planning</a>，2026。</li>
       </ol>
     </article>
   </main>
