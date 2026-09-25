@@ -3,6 +3,7 @@ title: Diffusion 与 Flow Matching 驱动的数据增强
 tabTitle: 生成式数据增强
 description: Diffusion 与 Flow Matching 驱动的生成式数据增强。
 order: "03"
+date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: GENERATIVE DATA · FRAMEWORK
 cardMeta: Generative Data   # 首页卡片右上角，比文章页眉短
 summary: 条件生成、参考图引导、对象插入，以及稀有目标和复杂场景的可控生成。

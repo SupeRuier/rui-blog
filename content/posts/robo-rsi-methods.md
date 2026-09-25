@@ -2,6 +2,7 @@
 title: Robo RSI：方法文献目录
 tabTitle: Robo RSI 方法文献目录
 description: Robo RSI 的方法文献目录：数据、Policy、奖励与 Skill / Harness 的具身持续改进路线。
+date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: ROBO RSI · METHODS · INDEX
 index: false          # 不作为首页卡片，只从父文章内链进入
 back: agent-robo-rsi.html#robo-rsi

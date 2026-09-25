@@ -3,6 +3,7 @@ title: FlagOS-Robo 部署案例：System 2 与 System 1 如何交互
 tabTitle: FlagOS-Robo 部署案例
 description: FlagOS-Robo 与 RoboOS 的部署案例：System 2 Agent 与 System 1 Policy/Skill 的交互、端云切分与评估边界。
 order: "10"
+date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: ROBO DEPLOYMENT · CASE STUDY
 cardMeta: Robo Deployment · Case Study   # 首页卡片右上角，比文章页眉短
 summary: 基于 FlagOS-Robo 与 RoboOS 的公开资料，评估端云切分、任务调度、Policy / Skill 接口及验证缺口。
@@ -10,7 +11,7 @@ footer: Robo Deployment
 ---
 
 ::: note
-公开资料 case study，2026-09-15。本文评估的是架构与接口，不是已经跑通的真机复现实验；「公开设计」「工程判断」「待验证」分别说明。
+公开资料 case study。本文评估的是架构与接口，不是已经跑通的真机复现实验；「公开设计」「工程判断」「待验证」分别说明。
 :::
 
 [FlagOS](https://flagos.io/Home) 是面向多种 AI 芯片的系统软件栈，不能直接等同于机器人 Agent Runtime[@1]。其领域项目 [FlagOS-Robo](https://docs.flagos.io/projects/FlagOS-Robo/en/latest/flagos-robo-user-guide.html) 把 VLM / VLA 的数据加载、训练、推理、Serving 和评测串起来，支持端到云部署[@2][@3]；与之关联的 [RoboOS](https://github.com/FlagOpen/RoboOS) 则给出了 Brain–Cerebellum 的分层 Agent 系统[@4]。评估 System 2 与 System 1 的交互，需要把「模型能部署」与「任务能闭环执行」分开。

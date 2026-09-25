@@ -42,7 +42,7 @@ h1 { margin: 0; max-width: 900px; font-family: Georgia, "Noto Serif SC", serif; 
 .post-card a { display: grid; grid-template-columns: 135px minmax(280px, 1fr) minmax(220px, 300px); gap: 34px; padding: 32px 0 38px; transition: opacity .2s; }
 .post-card a:hover { opacity: .68; }
 .post-meta { color: var(--muted); font-size: .78rem; display: flex; flex-direction: column; gap: 3px; }
-.post-meta span:last-child { color: var(--accent); font-weight: 700; }
+.post-meta .card-cat { color: var(--accent); font-weight: 700; }
 .post-card h3 { margin: 0; font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(1.4rem, 2.6vw, 2.05rem); line-height: 1.38; font-weight: 500; }
 .post-card p { margin: 0; color: var(--muted); }
 .about > p { max-width: 700px; margin: 0; font-family: Georgia, "Noto Serif SC", serif; font-size: 1.35rem; line-height: 1.85; }
@@ -123,6 +123,22 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 .rsi-topics { display: grid; gap: 11px; margin: 1.5rem 0 2rem; }
 .rsi-topics > div { padding: 14px 17px; border: 1px solid var(--line); border-left: 2px solid var(--accent); }
 .draft-note { margin-bottom: 2.5rem; padding: 14px 18px; border: 1px solid var(--line); color: var(--muted); font-size: .88rem; }
+
+/* TL;DR 与 My Take —— WRITING.md 要求的两个核心模块。
+   TL;DR 用文字压缩全文，放在文章最前；My Take 强调真正重要的个人判断。 */
+.article-body .tldr { margin: 0 0 2.8rem; padding: 20px 22px; border: 1px solid var(--line); background: var(--paper); }
+.article-body .my-take { margin: 2.4em 0; padding: 22px 24px; border: 1px solid var(--ink); border-left: 3px solid var(--accent); background: var(--paper); }
+.article-body .tldr p, .article-body .my-take p { margin: 0 0 .85em; font-size: 1.05rem; line-height: 1.9; }
+.article-body .tldr ul, .article-body .tldr ol, .article-body .my-take ul, .article-body .my-take ol { margin: 0 0 .85em; }
+.article-body .tldr li, .article-body .my-take li { font-size: 1.05rem; }
+.article-body .tldr > :last-child, .article-body .my-take > :last-child { margin-bottom: 0; }
+.article-body .tldr .tldr-label,
+.article-body .my-take .my-take-label {
+  margin: 0 0 .75rem;
+  color: var(--accent);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+}
 .back { color: var(--muted); font-size: .86rem; }
 .back:hover { color: var(--ink); }
 

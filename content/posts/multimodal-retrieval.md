@@ -3,6 +3,7 @@ title: 大规模视觉数据的多模态检索与长尾挖掘
 tabTitle: 多模态检索与长尾挖掘
 description: 大规模视觉数据的多模态检索与长尾挖掘。
 order: "01"
+date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: DATA RETRIEVAL · FRAMEWORK
 cardMeta: Data Retrieval   # 首页卡片右上角，比文章页眉短
 summary: 视觉—语言表征、自监督视觉特征、向量检索，以及道路数据中的长尾发现。

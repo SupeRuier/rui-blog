@@ -3,6 +3,7 @@ title: Agent RSI 与 Robo RSI：持续自我改进的闭环
 tabTitle: Agent RSI 与 Robo RSI
 description: RSI Unified Taxonomy V1.0：用一套 WHAT、WHEN、HOW、WHERE、CAPABILITY、GOVERNANCE 框架分析 Agent 与 Robo RSI。
 order: "09"
+date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: AGENT RSI · ROBO RSI · UNIFIED TAXONOMY V1.0
 cardMeta: Agent RSI · Robo RSI   # 首页卡片右上角，比文章页眉短
 summary: WHAT / WHEN / HOW / WHERE / CAPABILITY / GOVERNANCE 六轴框架，比较软件 Agent 与具身 Agent 的自我改进。

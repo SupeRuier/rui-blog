@@ -3,6 +3,7 @@ title: 通用世界／具身理解 VLM 模型：训练、数据与评估
 tabTitle: 通用世界／具身理解 VLM 模型
 description: 通用世界／具身理解 VLM 模型：训练、数据构造与分层评估。
 order: "04"
+date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: WORLD · EMBODIED VLM · FRAMEWORK
 cardMeta: World · Embodied VLM   # 首页卡片右上角，比文章页眉短
 summary: 模型能力与训练路线、跨域数据构造，以及通用／具身理解的分层评估。

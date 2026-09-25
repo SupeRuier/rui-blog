@@ -89,16 +89,37 @@ function unquote(v) {
   return v
 }
 
-/** 去掉值后面的行内注释（`#` 前必须有空白，所以 `C#` 这类值不受影响）。 */
+/**
+ * 去掉值后面的行内注释。
+ *
+ * `#` 前必须有空白，所以 `C#` 这类值不受影响；但 `key:   # 说明` 这种
+ * 「值为空、只有注释」的写法要能正确解析成空值 —— 调用方传进来的值已经
+ * trim 过，前导空白没了，所以这里必须单独允许行首的 `#`。
+ */
 function stripComment(v) {
   if (/^".*"$/.test(v) || /^'.*'$/.test(v)) return v
-  return v.replace(/\s+#.*$/, '').trim()
+  return v.replace(/(?:^|\s+)#.*$/, '').trim()
+}
+
+/**
+ * front-matter 的 date 统一成 YYYY-MM-DD。格式写错直接报错，
+ * 否则它会被静默当成「没有日期」而排到列表最后，很难发现。
+ */
+function normalizeDate(v, file) {
+  if (v === undefined || v === null || String(v).trim() === '') return ''
+  const s = String(v).trim()
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s) || Number.isNaN(Date.parse(s))) {
+    throw new Error(`${file}: date 必须是 YYYY-MM-DD，现在是「${s}」`)
+  }
+  return s
 }
 
 /* ------------------------------------------------- 块级指令 ::: name */
 
 /**
- * 支持四个轻量指令，避免在正文里手写重复的 div/p 包装：
+ * 指令分两类。
+ *
+ * 行内指令（代码块/短语级，内部只按行内 Markdown 渲染，软换行折成空格）：
  *
  *   ::: note                     ::: question
  *   顶部提示内容                 RSI 提问句
@@ -108,12 +129,22 @@ function stripComment(v) {
  *   [链接](x.html) 说明          发布时间 · 2026 年 8 月
  *   :::                          :::
  *
- *   ::: axis axis-what           （section.rsi-axis，内部按完整 Markdown 渲染）
+ * 块指令（内部按完整 Markdown 渲染，可以放段落、列表、加粗）：
+ *
+ *   ::: tldr                     ::: my-take
+ *   - 讨论什么问题                真正重要的个人判断
+ *   - 最重要的结论                :::
+ *   :::
+ *
+ *   ::: axis axis-what           （section.rsi-axis，需要 id 参数）
  *   ## 标题
- *   正文
+ *   :::
+ *
+ *   ::: list method-list         （内容必须是一个列表，参数是 class）
+ *   - 条目
  *   :::
  */
-/** 指令体按行内渲染；软换行折成空格，因此长句可以随便折行写。 */
+/** 行内指令体按行内渲染；软换行折成空格，因此长句可以随便折行写。 */
 const oneLine = (s) => s.trim().replace(/\s*\n\s*/g, ' ')
 
 const INLINE_DIRECTIVES = {
@@ -123,6 +154,9 @@ const INLINE_DIRECTIVES = {
   date: (body, arg) =>
     `<p class="frontier-entry-date"><time datetime="${attr(arg)}">${marked.parseInline(oneLine(body))}</time></p>`,
 }
+
+/** 需要内部按完整 Markdown 渲染的块指令，用于错误提示里的可用清单。 */
+const BLOCK_DIRECTIVES = ['axis', 'list', 'tldr', 'my-take']
 
 function extractDirectives(md, file) {
   const lines = md.split('\n')
@@ -156,8 +190,15 @@ function renderDirective(block, file) {
     }
     return arg ? html.replace(/^<(ol|ul)>/, `<$1 class="${attr(arg)}">`) : html
   }
+  if (name === 'tldr') {
+    return `<aside class="tldr">\n<p class="tldr-label">TL;DR</p>\n${renderMarkdown(body, file)}</aside>`
+  }
+  if (name === 'my-take') {
+    if (arg) throw new Error(`${file}: ::: my-take 不接受参数`)
+    return `<aside class="my-take">\n<p class="my-take-label">My Take</p>\n${renderMarkdown(body, file)}</aside>`
+  }
   throw new Error(
-    `${file}: 未知指令 ::: ${name}（可用：${[...Object.keys(INLINE_DIRECTIVES), 'axis', 'list'].join(', ')}）`)
+    `${file}: 未知指令 ::: ${name}（可用：${[...Object.keys(INLINE_DIRECTIVES), ...BLOCK_DIRECTIVES].join(', ')}）`)
 }
 
 /* ------------------------------------------------------------- 渲染 */
@@ -251,10 +292,17 @@ async function loadPosts() {
     const { meta, body } = parseFrontMatter(await read(full), `content/posts/${f}`)
     const slug = meta.slug || f.replace(/\.md$/, '')
     if (!meta.title) throw new Error(`content/posts/${f}: front-matter 缺少 title`)
-    posts.push({ ...meta, slug, body, file: `content/posts/${f}` })
+    const date = normalizeDate(meta.date, `content/posts/${f}`)
+    posts.push({ ...meta, date, slug, body, file: `content/posts/${f}` })
   }
   return posts
 }
+
+/**
+ * 首页顺序由 order 决定（编辑选择的阅读顺序）；order 越大越靠前。
+ * 数字可以留空档，方便以后往中间插文章而不用全部重排。
+ */
+const orderValue = (p) => (p.order === undefined ? -1 : Number(p.order) || -1)
 
 function validate(posts) {
   const warn = []
@@ -272,6 +320,9 @@ function validate(posts) {
     if (p.index !== false && !(p.cardMeta || p.meta)) {
       warn.push(`${p.file}: 会显示在首页，但没有 cardMeta / meta（卡片右上角分类）`)
     }
+    if (p.index !== false && p.order === undefined && !p.pinned) {
+      warn.push(`${p.file}: 会显示在首页，但没有 order，位置会落到最后`)
+    }
   }
   return warn
 }
@@ -288,7 +339,8 @@ async function buildPost(post, vars) {
     title: post.title,
     tabTitle: post.tabTitle || post.title,
     description: attr(post.description || post.summary || ''),
-    meta: post.meta || '',
+    // 文章页眉的分类行后面接发布日期，模板不用额外加槽位
+    meta: [post.meta, post.date].filter(Boolean).join(' · '),
     footer: post.footer || post.title,
     backHref: post.back || '../',
     backLabel: post.backLabel || '← 返回技术笔记',
@@ -305,7 +357,11 @@ async function buildIndex(posts, vars) {
     .sort((a, b) => {
       const pin = (p) => (p.pinned ? 1 : 0)
       if (pin(a) !== pin(b)) return pin(b) - pin(a)
-      return Number(b.order ?? -1) - Number(a.order ?? -1)
+
+      // 首页顺序 = 编辑选择的阅读顺序，order 越大越靠前。
+      // order 相同时用 slug 兜底，保证每次构建的顺序都一致。
+      const d = orderValue(b) - orderValue(a)
+      return d !== 0 ? d : a.slug.localeCompare(b.slug)
     })
 
   const cards = listed

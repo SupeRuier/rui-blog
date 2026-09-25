@@ -5,6 +5,16 @@
 正文写在 `content/posts/*.md` 里，`npm run build` 生成 `dist/` 静态站点。
 `dist/` 不进版本库，由 GitHub Actions 构建后发布到 Pages。
 
+## 先看哪一份文档
+
+| 我想…… | 看这里 |
+| --- | --- |
+| 写一篇新文章 / 改已有文章 | **[`WRITING.md`](./WRITING.md)** —— 内容标准，写作前必读 |
+| 跑起来、看 front-matter 字段和正文语法 | 本文件 |
+| 用 AI 协作改这个仓库 | [`AGENTS.md`](./AGENTS.md) —— 操作硬约束 |
+
+本文件只讲**仓库怎么用**；文章应该写成什么样，以 `WRITING.md` 为准，不要在这里重复。
+
 ## 本地服务的运行方式
 
 日常写作只需要一个进程常驻：
@@ -77,6 +87,7 @@ PORT=9000 npm run dev    # 用环境变量
 
 ## 写一篇新文章
 
+0. 先读 [`WRITING.md`](./WRITING.md)，确认这篇属于哪种认知单元、需要哪些核心元素（TL;DR / Overview Figure / `My Take`）。
 1. 复制一篇现有的 `content/posts/*.md`，改文件名（文件名就是 URL，例如 `foo.md` → `/posts/foo.html`）。
 2. 改开头的 front-matter，写正文。
 3. 本地 `npm run dev` 看效果，满意后提交并推送到 `main`，GitHub Actions 会自动构建并发布。
@@ -86,19 +97,29 @@ PORT=9000 npm run dev    # 用环境变量
 ```yaml
 ---
 title: 文章标题                      # 必填。文章页 <h1>，也是首页卡片标题
+order: "11"                          # 首页位置，数字越大越靠前。留空档（10/20/30）方便往中间插文章
 tabTitle: 短标题                     # 浏览器标签用，省略则用 title
 description: 搜索引擎和分享摘要
-order: "11"                          # 首页卡片编号，数字越大越靠前
-meta: EMBODIED DATA · FRAMEWORK      # 文章页顶部的分类行
+date:                                # 占位，暂不填。填 YYYY-MM-DD 后只显示在文章页页眉，不参与排序
+meta: EMBODIED DATA · FRAMEWORK      # 文章页顶部的分类行（填了 date 会自动接在后面）
 cardMeta: Embodied Data              # 首页卡片右上角，一般比 meta 短
 summary: 首页卡片上的一句话摘要
-pinned: 置顶 · 持续更新               # 写上就置顶（卡片会加 .is-pinned 样式）
+pinned: 置顶 · 持续更新               # 写上就置顶（卡片会加 .is-pinned 样式），且不用写 order
 index: false                         # 不生成首页卡片，只从父文章内链进入
 back: agent-robo-rsi.html#agent-rsi  # 返回链接指向哪里，默认首页
 backLabel: ← 返回 Agent RSI 主文章    # 返回链接文案
 footer: Embodied Data                # 页脚右侧文字
 ---
 ```
+
+**首页排序规则：`pinned` 最优先，其余按 `order` 从大到小。** 顺序是编辑决定的阅读顺序，
+不是发布时间 —— 这个站点是「少而重」的认知地图，不是持续输出的信息流。理由见
+[`WRITING.md`](./WRITING.md) §2。
+
+`date` 是**占位字段，目前全部留空**。它回答的是「这篇有多新」，只用于文章页的时间标注，
+卡片上不显示，也不参与排序 —— 顺序由 `order` 单独决定，两件事不要混。格式写错会直接构建失败。
+
+会显示在首页却没有 `order` 的文章会落到最后，构建时给警告。
 
 ## 正文语法
 
@@ -114,11 +135,26 @@ footer: Embodied Data                # 页脚右侧文字
   ::: question        <!-- RSI 提问句 .rsi-question -->
   ::: method-link     <!-- 方法目录入口 .rsi-method-link -->
   ::: date 2026-08    <!-- 时间标签 .frontier-entry-date -->
-  ::: axis axis-what  <!-- 六轴小节 .rsi-axis，内部按完整 Markdown 渲染 -->
+  ::: axis axis-what  <!-- 六轴小节 .rsi-axis，参数是 id -->
   ::: list method-list <!-- 带样式的列表，参数是 class -->
   ```
 
-  指令内部按 Markdown 渲染，长句可以随便折行。
+  以上是行内指令，指令体内部按**行内** Markdown 渲染（软换行折成空格，长句可以随便折行）。
+
+- 下面两个是块指令，指令体按**完整** Markdown 渲染，可以放段落、列表和多个块：
+
+  ```markdown
+  ::: tldr            <!-- 文首 TL;DR 摘要框，标题自动生成 -->
+  - 讨论什么问题
+  - 最重要的结论
+  :::
+
+  ::: my-take         <!-- 强调真正重要的个人判断，标题自动生成 -->
+  I find it more useful to distinguish ... from ...
+  :::
+  ```
+
+  写什么、什么时候用，见 [`WRITING.md`](./WRITING.md)。用错指令名会直接构建失败，不会静默忽略。
 
 正文里可以直接写 HTML——现有的 `figure.rsi-*` 示意图就是这么存的。
 
@@ -127,6 +163,8 @@ footer: Embodied Data                # 页脚右侧文字
 ```
 content/site.json     首页标题、lede、scope、页脚等站点文案
 content/posts/*.md    文章源文件
+WRITING.md            撰写标准（文章写成什么样，写作前必读）
+AGENTS.md             AI 协作的操作硬约束
 templates/            页面骨架（post.html / index.html / card.html）
 tools/build.mjs       构建脚本（导出 build / watchSources）
 tools/serve.mjs       本地开发服务器（自动重建 + 页面自动刷新）
@@ -134,5 +172,5 @@ tools/verify-against-main.py  与 main 分支的原始站点做等价性比对
 styles.css toc.js assets/ favicon.svg   原样拷进 dist/
 ```
 
-`index.html` 的卡片数量、编号、置顶顺序都由 front-matter 推导，不用手工维护。
+`index.html` 的卡片数量、日期、排序和置顶状态都由 front-matter 推导，不用手工维护。
 `styles.css` 和 `toc.js` 的 `?v=` 版本号按文件内容哈希自动生成。

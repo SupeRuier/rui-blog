@@ -3,6 +3,7 @@ title: Robot Agent System 2：规划、执行与系统闭环
 tabTitle: Robot Agent System 2
 description: 从认知、编排、执行与反馈四个平面理解 Robot Harness，以及 Robot Agent System 2 的规划、执行与系统闭环。
 order: "08"
+date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: ROBOT AGENT · FRAMEWORK
 cardMeta: Robot Agent   # 首页卡片右上角，比文章页眉短
 summary: 从主循环与四类调度协议出发，理解 Robot Harness 的认知、控制、执行、反馈与能力演化闭环。

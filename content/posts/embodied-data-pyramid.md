@@ -2,6 +2,7 @@
 title: 具身智能的数据金字塔
 description: 具身智能的数据金字塔。
 order: "06"
+date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: EMBODIED DATA · FRAMEWORK
 cardMeta: Embodied Data   # 首页卡片右上角，比文章页眉短
 summary: 从互联网视频、仿真与遥操作数据，到真机示教和自主 Rollout。
