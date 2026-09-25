@@ -18,7 +18,7 @@
    `tools/build.mjs` 遇到未注册的 `::: xxx` 会 `throw`，不会静默降级。
    当前可用：
    - 行内指令（指令体按行内 Markdown 渲染）：`note`、`question`、`method-link`、`date <参数>`
-   - 块指令（指令体按完整 Markdown 渲染）：`axis <id>`、`list <class>`、`tldr`、`my-take`
+   - 块指令（指令体按完整 Markdown 渲染）：`axis <id>`、`list <class>`、`tldr`、`my-take`、`diagram <图名>`
 
    其中 `tldr`、`my-take` 是 `WRITING.md` 要求的两个核心模块，标题文字由构建自动生成，正文里不要再手写一遍。新增第三类指令时必须先改 `build.mjs` 并在 `styles.css` 加样式。
 

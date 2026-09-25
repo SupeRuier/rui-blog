@@ -175,8 +175,29 @@ templates/            页面骨架（post.html / index.html / card.html）
 tools/build.mjs       构建脚本（导出 build / watchSources）
 tools/serve.mjs       本地开发服务器（自动重建 + 页面自动刷新）
 tools/verify-against-main.py  与 main 分支的原始站点做等价性比对
+tools/render-diagrams.py      diagrams/*.mmd → assets/*.svg（手动运行，见下）
+diagrams/             mermaid 图源文件 + 渲染配置（不参与构建）
 styles.css toc.js assets/ favicon.svg   原样拷进 dist/
 ```
 
 `index.html` 的卡片数量、日期、排序和置顶状态都由 front-matter 推导，不用手工维护。
 `styles.css` 和 `toc.js` 的 `?v=` 版本号按文件内容哈希自动生成。
+
+## 图
+
+站点**不引入任何前端图形库**。两种画法：
+
+| 方式 | 写法 | 适合 |
+| --- | --- | --- |
+| HTML/CSS 图 | 直接写 `<figure class="rsi-mini">` 等（见 `WRITING.md` §3.2） | 概览图、流程、分类——多数情况用这个 |
+| mermaid 图 | `diagrams/*.mmd` → 渲染成 `assets/*.svg` → 正文写 `::: diagram <图名>` | 连线多、需要精确表达规格的架构图与时序图 |
+
+mermaid 是**构建时渲染 + 提交 SVG**，不是运行时加载：
+
+```bash
+python3 tools/render-diagrams.py     # 改了 diagrams/*.mmd 之后跑，并把 assets/*.svg 一起提交
+```
+
+这样做的原因：页面不需要 1MB 的 JS，不依赖外部 CDN，GitHub Actions 的构建也不需要无头浏览器；SVG 是静态资产，断网、打印、检索都正常。渲染复用本机 Chrome（见 `diagrams/puppeteer.json`），mermaid-cli 只用 `npx` 临时拉取，**不写进 `package.json`**，所以 `npm install` 依然只有 `marked` 一个依赖。
+
+`::: diagram <图名>` 会把 `assets/<图名>.svg` 在构建时**内联**进页面（文字可选中、可检索），图名不存在会直接构建失败并提示先跑渲染脚本。

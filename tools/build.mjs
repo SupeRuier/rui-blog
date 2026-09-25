@@ -13,7 +13,7 @@
  */
 import { readFile, writeFile, mkdir, cp, rm, readdir, stat } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
-import { existsSync, watch } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, watch } from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { marked } from 'marked'
@@ -156,7 +156,7 @@ const INLINE_DIRECTIVES = {
 }
 
 /** 需要内部按完整 Markdown 渲染的块指令，用于错误提示里的可用清单。 */
-const BLOCK_DIRECTIVES = ['axis', 'list', 'tldr', 'my-take']
+const BLOCK_DIRECTIVES = ['axis', 'list', 'tldr', 'my-take', 'diagram']
 
 function extractDirectives(md, file) {
   const lines = md.split('\n')
@@ -192,6 +192,24 @@ function renderDirective(block, file) {
   }
   if (name === 'tldr') {
     return `<aside class="tldr">\n<p class="tldr-label">TL;DR</p>\n${renderMarkdown(body, file)}</aside>`
+  }
+  if (name === 'diagram') {
+    if (!arg) throw new Error(`${file}: ::: diagram 需要一个图名，例如 ::: diagram architecture`)
+    const svgPath = path.join(ROOT, 'assets', `${arg}.svg`)
+    if (!existsSync(svgPath)) {
+      const have = existsSync(path.join(ROOT, 'assets'))
+        ? readdirSync(path.join(ROOT, 'assets')).filter((f) => f.endsWith('.svg'))
+        : []
+      throw new Error(
+        `${file}: 找不到 assets/${arg}.svg。` +
+        `diagrams/${arg}.mmd 需要先用 python3 tools/render-diagrams.py 渲染。` +
+        `（现有：${have.join(', ') || '无'}）`)
+    }
+    // 构建时内联，而不是 <img src>：mermaid 的 SVG 自带 <style> 且尺寸很大，
+    // 内联后文字可选中、可检索，也不多一次请求。图名唯一，id 不冲突。
+    const svg = readFileSync(svgPath, 'utf-8').replace(/<\?xml[^>]*\?>\s*/, '')
+    const caption = body.trim() ? `\n<figcaption>${marked.parseInline(oneLine(body))}</figcaption>` : ''
+    return `<figure class="diagram">\n<div class="diagram-scroll">${svg}</div>${caption}\n</figure>`
   }
   if (name === 'my-take') {
     if (arg) throw new Error(`${file}: ::: my-take 不接受参数`)

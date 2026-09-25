@@ -346,6 +346,23 @@ Sys1 Policy + RobotBackend
 | [具身 Policy](embodied-models.html) | Sys1 层：输入、动作表示、时间尺度与执行接口 |
 | [System 2 与 System 1 的执行契约](flagos-robo-case-study.html) | 本文框架的一个具体公开实例（端云切分），已降为子页 |
 
+## 附录 · 原始 mermaid 规格图
+
+下面两张是这套架构规格的**原始 mermaid 表达**，与正文图是同一套设计的不同表达：
+
+- **正文图面向浏览**——用站内的 HTML/CSS 图形语言重画，读起来快，也随页面自适应；
+- **mermaid 图保留全部连线与标签**——包括每一条数据流的具体标注（`TaskEnvelope`、`action chunk`、`observe / execute / cancel / reset` 等），适合逐条核对。
+
+两张图在构建时由 `tools/render-diagrams.py` 渲染成静态 SVG 内联进页面，因此站点不依赖任何前端图形库，也不需要外部 CDN。图上文字可选中、可检索。
+
+::: diagram architecture
+图 A · 完整目标架构（原始 mermaid）。横向可滚动；虚线为未来多机器人调度的预留口。
+:::
+
+::: diagram sequence
+图 B · 单机器人总时序（原始 mermaid）。含 `alt` 分支与 `loop` 循环，纵向可滚动。
+:::
+
 ## 开放问题
 
 以下几项是框架目前**没有给出答案**的部分：

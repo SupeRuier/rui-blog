@@ -203,6 +203,14 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
   .am-split { grid-template-columns: 1fr; }
 }
 
+/* mermaid 规格图：构建时由 tools/render-diagrams.py 渲染成静态 SVG，
+   再用 ::: diagram 指令内联。图是架构规格，尺寸很大（两千多像素），
+   缩到正文宽度会看不清，所以保持原始尺寸 + 横向滚动。 */
+.article-body .diagram { margin: 2.2rem 0 2.5rem; }
+.diagram-scroll { overflow: auto; max-height: 80vh; padding: 18px; border: 1px solid var(--line); background: var(--paper); }
+.diagram-scroll svg { display: block; max-width: none; height: auto; }
+.article-body .diagram figcaption { margin-top: .7rem; color: var(--muted); font-size: .78rem; line-height: 1.6; }
+
 @media (max-width: 760px) {
   .wrap, .article-body { width: min(100% - 32px, 720px); }
   .site-header { height: 76px; }
