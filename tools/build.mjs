@@ -11,9 +11,9 @@
  *   node tools/build.mjs            构建一次
  *   node tools/build.mjs --watch    监听源文件，改动即重建
  */
-import { readFile, writeFile, mkdir, cp, rm, readdir, watch } from 'node:fs/promises'
+import { readFile, writeFile, mkdir, cp, rm, readdir, stat } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
-import { existsSync } from 'node:fs'
+import { existsSync, watch } from 'node:fs'
 import path from 'node:path'
 import { marked } from 'marked'
 
@@ -368,14 +368,68 @@ async function build() {
 async function main() {
   await build()
   if (!process.argv.includes('--watch')) return
+
+  // 注意用 node:fs 的回调版 watch。fs/promises 的 watch() 是惰性异步迭代器，
+  // 不去消费它就不会真正开始监听。
+  const { watch: watchCb } = await import('node:fs')
   console.log('监听 content/ 与 templates/ …（Ctrl-C 退出）')
+
+  // 云盘目录（iCloud / Dropbox）常常为一次保存抛出一串事件，所以既防抖、
+  // 又压掉构建期间的重复触发，最后用源文件指纹兜底：内容没变就不重建。
   let timer
-  for (const target of ['content', 'templates', 'styles.css', 'toc.js']) {
-    watch(path.join(ROOT, target), { recursive: true }, () => {
-      clearTimeout(timer)
-      timer = setTimeout(() => build().catch((e) => console.error(`✗ ${e.message}`)), 120)
-    })
+  let building = false
+  let queued = false
+  let lastPrint = null
+
+  async function rebuild() {
+    if (building) { queued = true; return }
+    building = true
+    try {
+      const print = await sourceFingerprint()
+      if (print !== lastPrint) {
+        await build()
+        lastPrint = print
+      }
+    } catch (e) {
+      console.error(`✗ 构建失败：${e.message}`)
+    }
+    building = false
+    if (queued) { queued = false; rebuild() }
   }
+
+  const onChange = () => {
+    clearTimeout(timer)
+    timer = setTimeout(rebuild, 150)
+  }
+
+  for (const target of ['content', 'templates', 'styles.css', 'toc.js']) {
+    try {
+      watchCb(path.join(ROOT, target), { recursive: true }, onChange)
+        .on('error', (e) => console.error(`⚠ 无法监听 ${target}：${e.message}`))
+    } catch (e) {
+      console.error(`⚠ 无法监听 ${target}：${e.message}`)
+    }
+  }
+}
+
+/** 所有源文件的 路径 + 大小 + mtime 指纹，用来判断是否真的需要重建。 */
+async function sourceFingerprint() {
+  const files = []
+  for (const dir of ['content', 'templates']) {
+    for (const rel of await readdir(path.join(ROOT, dir), { recursive: true })) {
+      const full = path.join(ROOT, dir, rel)
+      if (existsSync(full) && !(await stat(full)).isDirectory()) files.push(full)
+    }
+  }
+  for (const f of ['styles.css', 'toc.js', 'favicon.svg']) {
+    if (existsSync(path.join(ROOT, f))) files.push(path.join(ROOT, f))
+  }
+  const parts = []
+  for (const f of files.sort()) {
+    const s = await stat(f)
+    parts.push(`${f}:${s.size}:${s.mtimeMs}`)
+  }
+  return createHash('sha256').update(parts.join('\n')).digest('hex')
 }
 
 main().catch((e) => {
