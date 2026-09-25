@@ -1,12 +1,12 @@
 ---
-title: FlagOS-Robo 部署案例：System 2 与 System 1 如何交互
-tabTitle: FlagOS-Robo 部署案例
-description: FlagOS-Robo 与 RoboOS 的部署案例：System 2 Agent 与 System 1 Policy/Skill 的交互、端云切分与评估边界。
+title: System 2 与 System 1 的执行契约：以 FlagOS-Robo 为例
+tabTitle: System 2 与 System 1 的执行契约
+description: 以 FlagOS-Robo 为例看 System 2 与 System 1 的执行契约：目标、反馈、取消、超时、幂等与降级的接口语义。
 order: "10"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: ROBO DEPLOYMENT · CASE STUDY
 cardMeta: Robo Deployment · Case Study   # 首页卡片右上角，比文章页眉短
-summary: 基于 FlagOS-Robo 与 RoboOS 的公开资料，评估端云切分、任务调度、Policy / Skill 接口及验证缺口。
+summary: 目标、执行、反馈、取消、超时与降级的接口语义，以及公开设计与个人判断的分界。
 footer: Robo Deployment
 ---
 

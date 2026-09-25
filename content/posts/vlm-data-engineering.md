@@ -1,12 +1,12 @@
 ---
-title: 通用世界／具身理解 VLM 模型：训练、数据与评估
-tabTitle: 通用世界／具身理解 VLM 模型
-description: 通用世界／具身理解 VLM 模型：训练、数据构造与分层评估。
+title: 世界理解 VLM：从能力定义到任务、数据与训练验证
+tabTitle: 世界理解 VLM
+description: 世界理解 VLM：把场景、空间、因果等抽象能力拆成可构建数据、可训练、可验证的任务。
 order: "04"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: WORLD · EMBODIED VLM · FRAMEWORK
 cardMeta: World · Embodied VLM   # 首页卡片右上角，比文章页眉短
-summary: 模型能力与训练路线、跨域数据构造，以及通用／具身理解的分层评估。
+summary: 把抽象理解能力拆成可构建数据、可训练、可验证的任务，并分层检验。
 footer: World · Embodied VLM
 ---
 

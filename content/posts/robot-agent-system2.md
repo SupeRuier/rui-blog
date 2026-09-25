@@ -31,6 +31,8 @@ System 1 运行得快，但通常只对局部动作负责；System 2 看得更�
 
 中间的 Harness 既不是 Planner 的 prompt wrapper，也不只是 ROS 节点或工具列表。它是位于语言级意图与连续物理执行之间的**运行时桥接层**：把高层决策变成受约束、可观测、可中断的执行过程，再把物理世界的结果组织成下一轮决策可以消费的状态。
 
+这一「高层认知 + 中间编排 + 低层执行」的分层不是本文独有的划分。RoboOS 用 Brain–Cerebellum 结构组织跨本体与多 Agent 协作，把具身大脑与实时小脑分层部署 [@10]；对分层 VLA Agent 的系统性研究也表明，编排方式本身会带来稳定的性能差异 [@9]，而不是被底层 Policy 的能力完全决定。这两点合起来支持本文的立场：**Harness 是一个独立的设计变量，而不是 Policy 的附属品。**
+
 ## 理解 Harness：不要先数模块，要先看主循环
 
 常见架构图会列出 Planner、Memory、Verifier、Monitor、Skill Registry、Context Manager 和 Recovery。这样的图说明系统“拥有什么”，却没有说明系统“怎样运行”。同一组模块完全可以组成不同的 Agent。
@@ -143,6 +145,8 @@ SFT 首先解决“模型能否按这套运行时协议行动”，RL 再解决�
 :::
 
 还需要专门做模块消融：移除 Memory、Verifier、Monitor 或 Recovery 后，主循环是否仍然成立？性能下降来自模块本身，还是接口与调用预算同时发生了变化？只有把系统机制和评测单位对齐，才能区分 Planner 的收益、底层 Policy 的收益与调度策略的系统成本。
+
+本节只保留分层概览。**具体的判分接口、执行轨迹字段与逐层失败归因的做法，见 [Robot Agent 评测：从模型能力到系统调度](robot-agent-evaluation.html)**——那篇回答「怎样测量和归因」，本文回答「怎样运行」。
 
 ## 一个更准确的 Robot Agent 心智模型
 

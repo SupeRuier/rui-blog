@@ -1,12 +1,12 @@
 ---
-title: 统一多模态模型架构（UMM）：理解与生成如何共用底座
-tabTitle: 统一多模态模型架构（UMM）
-description: 统一多模态模型架构 UMM：文本、图像、视频的表示与理解生成统一训练框架。
+title: 统一理解与生成：多模态模型架构的设计问题
+tabTitle: 统一理解与生成
+description: 统一理解与生成的多模态架构设计问题：统一的是任务、表示、时空尺度、训练阶段还是输出接口。
 order: "05"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: UMM · MODEL ARCHITECTURE · FRAMEWORK
 cardMeta: UMM · Model Architecture   # 首页卡片右上角，比文章页眉短
-summary: 模态表示、共享主干、理解／生成训练目标，以及数据配比和能力验证。
+summary: 「统一」究竟统一了什么，以及不同架构路径的冲突与验证要求。
 footer: UMM
 ---
 

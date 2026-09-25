@@ -4,10 +4,13 @@ tabTitle: Agent RSI 方法文献目录
 description: Agent RSI 的方法文献目录：记忆、Prompt、Skill / Code 与 Harness。
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: AGENT RSI · METHODS · INDEX
-index: false          # 不作为首页卡片，只从父文章内链进入
 back: agent-robo-rsi.html#agent-rsi
 backLabel: ← 返回 Agent RSI 主文章
 footer: Agent RSI · Methods
+order: "13"
+section: references                # 归入首页底部的「方法文献目录」栏，不进主列表
+summary: 记忆、Prompt、Skill / Code 与 Harness 的可追溯来源与证据强度。
+cardMeta: Agent RSI · Methods
 ---
 
 ::: note

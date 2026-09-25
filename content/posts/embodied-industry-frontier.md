@@ -7,6 +7,7 @@ cardMeta: Embodied AI · Living Note   # 首页卡片右上角，比文章页眉
 summary: 持续记录由数据规模、效果对照与真实部署结果支撑，并能改变技术路线判断的业界进展。
 pinned: 置顶 · 持续更新
 footer: Embodied Industry Frontier · Living Note
+order: "11"
 ---
 
 ::: note

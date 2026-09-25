@@ -4,10 +4,13 @@ tabTitle: Robot Agent System 2 方法文献目录
 description: Robot Agent System 2 与 Robot Harness 的方法文献目录：调度协议、Planner–Policy 接口、执行反馈、记忆与恢复。
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: ROBOT AGENT · SYSTEM 2 · LITERATURE INDEX
-index: false          # 不作为首页卡片，只从父文章内链进入
 back: robot-agent-system2.html
 backLabel: ← 返回 System 2 主文章
 footer: Robot Agent System 2 · Literature
+order: "12"
+section: references                # 归入首页底部的「方法文献目录」栏，不进主列表
+summary: 按高层调度方式与 Harness 完整度归类，记录研究主张、实现与证据等级。
+cardMeta: Robot Agent · Literature
 ---
 
 ::: note

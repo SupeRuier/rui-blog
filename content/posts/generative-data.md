@@ -1,12 +1,12 @@
 ---
-title: Diffusion 与 Flow Matching 驱动的数据增强
-tabTitle: 生成式数据增强
-description: Diffusion 与 Flow Matching 驱动的生成式数据增强。
+title: 可控感知数据生成：条件生成与参考图插入
+tabTitle: 可控感知数据生成
+description: 可控感知数据生成：条件生成与参考图插入两条路径、标签可用性与下游验证。
 order: "03"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: GENERATIVE DATA · FRAMEWORK
 cardMeta: Generative Data   # 首页卡片右上角，比文章页眉短
-summary: 条件生成、参考图引导、对象插入，以及稀有目标和复杂场景的可控生成。
+summary: 条件生成与参考图插入两条路径的分工，以及位置、标签与质检要求。
 footer: Generative Data
 ---
 

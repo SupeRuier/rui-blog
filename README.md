@@ -106,6 +106,7 @@ cardMeta: Embodied Data              # 首页卡片右上角，一般比 meta �
 summary: 首页卡片上的一句话摘要
 pinned: 置顶 · 持续更新               # 写上就置顶（卡片会加 .is-pinned 样式），且不用写 order
 index: false                         # 不生成首页卡片，只从父文章内链进入
+section: references                  # 不进首页主列表，改放页面底部的「方法文献目录」栏
 back: agent-robo-rsi.html#agent-rsi  # 返回链接指向哪里，默认首页
 backLabel: ← 返回 Agent RSI 主文章    # 返回链接文案
 footer: Embodied Data                # 页脚右侧文字
@@ -120,6 +121,11 @@ footer: Embodied Data                # 页脚右侧文字
 卡片上不显示，也不参与排序 —— 顺序由 `order` 单独决定，两件事不要混。格式写错会直接构建失败。
 
 会显示在首页却没有 `order` 的文章会落到最后，构建时给警告。
+
+**首页分两栏。** 主栏是讨论性文章（`技术主题`）；标了 `section: references` 的文章单独放进页面
+最下方的「方法文献目录」栏 —— 这类文章以文献罗列为主、讨论性弱，放在最后不占首屏。两栏内部
+各自按 `order` 从大到小排。栏目标题与角标文案在 `content/site.json` 的 `refsHeading` /
+`refsEyebrow` 里改。
 
 ## 正文语法
 

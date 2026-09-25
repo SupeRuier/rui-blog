@@ -1,12 +1,12 @@
 ---
-title: 基于 3DGS 的场景重建与可编辑合成
-tabTitle: 3DGS 场景重建
-description: 基于 3DGS 的场景重建与可编辑合成。
+title: 基于 3DGS 的可编辑世界构建与闭环仿真
+tabTitle: 3DGS 可编辑世界构建
+description: 基于 3DGS 的可编辑世界构建与闭环仿真：从监督可信到交互可运行的完整链路。
 order: "02"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: 3D RECONSTRUCTION · FRAMEWORK
 cardMeta: 3D Reconstruction   # 首页卡片右上角，比文章页眉短
-summary: LiDAR 深度监督、地面与天空建模、资源优化，以及三维数字资产插入。
+summary: 从「可观看」走向「可编辑、可生产数据、可闭环交互」的重建链路与可信度分级。
 footer: 3D Reconstruction
 ---
 

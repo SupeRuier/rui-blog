@@ -1,12 +1,12 @@
 ---
-title: 主动学习：从样本选择到数据价值闭环
-tabTitle: 主动学习
-description: 主动学习：在预算约束下选择样本，以标注反馈和下游模型评测验证数据价值。
+title: 主动学习与数据价值：如何选择值得训练的样本
+tabTitle: 主动学习与数据价值
+description: 主动学习与数据价值：在标注和训练成本约束下定义样本价值，并检验新增数据的边际收益。
 order: "00"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: ACTIVE LEARNING · FRAMEWORK
 cardMeta: Active Learning   # 首页卡片右上角，比文章页眉短
-summary: 预算约束下的样本选择、长尾覆盖、标注反馈与下游模型验证。
+summary: 标注与训练成本约束下的样本价值定义，以及新增数据边际收益的检验方式。
 footer: Active Learning
 ---
 

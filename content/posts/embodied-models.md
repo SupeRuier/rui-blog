@@ -1,12 +1,12 @@
 ---
-title: 具身模型：从数据输入到机器人动作
-tabTitle: 具身模型
-description: 从数据输入到机器人动作的具身模型概览。
+title: 具身 Policy 的输入、动作表示与执行接口
+tabTitle: 具身 Policy
+description: 具身 Policy 的输入、动作表示与执行接口：只分析模型层，明确与系统层的边界。
 order: "07"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: EMBODIED MODEL · FRAMEWORK
 cardMeta: Embodied Model   # 首页卡片右上角，比文章页眉短
-summary: 以数据接口为主线，概览 VLA、WAM、World Model 与 Action Representation。
+summary: Policy / VLA 接收什么输入、如何表达动作，以及与系统层的时间尺度约束。
 footer: Embodied Model
 ---
 

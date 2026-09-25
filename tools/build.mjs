@@ -352,38 +352,52 @@ async function buildIndex(posts, vars) {
   const card = await read(path.join(TEMPLATES, 'card.html'))
   const cardPinned = await read(path.join(TEMPLATES, 'card-pinned.html'))
 
-  const listed = posts
-    .filter((p) => p.index !== false)
-    .sort((a, b) => {
-      const pin = (p) => (p.pinned ? 1 : 0)
-      if (pin(a) !== pin(b)) return pin(b) - pin(a)
+  const visible = posts.filter((p) => p.index !== false)
 
-      // 首页顺序 = 编辑选择的阅读顺序，order 越大越靠前。
-      // order 相同时用 slug 兜底，保证每次构建的顺序都一致。
-      const d = orderValue(b) - orderValue(a)
-      return d !== 0 ? d : a.slug.localeCompare(b.slug)
-    })
+  // 首页顺序 = 编辑选择的阅读顺序，order 越大越靠前。
+  // order 相同时用 slug 兜底，保证每次构建的顺序都一致。
+  const byHomeOrder = (a, b) => {
+    const pin = (p) => (p.pinned ? 1 : 0)
+    if (pin(a) !== pin(b)) return pin(b) - pin(a)
+    const d = orderValue(b) - orderValue(a)
+    return d !== 0 ? d : a.slug.localeCompare(b.slug)
+  }
 
-  const cards = listed
-    .map((p) =>
-      fill(p.pinned ? cardPinned : card, {
-        slug: p.slug,
-        order: p.order ?? '',
-        // 卡片上写的是短分类，通常比文章页眉短，没写就退回页眉
-        meta: p.cardMeta || p.meta || '',
-        pinned: p.pinned === true ? '置顶 · 持续更新' : p.pinned,
-        title: p.title,
-        summary: p.summary ?? '',
-      }).replace(/\s+$/, ''))
-    .join('\n')
+  const render = (list) =>
+    list
+      .map((p) =>
+        fill(p.pinned ? cardPinned : card, {
+          slug: p.slug,
+          order: p.order ?? '',
+          // 卡片上写的是短分类，通常比文章页眉短，没写就退回页眉
+          meta: p.cardMeta || p.meta || '',
+          pinned: p.pinned === true ? '置顶 · 持续更新' : p.pinned,
+          title: p.title,
+          summary: p.summary ?? '',
+        }).replace(/\s+$/, ''))
+      .join('\n')
+
+  // section: references 的文章不进主列表，单独归到页面底部的文献目录栏
+  const main = visible.filter((p) => p.section !== 'references').sort(byHomeOrder)
+  const refs = visible.filter((p) => p.section === 'references').sort(byHomeOrder)
+
+  const refSection = refs.length
+    ? fill(await read(path.join(TEMPLATES, 'ref-section.html')), {
+        refsHeading: vars.refsHeading || '方法文献目录',
+        refsEyebrow: vars.refsEyebrow || 'REFERENCES',
+        refCount: refs.length,
+        refCards: render(refs),
+      }).replace(/\s+$/, '')
+    : ''
 
   const index = fill(await read(path.join(TEMPLATES, 'index.html')), {
     ...vars,
     description: attr(vars.description),
-    noteCount: listed.length,
-    cards,
+    noteCount: main.length,
+    cards: render(main),
+    refSection,
   })
-  return { html: index, listed }
+  return { html: index, listed: visible, main, refs }
 }
 
 /* ------------------------------------------------------------- 主流程 */
@@ -406,7 +420,7 @@ export async function build() {
     await writeFile(path.join(OUT, 'posts', `${post.slug}.html`), await buildPost(post, vars))
   }
 
-  const { html, listed } = await buildIndex(posts, vars)
+  const { html, main, refs } = await buildIndex(posts, vars)
   await writeFile(path.join(OUT, 'index.html'), html)
 
   for (const f of ['styles.css', 'toc.js', 'favicon.svg', '.nojekyll']) {
@@ -418,7 +432,7 @@ export async function build() {
 
   for (const w of warnings) console.warn(`  ⚠ ${w}`)
   console.log(
-    `✓ dist/ · ${posts.length} 篇文章（首页 ${listed.length} 张卡片）` +
+    `✓ dist/ · ${posts.length} 篇文章（首页 ${main.length} 张卡片 + 文献 ${refs.length} 篇）` +
     ` · css v${vars.cssVersion} toc v${vars.tocVersion}`)
 }
 

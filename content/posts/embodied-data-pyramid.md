@@ -1,12 +1,13 @@
 ---
-title: 具身智能的数据金字塔
-description: 具身智能的数据金字塔。
+title: 具身智能的数据体系：来源、能力与反馈循环
+description: 具身智能的数据体系：各类数据来源分别支撑什么能力，以及质量、成本、覆盖与反馈速度的权衡。
 order: "06"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: EMBODIED DATA · FRAMEWORK
 cardMeta: Embodied Data   # 首页卡片右上角，比文章页眉短
-summary: 从互联网视频、仿真与遥操作数据，到真机示教和自主 Rollout。
+summary: 预训练、示教、仿真与真机 rollout、失败轨迹各自支撑的能力与反馈速度。
 footer: Embodied Data
+tabTitle: 具身智能数据体系
 ---
 
 ::: note
