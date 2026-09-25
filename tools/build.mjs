@@ -405,12 +405,24 @@ export async function watchSources(onRebuild) {
   }
 
   const watchers = []
-  for (const target of ['content', 'templates', 'styles.css', 'toc.js']) {
+  const onChange = () => {
+    clearTimeout(timer)
+    timer = setTimeout(rebuild, 150)
+  }
+
+  // 目录递归监听；根目录单独非递归地听一次，覆盖 styles.css / toc.js /
+  // favicon.svg 这类散落文件（直接监听单个文件的话，编辑器用「写临时文件再
+  // 改名」保存会换掉 inode，监听就失效了）。
+  for (const [target, opts] of [
+    ['content', { recursive: true }],
+    ['templates', { recursive: true }],
+    ['assets', { recursive: true }],
+    ['.', {}],
+  ]) {
+    const full = path.join(ROOT, target)
     try {
-      watchers.push(watchCb(path.join(ROOT, target), { recursive: true }, () => {
-        clearTimeout(timer)
-        timer = setTimeout(rebuild, 150)
-      }))
+      watchers.push(watchCb(full, opts, onChange)
+        .on('error', (e) => console.error(`⚠ 监听 ${target} 出错：${e.message}`)))
     } catch (e) {
       console.error(`⚠ 无法监听 ${target}：${e.message}`)
     }
@@ -428,7 +440,7 @@ export async function watchSources(onRebuild) {
 async function main() {
   await build()
   if (!process.argv.includes('--watch')) return
-  console.log('监听 content/ 与 templates/ …（Ctrl-C 退出）')
+  console.log('监听 content/、templates/、assets/ 与根目录样式文件 …（Ctrl-C 退出）')
   await watchSources()
 }
 
@@ -440,18 +452,24 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   })
 }
 
+const SOURCE_DIRS = ['content', 'templates', 'assets']
+const SOURCE_FILES = ['styles.css', 'toc.js', 'favicon.svg']
+
 /** 所有源文件的 路径 + 大小 + mtime 指纹，用来判断是否真的需要重建。 */
 async function sourceFingerprint() {
   const files = []
-  for (const dir of ['content', 'templates']) {
-    for (const rel of await readdir(path.join(ROOT, dir), { recursive: true })) {
-      const full = path.join(ROOT, dir, rel)
-      if (existsSync(full) && !(await stat(full)).isDirectory()) files.push(full)
+  for (const dir of SOURCE_DIRS) {
+    const base = path.join(ROOT, dir)
+    if (!existsSync(base)) continue
+    for (const rel of await readdir(base, { recursive: true })) {
+      const full = path.join(base, rel)
+      if (!(await stat(full)).isDirectory()) files.push(full)
     }
   }
-  for (const f of ['styles.css', 'toc.js', 'favicon.svg']) {
+  for (const f of SOURCE_FILES) {
     if (existsSync(path.join(ROOT, f))) files.push(path.join(ROOT, f))
   }
+
   const parts = []
   for (const f of files.sort()) {
     const s = await stat(f)

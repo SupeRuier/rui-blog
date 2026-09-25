@@ -48,7 +48,13 @@ async function prepare() {
   })
 }
 
-await prepare()
+try {
+  await prepare()
+} catch (e) {
+  console.error(`✗ 启动失败：${e.message}`)
+  console.error('  如果提示端口或目录被占用，确认没有另一个 npm run dev 还在跑。')
+  process.exit(1)
+}
 console.log(
   STATIC
     ? `预览：http://localhost:${PORT}  (dist/，静态模式)`
@@ -94,4 +100,13 @@ createServer(async (req, res) => {
   } catch {
     res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' }).end('404')
   }
-}).listen(PORT)
+})
+  .on('error', (e) => {
+    if (e.code === 'EADDRINUSE') {
+      console.error(`✗ 端口 ${PORT} 已被占用。换一个：npm run dev -- ${PORT + 1}`)
+    } else {
+      console.error(`✗ 服务启动失败：${e.message}`)
+    }
+    process.exit(1)
+  })
+  .listen(PORT)
