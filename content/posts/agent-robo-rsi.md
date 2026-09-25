@@ -14,6 +14,20 @@ footer: Agent RSI · Robo RSI
 RSI Unified Taxonomy V1.0：只保留一套通用分类。Robo / Embodied RSI 是同一框架中带有物理交互、动作策略、本体差异及物理成本与安全约束的实例；下文是研究分析框架，不是任何具体系统的效果声明。
 :::
 
+::: tldr
+「持续自我改进」这个说法在软件 Agent 与具身系统里被用得很宽：一次任务内的反思、失败重试、Prompt 微调、Skill 库扩充、Policy 微调、乃至架构搜索，都被冠以 RSI。混在一起讨论，结论就无法比较。
+
+本文用一套固定的六轴把位置问清楚：**WHAT**（改什么）、**WHEN**（何时改）、**HOW**（经验如何变成改进）、**WHERE**（经验来自何处）、**CAPABILITY**（单次更新产生哪种能力变化）、**GOVERNANCE**（是否值得持久化与上线）。
+
+三个核心判断：
+
+- **数据回传不等于自我改进。** 采集、日志、失败样本入库都只是输入；只有经验确实改变了未来的系统状态、且该改变在后续任务上被验证为能力变化，才构成一次改进。
+- **CAPABILITY 的三种变化不能混写**：Enhancement（已会 → 更好）、Acquisition（原本不会 → 会）、Generalization（已有能力 → 新分布仍有效）。只保留成功轨迹并提高成功率，不是从失败中学习。
+- **Robo 不是第二套 taxonomy**，而是同一框架中带物理交互、动作策略、本体差异与物理成本的实例。
+
+文末给出跨案例对照与这套框架的适用边界。
+:::
+
 ::: question
 系统如何从经验中持续改变自身，并证明改变带来能力增长？
 :::
@@ -85,6 +99,38 @@ GOVERNANCE 不描述获得了哪一种能力，而是检查改进是否值得**�
 
 标注一篇 Robo 方法时，仍然按 WHAT / WHEN / HOW / WHERE / CAPABILITY / GOVERNANCE 六轴走，只在对应节点注明具身实例。比如同一条**失败 → 诊断 → 修订 → 回放 → 验证 → 上线**链路：失败可能来自真机；归因需要定位物理动作；被改的可能是 VLA 参数，也可能是 Skill / Controller Code 或 Planner–Policy 编排；验收还必须覆盖真实执行的安全与旧任务回归。**仿真成功不是「真机习得能力」的同义词**。
 
+## 跨案例对照：同一套六轴，七类不同的系统 {#cross-case}
+
+六轴的价值在于能把方法横向摆开。下表按同一套轴定位几类公开工作。**定位依据是公开标题与自述，不是复现实验**，因此 CAPABILITY 一列写的是「结构上可能出现的变化类型」，不是效果评价。
+
+| 系统 | WHAT | WHEN | HOW | CAPABILITY（结构上） | 主要边界 |
+| --- | --- | --- | --- | --- | --- |
+| Voyager [@2] | Skill / Code 库（非参数） | Inter-task、事件触发 | 自动课程 + 环境反馈 + 可执行代码 | Acquisition | Minecraft 环境；不涉及物理安全 |
+| Reflexion [@4] | Memory / Prompt | Intra-task | 言语化反思后重试 | 任务内适应（非持久能力） | 单任务内的恢复，不等于跨任务学习 |
+| GEPA [@5] | Prompt | Periodic / Batch | 反思式 Prompt 演化 | Enhancement | 优化对象是提示，不是系统结构 |
+| SICA [@6] | 自身代码与工具 | Inter-task | 自修改 + 基准反馈 | Enhancement，部分 Acquisition | 改进器与被改进者同体，回归风险高 |
+| ADAS [@7] | Agent 架构 / Harness | 外层搜索 | 元代理搜索并评估新设计 | Acquisition（新架构） | 搜索成本高，评价高度依赖基准 |
+| RoboCat [@8] | 参数（Policy） | Inter-task / Periodic | 自主采集 + 微调 | Enhancement + 跨本体 Transfer | 需要真机采集与安全约束 |
+| RISE [@9] | 参数（Policy） | Periodic | 世界模型支撑的策略改进 | Enhancement | 依赖世界模型的保真度 |
+
+从这张表能读出三件事：
+
+1. **同一格里的方法效果可以差很多。** 六轴是定位工具，不是效果预测器——比较两种方案时必须先固定其他轴。
+2. **Intra-task 与 Inter-task 是最容易被合并的一栏。** Reflexion 属于前者：反思改善了本次任务的重试，但如果没有持久化并影响下一次任务，它不构成持续 RSI。
+3. **WHAT 落在非参数对象上时，GOVERNANCE 的压力通常更大。** Prompt / Memory / Skill / Code / Harness 的改动没有参数更新那样明确的版本边界，回归验证与回滚都更难做。
+
+## 这套 taxonomy 的适用边界 {#taxonomy-limits}
+
+把六轴当成万能分类会出问题。它至少有五处不覆盖：
+
+1. **不预测收益。** 它只说改了什么、何时改、怎么改，不说这次改动值不值得；同一格内的方法效果差异可以非常大。
+2. **不处理多主体互相改进。** 多个 Agent 互相提供经验、互相修改时，WHAT 与 WHERE 会同时落在多个主体上，六轴只能靠重复标注来表达，描述力有限。
+3. **对递归改进描述不足。** 「改进器本身也被改进」只能记成「WHAT 落在 Learning Infrastructure 上」的一次标注，无法表达递归层数及其风险累积。
+4. **各轴并不独立。** WHERE 会限制 HOW 的可能：经验只来自任务成败信号时，无法做 step 级归因，也就无法支撑依赖细粒度归因的更新机制。把六轴当正交维度会得出错误结论。
+5. **持续性要靠另一个问题回答。** 六轴描述单次更新；「多轮之后能力集合是否真的增长」属于 Accumulation 的问题，不能从任何单一轴推出来。
+
+因此这套框架的正确用法是**定位并对齐讨论口径**：先说清一篇工作在六个位置上的坐标，再比较同一位置上的两种方案。它不替代效果验证，也不替代安全论证。
+
 ## 系统级问题分析：跨论文与跨轮次 {#topic-analysis}
 
 以下议题不是单篇方法的第七条工程分类轴，而是综述后半部分的横向分析：比较多轮更新前后的 capability set、学习成本和安全边界。尤其**Accumulation** 问的是多轮后整体能力集合是否增长，与 CAPABILITY 的「一次更新改变了什么」不同。
@@ -109,8 +155,22 @@ GOVERNANCE 不描述获得了哪一种能力，而是检查改进是否值得**�
 [查看 Robo RSI 方法文献目录 <span aria-hidden="true">↗</span>](robo-rsi-methods.html)<span>数据、Policy、奖励、Skill / Harness 的代表路线</span>
 :::
 
+::: my-take
+我认为这一整套讨论里最需要反复强调的是：**数据回传、日志留存、失败样本入库，都不等于发生了自我改进。** 它们只是输入端的动作。
+
+构成一次自我改进，至少需要三步同时成立：经验确实改变了未来的系统状态；该改变在后续任务上被验证为能力变化；并且这种变化在旧任务上没有付出代价。很多自称「数据飞轮」的系统实际只完成了第一步——采集端在持续增长，改进端却没有对应的能力验证。
+
+判断一个系统是否真的在自我改进，有一个很直接的问题可以问：**把这一轮的经验全部丢掉，下一轮的表现会变差吗？** 如果答案是不会，这套循环目前只是数据积累。
+:::
+
 ## 参考文献 {#references}
 
 1. [Gao et al., A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence](https://arxiv.org/pdf/2507.21046)，TMLR，2026。本文借鉴其核心分析问题，并对 WHERE 等维度重新定义与扩展。
 2. [Voyager: An Open-Ended Embodied Agent with Large Language Models](https://arxiv.org/abs/2305.16291)，2023。可执行技能库和环境反馈。
 3. [RoboRSI](https://github.com/nssmd/RoboRSI)，项目仓库。机器人 Agent 的 Harness / Skill 路线资料入口；本文 taxonomy 为作者分析框架，并非该项目原有分类。
+4. [Reflexion: Language Agents with Verbal Reinforcement Learning](https://arxiv.org/abs/2303.11366)，2023。
+5. [GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning](https://arxiv.org/abs/2507.19457)，2025。
+6. [A Self-Improving Coding Agent](https://arxiv.org/abs/2504.15228)，2025。
+7. [Automated Design of Agentic Systems](https://arxiv.org/abs/2408.08435)，2024。
+8. [RoboCat: A Self-Improving Generalist Agent for Robotic Manipulation](https://arxiv.org/abs/2306.11706)，2023。
+9. [RISE: Self-Improving Robot Policy with Compositional World Model](https://arxiv.org/abs/2602.11075)，2026。
