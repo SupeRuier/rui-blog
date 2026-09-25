@@ -5,19 +5,37 @@
 正文写在 `content/posts/*.md` 里，`npm run build` 生成 `dist/` 静态站点。
 `dist/` 不进版本库，由 GitHub Actions 构建后发布到 Pages。
 
-## 本地预览
+## 日常写作流程
 
 ```bash
-npm install        # 首次
-npm run serve      # 构建并起本地服务，打开 http://localhost:8000
-npm run dev        # 改 content/ 或 templates/ 自动重建
+npm install   # 首次
+npm run dev   # 打开 http://localhost:8000，然后就不用管它了
+```
+
+`npm run dev` 做三件事：构建 → 起本地服务 → 监听 `content/`、`templates/`、
+`styles.css`、`toc.js`。之后：
+
+1. 改 `content/posts/*.md`，存盘；
+2. 终端出现 `↻ 源文件已更新，已通知浏览器刷新`；
+3. 浏览器里的页面**自己刷新**，不用手动按 F5。
+
+即使监听漏了事件（云盘目录偶发），手动刷新一次也一定拿到最新的构建结果——
+服务端会在响应 HTML 前先确认一次源文件指纹。刷新脚本只在本地服务时注入，
+`dist/` 里的文件是干净的。
+
+其它命令：
+
+```bash
+npm run build     # 只构建一次，产出 dist/
+npm run preview   # 只服务 dist/，不监听、不注入刷新脚本（检查生产产物用）
+npm run verify    # 构建并与 main 分支上的原始站点逐页比对，确认内容没被改坏
 ```
 
 ## 写一篇新文章
 
 1. 复制一篇现有的 `content/posts/*.md`，改文件名（文件名就是 URL，例如 `foo.md` → `/posts/foo.html`）。
 2. 改开头的 front-matter，写正文。
-3. 提交并推送到 `main`，GitHub Actions 会自动构建并发布。
+3. 本地 `npm run dev` 看效果，满意后提交并推送到 `main`，GitHub Actions 会自动构建并发布。
 
 ## front-matter 字段
 
@@ -66,8 +84,9 @@ footer: Embodied Data                # 页脚右侧文字
 content/site.json     首页标题、lede、scope、页脚等站点文案
 content/posts/*.md    文章源文件
 templates/            页面骨架（post.html / index.html / card.html）
-tools/build.mjs       构建脚本
-tools/serve.mjs       本地预览
+tools/build.mjs       构建脚本（导出 build / watchSources）
+tools/serve.mjs       本地开发服务器（自动重建 + 页面自动刷新）
+tools/verify-against-main.py  与 main 分支的原始站点做等价性比对
 styles.css toc.js assets/ favicon.svg   原样拷进 dist/
 ```
 

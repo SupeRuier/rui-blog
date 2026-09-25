@@ -15,6 +15,7 @@ import { readFile, writeFile, mkdir, cp, rm, readdir, stat } from 'node:fs/promi
 import { createHash } from 'node:crypto'
 import { existsSync, watch } from 'node:fs'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { marked } from 'marked'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
@@ -331,7 +332,7 @@ async function buildIndex(posts, vars) {
 
 /* ------------------------------------------------------------- 主流程 */
 
-async function build() {
+export async function build() {
   const site = JSON.parse(await read(path.join(ROOT, 'content', 'site.json')))
   const vars = {
     ...site,
@@ -365,51 +366,78 @@ async function build() {
     ` · css v${vars.cssVersion} toc v${vars.tocVersion}`)
 }
 
-async function main() {
-  await build()
-  if (!process.argv.includes('--watch')) return
-
+/**
+ * 监听源文件，变化时重建。返回 { stop, checkNow }。
+ *
+ * onRebuild 只在「确实重建了」之后调用（开发服务器用它通知浏览器刷新）。
+ * checkNow() 会等到构建真正结束才 resolve，因此可以安全地「先确保最新再响应请求」。
+ */
+export async function watchSources(onRebuild) {
   // 注意用 node:fs 的回调版 watch。fs/promises 的 watch() 是惰性异步迭代器，
   // 不去消费它就不会真正开始监听。
   const { watch: watchCb } = await import('node:fs')
-  console.log('监听 content/ 与 templates/ …（Ctrl-C 退出）')
+
+  let print = await sourceFingerprint()
+  let timer
+  let current = null
+  let queued = false
 
   // 云盘目录（iCloud / Dropbox）常常为一次保存抛出一串事件，所以既防抖、
   // 又压掉构建期间的重复触发，最后用源文件指纹兜底：内容没变就不重建。
-  let timer
-  let building = false
-  let queued = false
-  let lastPrint = null
-
-  async function rebuild() {
-    if (building) { queued = true; return }
-    building = true
-    try {
-      const print = await sourceFingerprint()
-      if (print !== lastPrint) {
-        await build()
-        lastPrint = print
+  function rebuild() {
+    if (current) { queued = true; return current }
+    current = (async () => {
+      try {
+        const now = await sourceFingerprint()
+        if (now !== print) {
+          await build()
+          print = now
+          onRebuild?.()
+        }
+      } catch (e) {
+        console.error(`✗ 构建失败：${e.message}`)
+      } finally {
+        current = null
       }
-    } catch (e) {
-      console.error(`✗ 构建失败：${e.message}`)
-    }
-    building = false
-    if (queued) { queued = false; rebuild() }
+      if (queued) { queued = false; return rebuild() }
+    })()
+    return current
   }
 
-  const onChange = () => {
-    clearTimeout(timer)
-    timer = setTimeout(rebuild, 150)
-  }
-
+  const watchers = []
   for (const target of ['content', 'templates', 'styles.css', 'toc.js']) {
     try {
-      watchCb(path.join(ROOT, target), { recursive: true }, onChange)
-        .on('error', (e) => console.error(`⚠ 无法监听 ${target}：${e.message}`))
+      watchers.push(watchCb(path.join(ROOT, target), { recursive: true }, () => {
+        clearTimeout(timer)
+        timer = setTimeout(rebuild, 150)
+      }))
     } catch (e) {
       console.error(`⚠ 无法监听 ${target}：${e.message}`)
     }
   }
+
+  return {
+    checkNow: rebuild,
+    stop() {
+      clearTimeout(timer)
+      for (const w of watchers) w.close()
+    },
+  }
+}
+
+async function main() {
+  await build()
+  if (!process.argv.includes('--watch')) return
+  console.log('监听 content/ 与 templates/ …（Ctrl-C 退出）')
+  await watchSources()
+}
+
+// 被 serve.mjs import 时不要执行 CLI 入口
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((e) => {
+    console.error(`✗ 构建失败：${e.message}`)
+    process.exit(1)
+  })
 }
 
 /** 所有源文件的 路径 + 大小 + mtime 指纹，用来判断是否真的需要重建。 */
@@ -431,8 +459,3 @@ async function sourceFingerprint() {
   }
   return createHash('sha256').update(parts.join('\n')).digest('hex')
 }
-
-main().catch((e) => {
-  console.error(`✗ 构建失败：${e.message}`)
-  process.exit(1)
-})
