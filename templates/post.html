@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{description}}">
+  <title>{{tabTitle}} — Rui</title>
+  <link rel="icon" href="../favicon.svg">
+  <link rel="stylesheet" href="../styles.css?v={{cssVersion}}">
+</head>
+<body>
+  <header class="site-header wrap"><a class="brand" href="../">Rui<span class="brand-dot">.</span></a><a class="back" href="{{backHref}}">{{backLabel}}</a></header>
+  <main>
+    <header class="article-header wrap"><p class="article-meta">{{meta}}</p><h1>{{title}}</h1></header>
+    <article class="article-body">
+{{body}}
+    </article>
+  </main>
+  <footer class="wrap"><span>© {{year}} {{author}}</span><span>{{footer}}</span></footer>
+<script src="../toc.js?v={{tocVersion}}" defer></script></body>
+</html>

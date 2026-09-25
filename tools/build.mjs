@@ -1,0 +1,384 @@
+#!/usr/bin/env node
+/**
+ * 把 content/posts/*.md 渲染成 dist/ 下的静态站点。
+ *
+ *   content/site.json      站点级文案（首页标题、lede、scope、页脚）
+ *   content/posts/*.md     文章，带 front-matter
+ *   templates/*.html       页面骨架
+ *   styles.css toc.js assets/ favicon.svg   原样拷进 dist/
+ *
+ * 用法：
+ *   node tools/build.mjs            构建一次
+ *   node tools/build.mjs --watch    监听源文件，改动即重建
+ */
+import { readFile, writeFile, mkdir, cp, rm, readdir, watch } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
+import { existsSync } from 'node:fs'
+import path from 'node:path'
+import { marked } from 'marked'
+
+const ROOT = path.resolve(import.meta.dirname, '..')
+const OUT = path.join(ROOT, 'dist')
+const POSTS_DIR = path.join(ROOT, 'content', 'posts')
+const TEMPLATES = path.join(ROOT, 'templates')
+
+/* ---------------------------------------------------------------- 工具 */
+
+const read = (p) => readFile(p, 'utf8')
+
+/** 属性值里只需要防住引号和 &，正文里的中文标点不动。 */
+const attr = (s = '') => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+
+function fill(template, vars) {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) =>
+    vars[key] === undefined ? '' : vars[key])
+}
+
+/** 读一个文件的 sha256 前 8 位，用来做缓存失效版本号。 */
+async function version(file) {
+  const buf = await readFile(path.join(ROOT, file))
+  return createHash('sha256').update(buf).digest('hex').slice(0, 8)
+}
+
+/* ---------------------------------------------------------- front-matter */
+
+/**
+ * 极简 front-matter：只支持扁平的 `key: value`，外加 `key: |` 多行块。
+ * 够用即可 —— 不引 YAML 依赖，出问题一眼能看懂。
+ */
+function parseFrontMatter(raw, file) {
+  const lines = raw.split('\n')
+  if (lines[0]?.trim() !== '---') {
+    throw new Error(`${file}: 缺少 front-matter（文件必须以 --- 开头）`)
+  }
+  const end = lines.indexOf('---', 1)
+  if (end < 0) throw new Error(`${file}: front-matter 没有闭合的 ---`)
+
+  const meta = {}
+  let i = 1
+  while (i < end) {
+    const line = lines[i]
+    if (!line.trim() || line.trimStart().startsWith('#')) { i++; continue }
+    const m = /^([A-Za-z_][\w-]*)\s*:\s*(.*)$/.exec(line)
+    if (!m) throw new Error(`${file}:${i + 1}: 看不懂的 front-matter 行：${line}`)
+    const [, key, rest] = m
+
+    if (rest.trim() === '|') {                       // 多行块
+      const buf = []
+      i++
+      while (i < end && (lines[i].startsWith('  ') || !lines[i].trim())) {
+        buf.push(lines[i].replace(/^ {2}/, ''))
+        i++
+      }
+      while (buf.length && !buf.at(-1).trim()) buf.pop()
+      meta[key] = buf.join('\n')
+      continue
+    }
+    meta[key] = unquote(rest.trim())
+    i++
+  }
+  return { meta, body: lines.slice(end + 1).join('\n').replace(/^\n+/, '') }
+}
+
+function unquote(v) {
+  v = stripComment(v)
+  if (/^".*"$/.test(v) || /^'.*'$/.test(v)) return v.slice(1, -1)
+  if (v === 'true') return true
+  if (v === 'false') return false
+  return v
+}
+
+/** 去掉值后面的行内注释（`#` 前必须有空白，所以 `C#` 这类值不受影响）。 */
+function stripComment(v) {
+  if (/^".*"$/.test(v) || /^'.*'$/.test(v)) return v
+  return v.replace(/\s+#.*$/, '').trim()
+}
+
+/* ------------------------------------------------- 块级指令 ::: name */
+
+/**
+ * 支持四个轻量指令，避免在正文里手写重复的 div/p 包装：
+ *
+ *   ::: note                     ::: question
+ *   顶部提示内容                 RSI 提问句
+ *   :::                          :::
+ *
+ *   ::: method-link              ::: date 2026-08
+ *   [链接](x.html) 说明          发布时间 · 2026 年 8 月
+ *   :::                          :::
+ *
+ *   ::: axis axis-what           （section.rsi-axis，内部按完整 Markdown 渲染）
+ *   ## 标题
+ *   正文
+ *   :::
+ */
+/** 指令体按行内渲染；软换行折成空格，因此长句可以随便折行写。 */
+const oneLine = (s) => s.trim().replace(/\s*\n\s*/g, ' ')
+
+const INLINE_DIRECTIVES = {
+  note: (body) => `<div class="draft-note">${marked.parseInline(oneLine(body))}</div>`,
+  question: (body) => `<p class="rsi-question">${marked.parseInline(oneLine(body))}</p>`,
+  'method-link': (body) => `<p class="rsi-method-link">${marked.parseInline(oneLine(body))}</p>`,
+  date: (body, arg) =>
+    `<p class="frontier-entry-date"><time datetime="${attr(arg)}">${marked.parseInline(oneLine(body))}</time></p>`,
+}
+
+function extractDirectives(md, file) {
+  const lines = md.split('\n')
+  const out = []
+  const blocks = []
+  for (let i = 0; i < lines.length; i++) {
+    const m = /^:::\s*([a-z][\w-]*)\s*(.*)$/.exec(lines[i])
+    if (!m) { out.push(lines[i]); continue }
+    const [, name, arg] = m
+    const body = []
+    i++
+    for (; i < lines.length && !/^:::\s*$/.test(lines[i]); i++) body.push(lines[i])
+    if (i >= lines.length) throw new Error(`${file}: ::: ${name} 没有闭合的 :::`)
+    blocks.push({ name, arg: arg.trim(), body: body.join('\n') })
+    out.push(`<!--directive:${blocks.length - 1}-->`)
+  }
+  return { md: out.join('\n'), blocks }
+}
+
+function renderDirective(block, file) {
+  const { name, arg, body } = block
+  if (INLINE_DIRECTIVES[name]) return INLINE_DIRECTIVES[name](body, arg)
+  if (name === 'axis') {
+    if (!arg) throw new Error(`${file}: ::: axis 需要一个 id，例如 ::: axis axis-what`)
+    return `<section class="rsi-axis" id="${attr(arg)}">\n${renderMarkdown(body, file)}</section>`
+  }
+  if (name === 'list') {
+    const html = renderMarkdown(body, file).trim()
+    if (!/^<(ol|ul)>/.test(html)) {
+      throw new Error(`${file}: ::: list 的内容必须是一个有序或无序列表`)
+    }
+    return arg ? html.replace(/^<(ol|ul)>/, `<$1 class="${attr(arg)}">`) : html
+  }
+  throw new Error(
+    `${file}: 未知指令 ::: ${name}（可用：${[...Object.keys(INLINE_DIRECTIVES), 'axis', 'list'].join(', ')}）`)
+}
+
+/* ------------------------------------------------------------- 渲染 */
+
+// `[@1]` → 指向文末第 1 条参考文献的引用链接
+const citationExtension = {
+  name: 'citation',
+  level: 'inline',
+  start: (src) => src.indexOf('[@'),
+  tokenizer(src) {
+    const m = /^\[@([\w-]+)\]/.exec(src)
+    if (m) return { type: 'citation', raw: m[0], id: m[1] }
+  },
+  renderer: (token) =>
+    `<a class="citation" href="#ref-${token.id}" aria-label="跳转到参考文献 ${token.id}">[${token.id}]</a>`,
+}
+
+// 中文写作里 `**加粗**` 后面紧跟汉字时（例如 `：**结论**根`），CommonMark 的
+// 右侧定界符规则会判定它不能闭合，于是 `**` 被原样输出。这里放宽规则：
+// 只要闭合的 `**` 前面不是空白就接受，让 **…** 在中文语境下正常工作。
+const strongExtension = {
+  name: 'strong',
+  level: 'inline',
+  start: (src) => src.indexOf('**'),
+  tokenizer(src) {
+    const m = /^\*\*(?=\S)([\s\S]*?\S)\*\*/.exec(src)
+    if (!m) return
+    return { type: 'strong', raw: m[0], text: m[1], tokens: this.lexer.inlineTokens(m[1]) }
+  },
+  renderer(token) {
+    return `<strong>${this.parser.parseInline(token.tokens)}</strong>`
+  },
+}
+
+// 标题里的 `{#some-id}` 转成 id 属性；没写就不生成 id（保持与旧版一致，交给 toc.js）
+const postRenderer = {
+  heading(token) {
+    const html = this.parser.parseInline(token.tokens)
+    const m = /\s*\{#([\w-]+)\}\s*$/.exec(html)
+    const id = m ? ` id="${m[1]}"` : ''
+    const text = m ? html.slice(0, m.index) : html
+    return `<h${token.depth}${id}>${text}</h${token.depth}>\n`
+  },
+
+  // 引用块里只有一句话时不要包 <p>：原站点就是这么写的，
+  // 多出来的 <p> 会叠加上 .article-body p 的样式。
+  blockquote(token) {
+    const body = this.parser.parse(token.tokens).trim()
+    const single = /^<p>([\s\S]*?)<\/p>$/.exec(body)
+    return `<blockquote>${single ? single[1] : `\n${body}\n`}</blockquote>\n`
+  },
+}
+
+marked.use({
+  extensions: [citationExtension, strongExtension],
+  renderer: postRenderer,
+  gfm: true,
+  breaks: false,
+})
+
+/**
+ * `## 参考文献` 下面那个有序列表：自动加 class 和 id="ref-N"，
+ * 于是正文只写 [@1]，不用再手工维护 [1] / id="ref-1" 两处编号。
+ */
+function tagReferences(html) {
+  const h = html.indexOf('<h2 id="references"')
+  if (h < 0) return html
+  const olStart = html.indexOf('<ol>', h)
+  if (olStart < 0) return html
+  const olEnd = html.indexOf('</ol>', olStart)
+  if (olEnd < 0) return html
+  let n = 0
+  const inner = html.slice(olStart + 4, olEnd).replace(/<li>/g, () => `<li id="ref-${++n}">`)
+  return `${html.slice(0, olStart)}<ol class="reference-list">${inner}</ol>${html.slice(olEnd + 5)}`
+}
+
+function renderMarkdown(md, file) {
+  const { md: stripped, blocks } = extractDirectives(md, file)
+  const rendered = blocks.map((b) => renderDirective(b, file))
+  const html = marked.parse(stripped)
+  return tagReferences(html.replace(/<!--directive:(\d+)-->/g, (_, i) => rendered[Number(i)]))
+}
+
+/* ------------------------------------------------------- 文章与首页 */
+
+async function loadPosts() {
+  const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith('.md'))
+  const posts = []
+  for (const f of files.sort()) {
+    const full = path.join(POSTS_DIR, f)
+    const { meta, body } = parseFrontMatter(await read(full), `content/posts/${f}`)
+    const slug = meta.slug || f.replace(/\.md$/, '')
+    if (!meta.title) throw new Error(`content/posts/${f}: front-matter 缺少 title`)
+    posts.push({ ...meta, slug, body, file: `content/posts/${f}` })
+  }
+  return posts
+}
+
+function validate(posts) {
+  const warn = []
+  const seen = new Map()
+  for (const p of posts) {
+    if (seen.has(p.slug)) warn.push(`slug 重复：${p.slug}（${seen.get(p.slug)} 与 ${p.file}）`)
+    seen.set(p.slug, p.file)
+
+    const refs = (p.body.match(/^##\s+参考文献/gm) || []).length
+    const cited = [...p.body.matchAll(/\[@([\w-]+)\]/g)].map((m) => m[1])
+    if (cited.length && !refs) warn.push(`${p.file}: 用了 [@N] 但没有「## 参考文献」章节`)
+    if (refs > 1) warn.push(`${p.file}: 出现了 ${refs} 个「## 参考文献」章节`)
+
+    if (p.index !== false && !p.summary) warn.push(`${p.file}: 会显示在首页，但没有 summary`)
+    if (p.index !== false && !(p.cardMeta || p.meta)) {
+      warn.push(`${p.file}: 会显示在首页，但没有 cardMeta / meta（卡片右上角分类）`)
+    }
+  }
+  return warn
+}
+
+async function buildPost(post, vars) {
+  const body = renderMarkdown(post.body, post.file)
+    .split('\n')
+    .map((l) => (l.trim() ? `      ${l}` : l))
+    .join('\n')
+    .replace(/\s+$/, '')
+
+  return fill(await read(path.join(TEMPLATES, 'post.html')), {
+    ...vars,
+    title: post.title,
+    tabTitle: post.tabTitle || post.title,
+    description: attr(post.description || post.summary || ''),
+    meta: post.meta || '',
+    footer: post.footer || post.title,
+    backHref: post.back || '../',
+    backLabel: post.backLabel || '← 返回技术笔记',
+    body,
+  })
+}
+
+async function buildIndex(posts, vars) {
+  const card = await read(path.join(TEMPLATES, 'card.html'))
+  const cardPinned = await read(path.join(TEMPLATES, 'card-pinned.html'))
+
+  const listed = posts
+    .filter((p) => p.index !== false)
+    .sort((a, b) => {
+      const pin = (p) => (p.pinned ? 1 : 0)
+      if (pin(a) !== pin(b)) return pin(b) - pin(a)
+      return Number(b.order ?? -1) - Number(a.order ?? -1)
+    })
+
+  const cards = listed
+    .map((p) =>
+      fill(p.pinned ? cardPinned : card, {
+        slug: p.slug,
+        order: p.order ?? '',
+        // 卡片上写的是短分类，通常比文章页眉短，没写就退回页眉
+        meta: p.cardMeta || p.meta || '',
+        pinned: p.pinned === true ? '置顶 · 持续更新' : p.pinned,
+        title: p.title,
+        summary: p.summary ?? '',
+      }).replace(/\s+$/, ''))
+    .join('\n')
+
+  const index = fill(await read(path.join(TEMPLATES, 'index.html')), {
+    ...vars,
+    description: attr(vars.description),
+    noteCount: listed.length,
+    cards,
+  })
+  return { html: index, listed }
+}
+
+/* ------------------------------------------------------------- 主流程 */
+
+async function build() {
+  const site = JSON.parse(await read(path.join(ROOT, 'content', 'site.json')))
+  const vars = {
+    ...site,
+    cssVersion: await version('styles.css'),
+    tocVersion: await version('toc.js'),
+  }
+
+  const posts = await loadPosts()
+  const warnings = validate(posts)
+
+  await rm(OUT, { recursive: true, force: true })
+  await mkdir(path.join(OUT, 'posts'), { recursive: true })
+
+  for (const post of posts) {
+    await writeFile(path.join(OUT, 'posts', `${post.slug}.html`), await buildPost(post, vars))
+  }
+
+  const { html, listed } = await buildIndex(posts, vars)
+  await writeFile(path.join(OUT, 'index.html'), html)
+
+  for (const f of ['styles.css', 'toc.js', 'favicon.svg', '.nojekyll']) {
+    if (existsSync(path.join(ROOT, f))) await cp(path.join(ROOT, f), path.join(OUT, f))
+  }
+  if (existsSync(path.join(ROOT, 'assets'))) {
+    await cp(path.join(ROOT, 'assets'), path.join(OUT, 'assets'), { recursive: true })
+  }
+
+  for (const w of warnings) console.warn(`  ⚠ ${w}`)
+  console.log(
+    `✓ dist/ · ${posts.length} 篇文章（首页 ${listed.length} 张卡片）` +
+    ` · css v${vars.cssVersion} toc v${vars.tocVersion}`)
+}
+
+async function main() {
+  await build()
+  if (!process.argv.includes('--watch')) return
+  console.log('监听 content/ 与 templates/ …（Ctrl-C 退出）')
+  let timer
+  for (const target of ['content', 'templates', 'styles.css', 'toc.js']) {
+    watch(path.join(ROOT, target), { recursive: true }, () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => build().catch((e) => console.error(`✗ ${e.message}`)), 120)
+    })
+  }
+}
+
+main().catch((e) => {
+  console.error(`✗ 构建失败：${e.message}`)
+  process.exit(1)
+})
