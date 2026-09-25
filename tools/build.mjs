@@ -275,11 +275,43 @@ function tagReferences(html) {
   return `${html.slice(0, olStart)}<ol class="reference-list">${inner}</ol>${html.slice(olEnd + 5)}`
 }
 
+/**
+ * 表格在窄屏会溢出正文宽度。统一包一层滚动容器，让表格保持 width:100%，
+ * 只在确实放不下时才横向滚动，而不是压缩列宽把中文挤成一条。
+ */
+function wrapTables(html) {
+  return html
+    .replace(/<table>/g, '<div class="table-scroll"><table>')
+    .replace(/<\/table>/g, '</table></div>')
+}
+
+/**
+ * 找出「被转义成代码块的 HTML 图表」。
+ *
+ * Markdown 的 HTML 块在**空行处结束**：图表里一旦插了空行，空行之后那些
+ * 4 空格缩进的行就会被当成缩进代码块，于是整张图变成一段转义源码——页面
+ * 看起来正常，图却没了。本站的图示主要靠 HTML，所以这个坑必须报警。
+ */
+function checkEscapedHtml(html, file) {
+  const out = []
+  const blocks = html.matchAll(/<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>/g)
+  for (const [, body] of blocks) {
+    // 只匹配本站图表用的标记，避免把「有意展示 HTML 的代码示例」误报
+    if (/&lt;figure\b/.test(body) || /&lt;div class=&quot;/.test(body)) {
+      out.push(`${file}: 有 HTML 图表被转义成了代码块——图表内不能有空行，` +
+        `否则空行之后的 4 空格缩进会被当成缩进代码块`)
+      break
+    }
+  }
+  return out
+}
+
 function renderMarkdown(md, file) {
   const { md: stripped, blocks } = extractDirectives(md, file)
   const rendered = blocks.map((b) => renderDirective(b, file))
   const html = marked.parse(stripped)
-  return tagReferences(html.replace(/<!--directive:(\d+)-->/g, (_, i) => rendered[Number(i)]))
+  const withBlocks = html.replace(/<!--directive:(\d+)-->/g, (_, i) => rendered[Number(i)])
+  return tagReferences(wrapTables(withBlocks))
 }
 
 /* ------------------------------------------------------- 文章与首页 */
@@ -417,7 +449,9 @@ export async function build() {
   await mkdir(path.join(OUT, 'posts'), { recursive: true })
 
   for (const post of posts) {
-    await writeFile(path.join(OUT, 'posts', `${post.slug}.html`), await buildPost(post, vars))
+    const html = await buildPost(post, vars)
+    warnings.push(...checkEscapedHtml(html, post.file))
+    await writeFile(path.join(OUT, 'posts', `${post.slug}.html`), html)
   }
 
   const { html, main, refs } = await buildIndex(posts, vars)
