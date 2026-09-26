@@ -177,7 +177,7 @@ tools/serve.mjs       本地开发服务器（自动重建 + 页面自动刷新�
 tools/verify-against-main.py  与 main 分支的原始站点做等价性比对
 tools/render-diagrams.py      diagrams/*.mmd → assets/*.svg（手动运行，见下）
 diagrams/             mermaid 图源文件 + 渲染配置（不参与构建）
-styles.css toc.js assets/ favicon.svg   原样拷进 dist/
+styles.css toc.js diagram.js assets/ favicon.svg   原样拷进 dist/
 ```
 
 `index.html` 的卡片数量、日期、排序和置顶状态都由 front-matter 推导，不用手工维护。
@@ -201,3 +201,13 @@ python3 tools/render-diagrams.py     # 改了 diagrams/*.mmd 之后跑，并把 
 这样做的原因：页面不需要 1MB 的 JS，不依赖外部 CDN，GitHub Actions 的构建也不需要无头浏览器；SVG 是静态资产，断网、打印、检索都正常。渲染复用本机 Chrome（见 `diagrams/puppeteer.json`），mermaid-cli 只用 `npx` 临时拉取，**不写进 `package.json`**，所以 `npm install` 依然只有 `marked` 一个依赖。
 
 `::: diagram <图名>` 会把 `assets/<图名>.svg` 在构建时**内联**进页面（文字可选中、可检索），图名不存在会直接构建失败并提示先跑渲染脚本。
+
+图的尺寸由 `diagram.js` 控制（约 60 行原生 DOM，无依赖）：
+
+- **默认适应容器宽度**——先看清整体结构；这一档由 CSS 兜底，禁用 JS 时效果相同；
+- **− / ＋ 手动放大缩小**，放不下就横向滚动，`适应宽度` 复位；
+- 工具条由脚本注入，所以禁用 JS 时不会留下一排按不动的按钮。
+
+这些图按 2000+ 像素的原始尺寸渲染，缩到 720px 正文宽度只能看清结构，细节要靠放大——这是刻意的取舍：**默认不给一个需要横向拖动的巨图**。
+
+`.diagram-canvas` 的底色**固定为白**，不跟随暗色模式：mermaid 在 SVG 里把字色写死成深色，跟随主题会直接看不见。

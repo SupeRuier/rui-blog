@@ -209,7 +209,8 @@ function renderDirective(block, file) {
     // 内联后文字可选中、可检索，也不多一次请求。图名唯一，id 不冲突。
     const svg = readFileSync(svgPath, 'utf-8').replace(/<\?xml[^>]*\?>\s*/, '')
     const caption = body.trim() ? `\n<figcaption>${marked.parseInline(oneLine(body))}</figcaption>` : ''
-    return `<figure class="diagram">\n<div class="diagram-scroll">${svg}</div>${caption}\n</figure>`
+    // 默认由 CSS 适应容器宽度；diagram.js 再接管缩放控制。不加空行，见 AGENTS.md 硬约束 2。
+    return `<figure class="diagram">\n<div class="diagram-canvas">${svg}</div>${caption}\n</figure>`
   }
   if (name === 'my-take') {
     if (arg) throw new Error(`${file}: ::: my-take 不接受参数`)
@@ -458,6 +459,7 @@ export async function build() {
     ...site,
     cssVersion: await version('styles.css'),
     tocVersion: await version('toc.js'),
+    diagramVersion: await version('diagram.js'),
   }
 
   const posts = await loadPosts()
@@ -475,7 +477,7 @@ export async function build() {
   const { html, main, refs } = await buildIndex(posts, vars)
   await writeFile(path.join(OUT, 'index.html'), html)
 
-  for (const f of ['styles.css', 'toc.js', 'favicon.svg', '.nojekyll']) {
+  for (const f of ['styles.css', 'toc.js', 'diagram.js', 'favicon.svg', '.nojekyll']) {
     if (existsSync(path.join(ROOT, f))) await cp(path.join(ROOT, f), path.join(OUT, f))
   }
   if (existsSync(path.join(ROOT, 'assets'))) {
@@ -485,7 +487,7 @@ export async function build() {
   for (const w of warnings) console.warn(`  ⚠ ${w}`)
   console.log(
     `✓ dist/ · ${posts.length} 篇文章（首页 ${main.length} 张卡片 + 文献 ${refs.length} 篇）` +
-    ` · css v${vars.cssVersion} toc v${vars.tocVersion}`)
+    ` · css v${vars.cssVersion} toc v${vars.tocVersion} diagram v${vars.diagramVersion}`)
 }
 
 /**

@@ -207,9 +207,18 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
    再用 ::: diagram 指令内联。图是架构规格，尺寸很大（两千多像素），
    缩到正文宽度会看不清，所以保持原始尺寸 + 横向滚动。 */
 .article-body .diagram { margin: 2.2rem 0 2.5rem; }
-.diagram-scroll { overflow: auto; max-height: 80vh; padding: 18px; border: 1px solid var(--line); background: var(--paper); }
-.diagram-scroll svg { display: block; max-width: none; height: auto; }
+/* 默认「适应容器宽度」由 CSS 兜底，禁用 JS 时也能看到完整结构；
+   放大 / 缩小 / 复位由 diagram.js 接管（它把 width 写成具体像素）。 */
+/* 底色固定为白：mermaid 的 SVG 里字色是写死的深色，跟随暗色模式会看不见。 */
+.diagram-canvas { overflow: auto; max-height: 78vh; padding: 14px; border: 1px solid var(--line); background: #fff; }
+.diagram-canvas svg { display: block; width: 100%; max-width: none; height: auto; }
 .article-body .diagram figcaption { margin-top: .7rem; color: var(--muted); font-size: .78rem; line-height: 1.6; }
+/* 缩放工具条：由 diagram.js 注入，所以 JS 关闭时不会留下按不动的按钮。 */
+.diagram-bar { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border: 1px solid var(--line); border-bottom: 0; background: var(--bg); font-size: .72rem; color: var(--muted); }
+.diagram-bar button { padding: 1px 9px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: inherit; line-height: 1.7; cursor: pointer; }
+.diagram-bar button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.diagram-bar button:disabled { opacity: .4; cursor: default; }
+.diagram-zoom { min-width: 3.4em; text-align: center; font-variant-numeric: tabular-nums; }
 
 @media (max-width: 760px) {
   .wrap, .article-body { width: min(100% - 32px, 720px); }
