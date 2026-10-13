@@ -2,6 +2,11 @@
   const article = document.querySelector('.article-body');
   if (!article) return;
 
+  // 窄屏阈值：必须与 styles.css 里 .article-toc 的 @media (max-width: 1299px) 保持一致。
+  // 低于此宽度时目录是右上角浮层，需要「点外部/点链接自动收起」。
+  const OVERLAY_MAX = 1300;
+  const isOverlay = () => window.innerWidth < OVERLAY_MAX;
+
   const headings = [...article.querySelectorAll('h2, h3')];
   if (!headings.length) return;
 
@@ -46,7 +51,7 @@
 
   button.addEventListener('click', () => setOpen(panel.hidden));
   panel.addEventListener('click', (event) => {
-    if (event.target.closest('a') && window.innerWidth < 1200) setOpen(false);
+    if (event.target.closest('a') && isOverlay()) setOpen(false);
   });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && !panel.hidden) {
@@ -55,6 +60,6 @@
     }
   });
   document.addEventListener('click', (event) => {
-    if (!panel.hidden && window.innerWidth < 1200 && !aside.contains(event.target)) setOpen(false);
+    if (!panel.hidden && isOverlay() && !aside.contains(event.target)) setOpen(false);
   });
 })();

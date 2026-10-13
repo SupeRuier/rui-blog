@@ -1,0 +1,38 @@
+flowchart TB
+    subgraph SITE["现场执行"]
+        direction LR
+        RUN["任务执行<br/>Agent 与机器人"]
+        BUF["环形缓冲与 Episode<br/>常开记录"]
+        TRACE["Agent Trace<br/>决策 · 工具 · 恢复"]
+        RUN --> BUF
+        RUN --> TRACE
+    end
+
+    subgraph EVIDENCE["证据链 · 追加写不可变"]
+        direction LR
+        RAW["Raw Execution Record<br/>多模态原始流 + 元数据"]
+        ALIGN["时间对齐与数据质检<br/>时钟偏移 · 丢帧 · 版本"]
+        RAW --> ALIGN
+    end
+
+    subgraph EXPLAIN["解释链 · 版本化可重算"]
+        direction LR
+        SEM["Semantic Experience<br/>分段 · 事件 / 状态 · 失败分类"]
+        VERIFY["独立验证与归因<br/>现象 → 证据 → 责任层级"]
+        SEM --> VERIFY
+    end
+
+    subgraph IMPROVE["改进链 · 候选变更需过门禁"]
+        direction LR
+        PRODUCT["Derived Data Products<br/>评测切片 · 训练片段 · 决策轨迹<br/>记忆候选 · 采集队列"]
+        EXIT["改进出口<br/>Tool · Harness · Memory<br/>Model / Policy · Evaluator · Hardware"]
+        GATE["回归门禁与灰度<br/>冻结基线 · 保护集 · 回滚"]
+        PRODUCT --> EXIT
+        EXIT --> GATE
+    end
+
+    BUF --> RAW
+    TRACE --> RAW
+    ALIGN --> SEM
+    VERIFY --> PRODUCT
+    GATE -->|"新版本部署"| RUN

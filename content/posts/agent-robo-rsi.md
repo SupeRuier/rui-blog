@@ -50,7 +50,7 @@ RSI Unified Taxonomy V1.0：只保留一套通用分类。Robo / Embodied RSI �
 
 <figure class="rsi-mini"><figcaption>WHAT · 五类更新对象</figcaption><div class="rsi-mini-branches rsi-five"><div><strong>Model / Parameters</strong><span>Foundation、Planner、Critic；Robo 的 Policy / VLA、Controller</span></div><div><strong>Memory / Knowledge</strong><span>情节、语义、轨迹、世界知识与物体可供性</span></div><div><strong>Skill / Tool / Code</strong><span>工具、可执行代码、技能库；物理技能与 Robot API</span></div><div><strong>Harness / Architecture</strong><span>Prompt、上下文、Agent Graph、Planner–Policy–Controller 调度</span></div><div><strong>Learning Infrastructure</strong><span>数据筛选、奖励生成、课程与训练流水线</span></div></div></figure>
 
-WHAT 只回答**被修改的系统组件**，不回答经验来自哪里。参数更新可能落在 Planner、Critic / Verifier / Reward Model 或底层 Policy / VLA、Controller；非参数更新可能落在经验 / 轨迹记忆、可执行 Skill / Code、工具调用路由或 System 2 Planner 与 System 1 Policy 的编排。数据生成、筛选、任务课程和训练流水线也可被改进：改进**学习机制**与只改执行策略应分别记录。自主机器人数据飞轮是这一类的具身重要形式，而不是另设一个 Robo 维度。
+WHAT 只回答**被修改的系统组件**，不回答经验来自哪里。参数更新可能落在 Planner、Critic / Verifier / Reward Model 或底层 Policy / VLA、Controller；非参数更新可能落在经验 / 轨迹记忆、可执行 Skill / Code、工具调用路由或 System 2 Planner 与 System 1 Policy 的编排。数据生成、筛选、任务课程和训练流水线也可被改进：改进**学习机制**与只改执行策略应分别记录。自主机器人数据飞轮是这一类的具身重要形式，而不是另设一个 Robo 维度；这条链路的工程侧设计（证据单元、数据分层、归因与门禁）见[具身 Agent 数据飞轮](embodied-data-flywheel.html)。
 :::
 
 ::: axis axis-when
