@@ -21,7 +21,7 @@ footer: Robot Agent
 
 三个核心判断：**反馈必须改变控制流**，否则系统只是在重复执行；**Memory 不是存储模块，而是状态跨时间的持久化协议**；**Harness 既是可靠性边界，也是评测单位**。
 
-四层评测概览保留在本文，但判分接口与逐层失败归因交给《Robot Agent 评测：从模型能力到系统调度》。
+四层评测概览保留在本文，但判分接口与逐层失败归因交给《具身系统评测：从模型能力到部署现场》。
 :::
 
 ::: question
@@ -148,7 +148,7 @@ Robot Agent 至少存在三个嵌套的时间尺度：
 - **秒—分钟，任务闭环：**Planner 与 Harness 在子任务边界、工具结果或异常事件上推进计划。
 - **小时—天，学习与演化闭环：**系统积累成功轨迹、失败规则、视频和日志，用于 SFT、Agentic RL、Skill 编译、Policy 更新或 Harness 规则改进。
 
-三个闭环必须由同一条可追踪的数据链连接。每次决策至少记录 Task、Runtime Type、Trigger Reason、Observation Version、State、Memory、Decision、Execution Result、Termination 与 Reward。这样数据回流的基本单位才与线上推理协议一致。
+三个闭环必须由同一条可追踪的数据链连接。每次决策至少记录 Task、Runtime Type、Trigger Reason、Observation Version、State、Memory、Decision、Execution Result、Termination 与 Reward。这样数据回流的基本单位才与线上推理协议一致。回传之后的分层、归因与门禁设计见[具身 Agent 数据飞轮](embodied-data-flywheel.html)。
 
 ::: note
 **确定主循环与 inference contract** → 少量 SFT 建立合法接口和非零成功率 → 在真实或仿真 Harness 中 rollout → Agentic RL 优化长程决策与恢复 → 回放、评测、灰度与回滚
@@ -183,7 +183,7 @@ SFT 首先解决“模型能否按这套运行时协议行动”，RL 再解决�
 
 还需要专门做模块消融：移除 Memory、Verifier、Monitor 或 Recovery 后，主循环是否仍然成立？性能下降来自模块本身，还是接口与调用预算同时发生了变化？只有把系统机制和评测单位对齐，才能区分 Planner 的收益、底层 Policy 的收益与调度策略的系统成本。
 
-本节只保留分层概览。**具体的判分接口、执行轨迹字段与逐层失败归因的做法，见 [Robot Agent 评测：从模型能力到系统调度](robot-agent-evaluation.html)**——那篇回答「怎样测量和归因」，本文回答「怎样运行」。
+本节只保留分层概览。**具体的判分接口、执行轨迹字段与逐层失败归因的做法，见 [具身系统评测：从模型能力到部署现场](robot-agent-evaluation.html)**——那篇回答「怎样测量和归因」，本文回答「怎样运行」。
 
 ## 一个更准确的 Robot Agent 心智模型
 

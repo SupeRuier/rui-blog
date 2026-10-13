@@ -342,7 +342,7 @@ Sys1 Policy + RobotBackend
 | --- | --- |
 | **本文** | 运行时框架与职责划分：目标架构、控制面边界、时序、预留接口 |
 | [Robot Agent System 2](robot-agent-system2.html) | System 2 Harness 的内部机制：主循环四问、四个平面、一条执行轨迹 |
-| [Robot Agent 评测](robot-agent-evaluation.html) | 怎样测量与归因：判分接口、执行轨迹字段、五层归因 |
+| [具身系统评测](robot-agent-evaluation.html) | 怎样测量与归因：判分接口、执行轨迹字段、五层归因、真机与部署层口径 |
 | [具身 Policy](embodied-models.html) | Sys1 层：输入、动作表示、时间尺度与执行接口 |
 | [System 2 与 System 1 的执行契约](flagos-robo-case-study.html) | 本文框架的一个具体公开实例（端云切分），已降为子页 |
 
