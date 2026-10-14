@@ -70,6 +70,8 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 .frontier-figure { margin: 2.2rem 0 2.5rem; }
 .frontier-figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); background: #fff; }
 .frontier-figure figcaption { margin-top: .7rem; color: var(--muted); font-size: .78rem; line-height: 1.6; }
+.image-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; align-items: center; }
+@media (max-width: 560px) { .image-pair { grid-template-columns: 1fr; } }
 .article-body .frontier-entry-date { margin: -.45rem 0 1.35rem; color: var(--accent); font-family: inherit; font-size: .78rem; font-weight: 700; letter-spacing: .05em; line-height: 1.5; }
 .article-body .rsi-method-link { margin: 1rem 0 2rem; padding: 14px 18px; border: 1px solid var(--line); font-family: inherit; font-size: .93rem; line-height: 1.5; }
 .rsi-method-link > a { display: block; font-weight: 600; }
