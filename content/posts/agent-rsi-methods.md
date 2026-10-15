@@ -7,7 +7,7 @@ meta: AGENT RSI · METHODS · INDEX
 back: agent-robo-rsi.html#agent-rsi
 backLabel: ← 返回 Agent RSI 主文章
 footer: Agent RSI · Methods
-order: "13"
+order: "02"
 section: references                # 归入首页底部的「方法文献目录」栏，不进主列表
 summary: 记忆、Prompt、Skill / Code 与 Harness 的可追溯来源与证据强度。
 cardMeta: Agent RSI · Methods

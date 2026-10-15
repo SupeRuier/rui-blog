@@ -419,7 +419,7 @@ async function buildIndex(posts, vars) {
       .map((p) =>
         fill(p.pinned ? cardPinned : card, {
           slug: p.slug,
-          order: p.order ?? '',
+          order: p.section === 'references' ? '文献目录' : p.order ?? '',
           // 卡片上写的是短分类，通常比文章页眉短，没写就退回页眉
           meta: p.cardMeta || p.meta || '',
           pinned: p.pinned === true ? '置顶 · 持续更新' : p.pinned,

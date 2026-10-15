@@ -2,7 +2,7 @@
 title: System 2 与 System 1 的执行契约：以 FlagOS-Robo 为例
 tabTitle: System 2 与 System 1 的执行契约
 description: 以 FlagOS-Robo 为例看 System 2 与 System 1 的执行契约：目标、反馈、取消、超时、幂等与降级的接口语义。
-order: "10"
+order: "11"
 index: false                         # 已降为运行时框架总览的子页，不上首页
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: ROBO DEPLOYMENT · CASE STUDY

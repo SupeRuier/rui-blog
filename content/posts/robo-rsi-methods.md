@@ -7,7 +7,7 @@ meta: ROBO RSI · METHODS · INDEX
 back: agent-robo-rsi.html#robo-rsi
 backLabel: ← 返回 Robo RSI 主文章
 footer: Robo RSI · Methods
-order: "14"
+order: "03"
 section: references                # 归入首页底部的「方法文献目录」栏，不进主列表
 summary: 数据、Policy、奖励与 Skill / Harness 的具身改进路线及其适用边界。
 cardMeta: Robo RSI · Methods

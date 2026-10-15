@@ -7,7 +7,7 @@ meta: ROBOT AGENT · SYSTEM 2 · LITERATURE INDEX
 back: robot-agent-system2.html
 backLabel: ← 返回 System 2 主文章
 footer: Robot Agent System 2 · Literature
-order: "12"
+order: "01"
 section: references                # 归入首页底部的「方法文献目录」栏，不进主列表
 summary: 按高层调度方式与 Harness 完整度归类，记录研究主张、实现与证据等级。
 cardMeta: Robot Agent · Literature

@@ -2,7 +2,7 @@
 title: 主动学习与数据价值：如何选择值得训练的样本
 tabTitle: 主动学习与数据价值
 description: 主动学习与数据价值：在标注和训练成本约束下定义样本价值，并检验新增数据的边际收益。
-order: "00"
+order: "01"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: ACTIVE LEARNING · FRAMEWORK
 cardMeta: Active Learning   # 首页卡片右上角，比文章页眉短

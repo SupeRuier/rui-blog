@@ -2,7 +2,7 @@
 title: 具身系统评测：从模型能力到部署现场
 tabTitle: 具身系统评测
 description: 被测对象从模型扩到部署单元时，评测单元、判分接口、指标口径与失败归因如何跟着改变。
-order: "15"
+order: "12"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: EVALUATION · MODEL CAPABILITY · AGENT SCHEDULING · REAL-ROBOT · DEPLOYMENT
 cardMeta: Embodied · Evaluation

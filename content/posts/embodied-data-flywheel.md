@@ -2,7 +2,7 @@
 title: 具身 Agent 数据飞轮：从部署记录到能力演进
 tabTitle: 具身 Agent 数据飞轮
 description: 统一 Experience 单元、Raw / Semantic / Derived 分层、失败归因、多出口自改进与回归门禁：具身数据闭环的链路与判据。
-order: "10"
+order: "11"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: EMBODIED AGENT · DATA FLYWHEEL · SYSTEM DESIGN
 cardMeta: Embodied Data Flywheel   # 首页卡片右上角，比文章页眉短
