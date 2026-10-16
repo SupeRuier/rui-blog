@@ -72,6 +72,17 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 .frontier-figure figcaption { margin-top: .7rem; color: var(--muted); font-size: .78rem; line-height: 1.6; }
 .context-flow-canvas { overflow-x: auto; }
 .context-flow-canvas img { min-width: 720px; }
+.frontier-timeline { margin: 2.2rem 0 2.8rem; padding: 22px 24px; border: 1px solid var(--line); background: var(--paper); }
+.frontier-timeline figcaption { color: var(--muted); font-size: .8rem; }
+.frontier-timeline ol { list-style: none; margin: 22px 0 0 6px; padding: 0 0 0 22px; border-left: 2px solid var(--line); }
+.frontier-timeline li { position: relative; margin: 0; padding: 0 0 22px; }
+.frontier-timeline li:last-child { padding-bottom: 0; }
+.frontier-timeline li::before { content: ""; position: absolute; left: -28px; top: 7px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.frontier-timeline a { display: block; color: var(--ink); border: 0; text-decoration: none; }
+.frontier-timeline time { color: var(--accent); font-size: .8rem; font-weight: 700; }
+.frontier-timeline .timeline-kind { display: inline; margin-left: .75rem; font-size: .72rem; color: var(--muted); }
+.frontier-timeline strong { display: block; margin: 3px 0; font-size: .95rem; }
+.frontier-timeline a > span:last-child { display: block; font-size: .8rem; line-height: 1.6; color: var(--muted); }
 .image-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; align-items: center; }
 @media (max-width: 560px) { .image-pair { grid-template-columns: 1fr; } }
 .article-body .frontier-entry-date { margin: -.45rem 0 1.35rem; color: var(--accent); font-family: inherit; font-size: .78rem; font-weight: 700; letter-spacing: .05em; line-height: 1.5; }
