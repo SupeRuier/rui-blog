@@ -77,7 +77,7 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 .video-pair > div { display: grid; gap: .35rem; }
 .frontier-figure .video-label { color: var(--muted); font-size: .76rem; letter-spacing: .04em; line-height: 1.5; }
 
-/* 主动学习总决策图：经典六步主线与大模型数据选择分层呈现。 */
+/* 主动学习总决策图：把边际价值展开为经典主动学习的六步判断。 */
 .al-decision-map { margin: 2.2rem 0 2.7rem; padding: 24px; border: 1px solid var(--line); background: var(--paper); }
 .al-decision-map figcaption strong, .al-decision-map figcaption span { display: block; }
 .al-decision-map figcaption strong { color: var(--ink); font-size: .82rem; }
@@ -125,7 +125,7 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 .al-map-risks > * { padding: 9px 10px; font-size: .66rem; text-align: center; }
 .al-map-risks strong { color: var(--accent); letter-spacing: .06em; text-align: left; }
 .al-map-risks span + span { border-left: 1px solid var(--line); }
-.al-map-llm { margin-top: 18px; padding: 15px; border: 1px solid var(--line); background: var(--bg); }
+.al-map-llm { margin: 2.2rem 0 2.5rem; padding: 15px; border: 1px solid var(--line); background: var(--bg); }
 .al-map-llm-title { display: flex; align-items: baseline; gap: 10px; padding-bottom: 11px; border-bottom: 1px solid var(--line); }
 .al-map-llm-title span { color: var(--accent); font-size: .64rem; font-weight: 700; letter-spacing: .12em; }
 .al-map-llm-title strong { font-size: .8rem; }
