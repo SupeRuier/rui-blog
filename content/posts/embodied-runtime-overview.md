@@ -12,11 +12,11 @@ footer: Embodied Runtime Framework
 ---
 
 ::: note
-框架草案 V0.2。本文只描述**真实运行时的调度与部署**，不含模型训练与数据生产链路。
+V0.2 的范围是**真实运行时的调度与部署**；模型训练与数据生产链路分别由训练和数据文章展开。
 
 核心判断：**Global Master—Robot Agent 本质上就是具身场景中的 Multi-Agent 调度结构。** Global Master 类似 Supervisor / Manager Agent；每个 Robot Agent 类似一个具备独立工具与执行环境的 Worker Agent。区别在于机器人任务是**长时、异步、有物理安全约束**的，不能照搬纯软件 Agent 的同步 tool call。
 
-现阶段从**单机器人端侧 Harness** 做起；云端 Global Master 只预留**控制面接口**，先不实现多机器人调度。标为「公开参照」的是可核验的公开工作，其余为本文提出的设计。
+现阶段从**单机器人端侧 Harness** 做起；云端 Global Master 预留**控制面接口**。正文将可核验的公开工作标为「公开参照」，并在此基础上给出运行时设计。
 :::
 
 ::: tldr
@@ -332,7 +332,7 @@ Sys1 Policy + RobotBackend
 
 框架的实用性最终体现在归因上。调度的确构成独立方差——对分层 VLA Agent 的系统性研究表明，编排方式本身会带来稳定的性能差异[@6]，而不是被底层 Policy 的能力完全决定；端侧 Policy 只是这条链的一环[@7]。
 
-把 Policy 的失败记成调度问题，会引导团队去优化 Prompt；把接口契约缺失记成模型问题，会引导团队去堆数据。**完整的五层归因判据与判分接口见[评测一文](robot-agent-evaluation.html)**；本文只固定它在框架里的位置：归因发生在 06 阶段的 Monitor / Critic，产出的结论直接决定 02 阶段是否重规划。
+把 Policy 的失败记成调度问题，会引导团队去优化 Prompt；把接口契约缺失记成模型问题，会引导团队去堆数据。**完整的五层归因判据与判分接口见[评测一文](robot-agent-evaluation.html)**；本文固定其在框架里的位置：归因发生在 06 阶段的 Monitor / Critic，产出的结论直接决定 02 阶段是否重规划。
 
 ## 09 · 与相邻文章的分工
 

@@ -11,7 +11,7 @@ footer: Agent RSI · Robo RSI
 ---
 
 ::: note
-RSI Unified Taxonomy V1.0：只保留一套通用分类。Robo / Embodied RSI 是同一框架中带有物理交互、动作策略、本体差异及物理成本与安全约束的实例；下文是研究分析框架，不是任何具体系统的效果声明。
+RSI Unified Taxonomy V1.0：只保留一套通用分类。Robo / Embodied RSI 是同一框架中带有物理交互、动作策略、本体差异及物理成本与安全约束的实例；六轴用于定位和比较研究方法。
 :::
 
 ::: tldr
@@ -32,7 +32,7 @@ RSI Unified Taxonomy V1.0：只保留一套通用分类。Robo / Embodied RSI �
 系统如何从经验中持续改变自身，并证明改变带来能力增长？
 :::
 
-**框架来源与扩展。**本文的 RSI Unified Taxonomy V1.0 一定程度上借鉴了 Gao 等人的综述 [A Survey of Self-Evolving Agents](https://arxiv.org/pdf/2507.21046)[@1]：以 WHAT（改什么）、WHEN（何时改）、HOW（如何改）作为分析 self-evolution 的起点，而非按 SFT / RL 单一算法划分。它并非该综述分类表的直接复刻：原文的 WHERE 主要讨论通用与特定**应用领域**，本文则将 WHERE 明确定义为经验 / 监督的**学习场域和外部交互来源**；进一步单列一次更新的 CAPABILITY、持续更新的 GOVERNANCE，并扩展经验处理与归因、Skill / Code / Harness 以及 Robo RSI 的物理执行和本体约束。原文的领域比较在本文移入后面的系统级问题分析。
+**框架来源与扩展。**本文的 RSI Unified Taxonomy V1.0 从 Gao 等人的综述 [A Survey of Self-Evolving Agents](https://arxiv.org/pdf/2507.21046)[@1] 所提出的 WHAT（改什么）、WHEN（何时改）、HOW（如何改）出发，而非按 SFT / RL 单一算法划分。原文的 WHERE 主要讨论通用与特定**应用领域**；本文将 WHERE 定义为经验 / 监督的**学习场域和外部交互来源**，进一步单列一次更新的 CAPABILITY、持续更新的 GOVERNANCE，并扩展经验处理与归因、Skill / Code / Harness 以及 Robo RSI 的物理执行和本体约束。原文的领域比较在本文移入后面的系统级问题分析。
 
 执行者在环境中产生经验，改进器利用反馈和归因提出修改；验证与部署门槛决定它能否成为下一轮系统的持久能力。一次任务内的反思或恢复，只说明有**任务内适应**，不能单凭一次成功声称发生了持续 RSI。下面六个维度各回答一个固定问题；图中的节点是二级分类，正文举出典型三级形式。单篇工作可以跨多个节点标注，不要求每个环节都存在。
 
@@ -149,7 +149,7 @@ GOVERNANCE 不描述获得了哪一种能力，而是检查改进是否值得**�
 
 ## Robo RSI：方法与文献入口 {#robo-rsi}
 
-具身执行者可能由 System 2 Planner / Harness 与 System 1 Policy / Skill 共同构成。须分别标注底层 VLA / Controller 的参数或代码更新，以及上层调度、记忆、恢复和技能库的变化。[RoboRSI 项目](https://github.com/nssmd/RoboRSI)是进一步检索具体方法的入口[@3]；不能把本文 V1.0 的分类归为该项目原有结论。评估时重点追问：failed rollout 是否真正贡献了能力习得，还是只筛掉坏数据；真机任务是否被物理状态验证，修改后的系统能否在不伤害旧能力与设备的前提下部署。
+具身执行者可能由 System 2 Planner / Harness 与 System 1 Policy / Skill 共同构成。须分别标注底层 VLA / Controller 的参数或代码更新，以及上层调度、记忆、恢复和技能库的变化。[RoboRSI 项目](https://github.com/nssmd/RoboRSI)提供进一步检索具体方法的入口[@3]；本文 V1.0 则提供统一的六轴分析框架。评估时重点追问：failed rollout 是否真正贡献了能力习得，还是只筛掉坏数据；真机任务是否被物理状态验证，修改后的系统能否在不伤害旧能力与设备的前提下部署。
 
 ::: method-link
 [查看 Robo RSI 方法文献目录 <span aria-hidden="true">↗</span>](robo-rsi-methods.html)<span>数据、Policy、奖励、Skill / Harness 的代表路线</span>
@@ -167,7 +167,7 @@ GOVERNANCE 不描述获得了哪一种能力，而是检查改进是否值得**�
 
 1. [Gao et al., A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence](https://arxiv.org/pdf/2507.21046)，TMLR，2026。本文借鉴其核心分析问题，并对 WHERE 等维度重新定义与扩展。
 2. [Voyager: An Open-Ended Embodied Agent with Large Language Models](https://arxiv.org/abs/2305.16291)，2023。可执行技能库和环境反馈。
-3. [RoboRSI](https://github.com/nssmd/RoboRSI)，项目仓库。机器人 Agent 的 Harness / Skill 路线资料入口；本文 taxonomy 为作者分析框架，并非该项目原有分类。
+3. [RoboRSI](https://github.com/nssmd/RoboRSI)，项目仓库。机器人 Agent 的 Harness / Skill 路线资料入口。
 4. [Reflexion: Language Agents with Verbal Reinforcement Learning](https://arxiv.org/abs/2303.11366)，2023。
 5. [GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning](https://arxiv.org/abs/2507.19457)，2025。
 6. [A Self-Improving Coding Agent](https://arxiv.org/abs/2504.15228)，2025。

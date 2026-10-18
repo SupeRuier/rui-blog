@@ -14,7 +14,7 @@ cardMeta: Agent RSI · Methods
 ---
 
 ::: note
-方法索引 mock · 首批代表工作，不是穷尽清单；只记录更新对象与反馈方式。六轴 taxonomy、持久性和能力验证的解释留在[主文章](agent-robo-rsi.html)。
+方法索引 mock · 首批代表工作，记录更新对象与反馈方式。六轴 taxonomy、持久性和能力验证见[主文章](agent-robo-rsi.html)。
 :::
 
 阅读顺序可以先看**更新了什么**：短期反思、跨试次记忆、Prompt、可执行 Skill / Code，还是整个 Agent Harness。它们不能仅凭论文标题中的「self-improvement」就视为同一种递归自我改进。

@@ -12,7 +12,7 @@ footer: Robo Deployment
 ---
 
 ::: note
-公开资料 case study。本文评估的是架构与接口，不是已经跑通的真机复现实验；「公开设计」「工程判断」「待验证」分别说明。
+公开资料 case study，分析范围为架构与接口。正文按「公开设计」「工程判断」「待验证」标记证据状态。
 :::
 
 ::: tldr
@@ -39,15 +39,15 @@ footer: Robo Deployment
 
 论文描述的链路是：收到全局任务后，Brain 从 Shared Memory 取得场景、状态与技能信息，先生成子任务图；Monitor 按图的依赖关系分配可并行或串行的任务；每个子任务由 Agent 根据反馈和部分记忆选择并调用 Skill / Tool；执行失败时，Agent 可继续检索空间信息、换工具或恢复执行，执行结果再写回 Memory[@4]。这更像「先形成计划图、执行中局部闭环」：不能把它简化为每个控制周期都重新生成完整计划，也没有证据说明高层 Planner 始终按固定频率调用。
 
-在此框架里，System 1 不只是一种 VLA：Cerebellum 可以包含 VLA Policy、导航与传统专家技能。System 2 发的是子任务和工具选择，System 1 / Skill 发回进度、成功、失败和环境变化；动作生成和高频控制仍要与高层任务调度区分。[PI0 Serving 示例](https://github.com/flagos-ai/FlagScale/blob/main/examples/pi0/README.md) 明确了图像键、机器人状态、任务 instruction 等 Policy 输入[@5]，但示例级 Serving 不等于已公布统一的 Agent↔Policy 协议。
+在此框架里，System 1 不只是一种 VLA：Cerebellum 可以包含 VLA Policy、导航与传统专家技能。System 2 发的是子任务和工具选择，System 1 / Skill 发回进度、成功、失败和环境变化；动作生成和高频控制仍要与高层任务调度区分。[PI0 Serving 示例](https://github.com/flagos-ai/FlagScale/blob/main/examples/pi0/README.md) 明确了图像键、机器人状态、任务 instruction 等 Policy 输入[@5]；公开材料在这里支持到示例级 Serving，统一的 Agent↔Policy 协议仍待定义。
 
 ## 工程判断：真正落地还缺哪些契约
 
-如果把这套结构接入一台真实机器人，需要首先定义子任务 / Skill 调用的 goal、feedback、result、cancel 与超时语义；固定 observation、机器人状态和任务 ID 在云端 Brain、边缘调度器与 Policy 服务之间的归属；让 Planner 低频或由关键事件触发，Monitor / 完成判定可更频繁运行，高频控制留在机器人本地。这里是基于公开架构提出的接口方案，**不是** FlagOS-Robo 已公开实现的调用频率、ROS Action 映射或网络故障恢复机制。
+如果把这套结构接入一台真实机器人，需要首先定义子任务 / Skill 调用的 goal、feedback、result、cancel 与超时语义；固定 observation、机器人状态和任务 ID 在云端 Brain、边缘调度器与 Policy 服务之间的归属；让 Planner 低频或由关键事件触发，Monitor / 完成判定可更频繁运行，高频控制留在机器人本地。以下接口方案由公开架构推导，调用频率、ROS Action 映射和网络故障恢复机制需要在实现中验证。
 
 ## 接口语义清单：七个必须写死的字段
 
-把上面那套结构接到真实机器人上，需要先定义下面这张清单。它是**工程判断**，不是 FlagOS-Robo 已公开的实现细节。
+把上面那套结构接到真实机器人上，需要先定义下面这张清单。下表记录由公开架构推导的**工程判断**。
 
 | 语义 | 需要定义的核心内容 | 不定义会怎样 |
 | --- | --- | --- |
