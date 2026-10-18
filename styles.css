@@ -70,6 +70,12 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 .frontier-figure { margin: 2.2rem 0 2.5rem; }
 .frontier-figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); background: #fff; }
 .frontier-figure figcaption { margin-top: .7rem; color: var(--muted); font-size: .78rem; line-height: 1.6; }
+/* 视频对照：上下铺满正文宽（demo 是 2066×600 的超宽条带，并排会小到看不清），
+   每格是「一行标签 + 视频」。不自动播放；浏览器原生控件自带全屏。 */
+.frontier-figure video { display: block; width: 100%; height: auto; border: 1px solid var(--line); background: #000; }
+.video-stack { display: grid; gap: 1.1rem; }
+.video-stack > div { display: grid; gap: .4rem; }
+.frontier-figure .video-label { color: var(--muted); font-size: .76rem; letter-spacing: .04em; line-height: 1.5; }
 .context-flow-canvas { overflow-x: auto; }
 .context-flow-canvas img { min-width: 720px; }
 .frontier-timeline { margin: 2.2rem 0 2.8rem; padding: 22px 24px; border: 1px solid var(--line); background: var(--paper); }
