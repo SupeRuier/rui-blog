@@ -42,7 +42,8 @@ h1 { margin: 0; max-width: 900px; font-family: Georgia, "Noto Serif SC", serif; 
 .section-heading h2 { margin: 0; font-size: .85rem; letter-spacing: .08em; }
 .section-heading > span { color: var(--muted); font-size: .72rem; }
 .post-card { border-bottom: 1px solid var(--line); }
-.post-card.is-pinned { border-top: 2px solid var(--accent); }
+.post-card.is-pinned { border-left: 4px solid var(--accent); }
+.post-card.is-pinned a { padding-left: 20px; }
 .pin-label { color: var(--accent); font-weight: 700; }
 .post-card a { display: grid; grid-template-columns: 135px minmax(280px, 1fr) minmax(220px, 300px); gap: 34px; padding: 32px 0 38px; transition: opacity .2s; }
 .post-card a:hover { opacity: .68; }
