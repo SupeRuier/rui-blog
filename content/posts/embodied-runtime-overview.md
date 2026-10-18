@@ -7,7 +7,6 @@ date:                                # 占位，暂不填；填 YYYY-MM-DD 会�
 meta: RUNTIME · MULTI-AGENT · SCHEDULING · DEPLOYMENT
 cardMeta: Runtime · Multi-Agent Scheduling
 summary: Global Master—Robot Agent 的具身 Multi-Agent 调度框架：目标架构、控制面边界、时序与预留接口。
-pinned: 置顶 · 框架总览
 footer: Embodied Runtime Framework
 ---
 
