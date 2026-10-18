@@ -24,8 +24,12 @@ footer: Active Learning
 在标注、训练与评估成本约束下，怎样判断是否值得做主动学习，怎样选择一批真正有边际价值的数据，又怎样证明这套选择比随机采样更划算？
 :::
 
+先看主动学习的运行骨架：未标注候选经过选择与标注进入训练，新模型在固定测试集上评估，再由目标、边际收益和预算共同决定是否进入下一轮。**它不是一次选样，而是一个带有独立停止决策的循环。**
+
+<figure class="frontier-figure"><a href="../assets/active-learning-loop.png" title="查看原图"><img src="../assets/active-learning-loop.png" alt="主动学习闭环：未标注候选池进入选择环节，依次经过标注、入库与重训、评估，再进入继续下一轮的决策门。只有目标未达、收益足够且预算未尽时才返回选择；目标达成、收益不足或预算耗尽时交付模型、标注集与成本账。预算监控只连接决策门，固定测试集只连接评估。"></a><figcaption>图 1 · 主动学习的完整闭环。预算监控只进入评估后的决策门；目标未达、收益足够且预算未尽时才启动下一轮。点击可看原图。</figcaption></figure>
+
 <figure class="al-decision-map" aria-labelledby="al-map-caption">
-<figcaption id="al-map-caption"><strong>图 1 · 主动学习的总决策图</strong><span>主线回答「是否值得做、怎样选择、如何验证与停止」；大模型部分单独说明经典前提的变化及其向数据选择的迁移。</span></figcaption>
+<figcaption id="al-map-caption"><strong>图 2 · 主动学习的总决策图</strong><span>主线回答「是否值得做、怎样选择、如何验证与停止」；大模型部分单独说明经典前提的变化及其向数据选择的迁移。</span></figcaption>
 <div class="al-map-principle"><span>统一判断原则</span><strong>样本价值 = 相对于当前模型、已有数据与目标分布的预期边际收益 − 完整成本</strong></div>
 <div class="al-map-body">
 <div class="al-map-flow">
@@ -114,9 +118,7 @@ GitHub 上的开源项目 [awesome-active-learning](https://github.com/SupeRuier
 
 ## 第五步：把选样放进完整闭环
 
-一个完整循环包括四个执行环节：**选择、标注、入库与重训、评估**。评估之后进入独立决策门，决定启动下一轮还是停止交付。
-
-<figure class="frontier-figure"><a href="../assets/active-learning-loop.png" title="查看原图"><img src="../assets/active-learning-loop.png" alt="主动学习闭环：未标注候选池进入选择环节，依次经过标注、入库与重训、评估，再进入继续下一轮的决策门。只有目标未达、收益足够且预算未尽时才返回选择；目标达成、收益不足或预算耗尽时交付模型、标注集与成本账。预算监控只连接决策门，固定测试集只连接评估。"></a><figcaption>图 2 · 主动学习的一轮闭环。预算监控只进入评估后的决策门；目标未达、收益足够且预算未尽时才启动下一轮。点击可看原图。</figcaption></figure>
+图 1 给出了完整循环的四个执行环节：**选择、标注、入库与重训、评估**。评估之后进入独立决策门，决定启动下一轮还是停止交付。这里进一步展开闭环落地所需的工程组件。
 
 图中的打分器与批量选择器只是闭环的一环。工程上还需要九类组件：
 
