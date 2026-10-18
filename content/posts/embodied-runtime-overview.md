@@ -12,8 +12,6 @@ footer: Embodied Runtime Framework
 ---
 
 ::: note
-框架草案 V0.2，只描述**真实运行时的调度与部署**，不含模型训练与数据生产链路。核心判断是：**Global Master—Robot Agent 本质上就是具身场景中的 Multi-Agent 调度结构**——Global Master 类似 Supervisor / Manager Agent，每个 Robot Agent 类似一个具备独立工具与执行环境的 Worker Agent；区别在于机器人任务是**长时、异步、有物理安全约束**的，不能照搬纯软件 Agent 的同步 tool call。现阶段从**单机器人端侧 Harness** 做起，云端 Global Master 只预留**控制面接口**，先不实现多机器人调度；将来把任务入口换成 Master，不需要改动机器人内部执行链。标为「公开参照」的是可核验的公开工作，其余为本文提出的设计。
-::: note
 框架草案 V0.2。本文只描述**真实运行时的调度与部署**，不含模型训练与数据生产链路。
 
 核心判断：**Global Master—Robot Agent 本质上就是具身场景中的 Multi-Agent 调度结构。** Global Master 类似 Supervisor / Manager Agent；每个 Robot Agent 类似一个具备独立工具与执行环境的 Worker Agent。区别在于机器人任务是**长时、异步、有物理安全约束**的，不能照搬纯软件 Agent 的同步 tool call。
@@ -153,7 +151,7 @@ footer: Embodied Runtime Framework
 
 - **默认路径不经过云端 Master。** 用户或上层业务系统直接把任务下给边缘任务接口；Global Master 是**可选入口**，现阶段不实现多机器人调度。
 - **真正需要实现的单机器人闭环**是 `Robot Control Plane Interface → System 2 Harness → Sys1 Policy + RobotBackend → ROS 2 / SDK → 真机或仿真`，并由 `Local Safety Supervisor` 旁路兜底。
-- **云端的虚线只有一条**：Global Master ↔ Robot Control Plane Interface。这条线上跑的是 `TaskEnvelope` 与 `RobotStatus`，而不是动作。
+- **云端与边缘之间的虚线只有一条**：Global Master ↔ Robot Control Plane Interface。这条线上跑的是 `TaskEnvelope` 与 `RobotStatus`，而不是动作。
 - **两侧都有公开实现可参照**：服务侧可以把 VLM / VLA 的加载、推理与 Serving 串成工具链[@2]，端侧 Policy 的输入与部署接口也有公开示例[@3]。
 
 ## 03 · 云端 Master 停在哪一层
@@ -346,22 +344,121 @@ Sys1 Policy + RobotBackend
 | [具身 Policy](embodied-models.html) | Sys1 层：输入、动作表示、时间尺度与执行接口 |
 | [System 2 与 System 1 的执行契约](flagos-robo-case-study.html) | 本文框架的一个具体公开实例（端云切分），已降为子页 |
 
-## 附录 · 原始 mermaid 规格图
+## 附录 · 连线规格与单机时序
 
-下面两张是这套架构规格的**原始 mermaid 表达**，与正文图是同一套设计的不同表达：
+正文的总架构图回答「有哪些层与组件」，下面两张把它展开到连线级：第一张按组列出每条连线的方向与载荷，第二张按时序展开建立、子任务循环与收尾。两张图与正文共用同一套设计，不引入新信息。
 
-- **正文图面向浏览**——用站内的 HTML/CSS 图形语言重画，读起来快，也随页面自适应；
-- **mermaid 图保留全部连线与标签**——包括每一条数据流的具体标注（`TaskEnvelope`、`action chunk`、`observe / execute / cancel / reset` 等），适合逐条核对。
+<figure class="wire-map" aria-labelledby="runtime-wire-caption">
+<figcaption id="runtime-wire-caption"><strong>图 A · 运行时连线规格</strong><span>实线为现阶段单机器人闭环；虚线为未来多机器人调度的预留口。每行只描述一条连线的方向与载荷。</span></figcaption>
+<div class="wm-path" aria-label="单机器人默认主路径">
+<div><b>任务来源</b><span>用户 / 业务系统</span></div>
+<div><b>控制面</b><span>Robot Control Plane Interface</span></div>
+<div><b>调度核心</b><span>System 2 Harness</span></div>
+<div><b>执行能力</b><span>Sys1 Policy · RobotBackend</span></div>
+<div><b>物理落地</b><span>ROS 2 / SDK / 真机 · 仿真</span></div>
+</div>
+<div class="wm-note"><b>旁路</b>Local Safety Supervisor 独立于主路径，在 RobotBackend 与执行层之间抢占；Global Master 只在虚线路径上。</div>
+<div class="wm-groups">
+<div class="wm-group">
+<div class="wm-group-head"><b>01</b><strong>入口与全局控制面</strong><span>Global Master 为可选入口</span></div>
+<div class="wm-rows">
+<div class="wm-row"><span class="wm-src">用户 / 业务系统</span><span class="wm-edge"><b>直接下发</b><em>单机任务</em></span><span class="wm-dst">Robot Control Plane Interface</span></div>
+<div class="wm-row is-dashed"><span class="wm-src">用户 / 业务系统</span><span class="wm-edge"><b>未来：全局任务</b></span><span class="wm-dst">Global Master</span></div>
+<div class="wm-row is-dashed"><span class="wm-src">Global Master</span><span class="wm-edge"><b>TaskEnvelope</b><em>控制面</em></span><span class="wm-dst">Robot Control Plane Interface</span></div>
+<div class="wm-row is-dashed"><span class="wm-src">Robot Control Plane Interface</span><span class="wm-edge"><b>注册 · 心跳 · 状态 · 结果</b><em>控制面</em></span><span class="wm-dst">Global Master</span></div>
+<div class="wm-row is-dashed is-duplex"><span class="wm-src">Global Master</span><span class="wm-edge"><b>能力 · 在线状态 · 位置</b><em>全局任务与跨机器人状态</em></span><span class="wm-dst">Robot Registry · Global Memory</span></div>
+</div>
+</div>
+<div class="wm-group">
+<div class="wm-group-head"><b>02</b><strong>规划回路</strong><span>云端 Sys2</span></div>
+<div class="wm-rows">
+<div class="wm-row is-duplex"><span class="wm-src">Planner Client</span><span class="wm-edge"><b>Plan / Replan / Critic 请求</b><em>Prompt 组装与结果解析</em></span><span class="wm-dst">Model Serving</span></div>
+<div class="wm-row"><span class="wm-src">Model Router</span><span class="wm-edge"><b>路由</b><em>Planner / Critic / VQA</em></span><span class="wm-dst">VLM / LLM / World Model</span></div>
+<div class="wm-row"><span class="wm-src">VLM / LLM / World Model</span><span class="wm-edge"><b>OpenAI API / HTTP / gRPC</b><em>可用 FlagScale</em></span><span class="wm-dst">Model Serving</span></div>
+</div>
+</div>
+<div class="wm-group">
+<div class="wm-group-head"><b>03</b><strong>Harness 主循环</strong><span>单机器人边缘端</span></div>
+<div class="wm-rows">
+<div class="wm-row"><span class="wm-src">Robot Control Plane Interface</span><span class="wm-edge"><b>创建任务</b><em>启动状态机</em></span><span class="wm-dst">Task Manager</span></div>
+<div class="wm-row"><span class="wm-src">Task Manager</span><span class="wm-edge"><b>任务生命周期与状态</b></span><span class="wm-dst">Orchestrator</span></div>
+<div class="wm-row is-duplex"><span class="wm-src">Orchestrator</span><span class="wm-edge"><b>目标 · 计划 · 历史 · 失败信息</b></span><span class="wm-dst">Context / Memory</span></div>
+<div class="wm-row is-duplex"><span class="wm-src">Orchestrator</span><span class="wm-edge"><b>Prompt 组装与结果解析</b></span><span class="wm-dst">Planner Client</span></div>
+<div class="wm-row is-duplex"><span class="wm-src">Orchestrator</span><span class="wm-edge"><b>成功 · 失败 · 超时 · 异常</b></span><span class="wm-dst">Monitor / Critic</span></div>
+<div class="wm-row"><span class="wm-src">Orchestrator</span><span class="wm-edge"><b>选择技能与执行策略</b></span><span class="wm-dst">Policy / Skill Scheduler</span></div>
+</div>
+</div>
+<div class="wm-group">
+<div class="wm-group-head"><b>04</b><strong>执行与观测回路</strong><span>高频 · 端侧</span></div>
+<div class="wm-rows">
+<div class="wm-row"><span class="wm-src">Policy / Skill Scheduler</span><span class="wm-edge"><b>current_subtask + 观测</b></span><span class="wm-dst">Sys1 Policy Serving</span></div>
+<div class="wm-row"><span class="wm-src">RobotBackend</span><span class="wm-edge"><b>图像 + 本体状态</b></span><span class="wm-dst">Sys1 Policy Serving</span></div>
+<div class="wm-row"><span class="wm-src">Sys1 Policy Serving</span><span class="wm-edge"><b>action chunk</b></span><span class="wm-dst">RobotBackend</span></div>
+<div class="wm-row"><span class="wm-src">Orchestrator</span><span class="wm-edge"><b>observe / execute / cancel / reset</b></span><span class="wm-dst">RobotBackend</span></div>
+<div class="wm-row"><span class="wm-src">RobotBackend</span><span class="wm-edge"><b>observation / feedback / result</b></span><span class="wm-dst">Orchestrator</span></div>
+<div class="wm-row"><span class="wm-src">Monitor / Critic</span><span class="wm-edge"><b>continue / success / failure / replan</b></span><span class="wm-dst">Orchestrator</span></div>
+</div>
+</div>
+<div class="wm-group">
+<div class="wm-group-head"><b>05</b><strong>安全与执行落地</strong><span>旁路抢先，再分发到后端</span></div>
+<div class="wm-rows">
+<div class="wm-row"><span class="wm-src">RobotBackend</span><span class="wm-edge"><b>状态与动作请求</b></span><span class="wm-dst">Local Safety Supervisor</span></div>
+<div class="wm-row"><span class="wm-src">Local Safety Supervisor</span><span class="wm-edge"><b>限位 · 碰撞 · 超时 · 急停 · 失联保护</b><em>抢占</em></span><span class="wm-dst">ROS2Backend · DirectSDKBackend · SimulatorBackend</span></div>
+<div class="wm-row"><span class="wm-src">RobotBackend</span><span class="wm-edge"><b>统一真机与仿真接口</b><em>分发</em></span><span class="wm-dst">ROS2Backend · DirectSDKBackend · SimulatorBackend</span></div>
+<div class="wm-row is-duplex"><span class="wm-src">ROS2Backend</span><span class="wm-edge"><b>Topic / Service / Action</b><em>TF2 · ros2_control</em></span><span class="wm-dst">ROS 2 API → Driver / Adapter → 厂商 SDK → 真实机器人</span></div>
+<div class="wm-row is-duplex"><span class="wm-src">DirectSDKBackend</span><span class="wm-edge"><b>直接调用</b></span><span class="wm-dst">厂商 SDK / 私有协议 → 真实机器人</span></div>
+<div class="wm-row is-duplex"><span class="wm-src">SimulatorBackend</span><span class="wm-edge"><b>仿真步进</b><em>Isaac Sim / Gazebo</em></span><span class="wm-dst">CALVIN / LIBERO</span></div>
+</div>
+</div>
+</div>
+<div class="wm-legend"><span><b class="wm-solid"></b>实线 · 现阶段闭环</span><span><b class="wm-dashed"></b>虚线 · 预留接口</span><span><b class="wm-duplex">↔</b>双向</span></div>
+</figure>
 
-两张图在构建时由 `tools/render-diagrams.py` 渲染成静态 SVG 内联进页面，因此站点不依赖任何前端图形库，也不需要外部 CDN。图上文字可选中、可检索。
-
-::: diagram architecture
-图 A · 完整目标架构（原始 mermaid）。横向可滚动；虚线为未来多机器人调度的预留口。
-:::
-
-::: diagram sequence
-图 B · 单机器人总时序（原始 mermaid）。含 `alt` 分支与 `loop` 循环，纵向可滚动。
-:::
+<figure class="seq-map" aria-labelledby="runtime-seq-caption">
+<figcaption id="runtime-seq-caption"><strong>图 B · 单机器人总时序</strong><span><b>→</b> 请求 · <b>←</b> 返回 · <b>↻</b> Harness 内部动作；<b>⇄</b> 表示一次请求与返回写在同一行。</span></figcaption>
+<div class="sq-phase">
+<div class="sq-phase-head"><b>01</b><strong>建立阶段 · 一次性</strong><span>Global Master 与单机模式在这里分叉</span></div>
+<div class="sq-rows">
+<div class="sq-branch"><b>alt</b>启用 Global Master</div>
+<div class="sq-row"><span class="sq-no">1</span><span class="sq-from">用户 / 业务系统</span><span class="sq-link is-request"><b>提交全局任务</b></span><span class="sq-to">Global Master</span></div>
+<div class="sq-row"><span class="sq-no">2</span><span class="sq-from">Global Master</span><span class="sq-link is-request"><b>下发 TaskEnvelope</b></span><span class="sq-to">边缘任务接口</span></div>
+<div class="sq-row"><span class="sq-no">3</span><span class="sq-from">边缘任务接口</span><span class="sq-link is-return"><b>接收确认</b></span><span class="sq-to">Global Master</span></div>
+<div class="sq-branch is-else"><b>else</b>当前单机器人模式</div>
+<div class="sq-row"><span class="sq-no">4</span><span class="sq-from">用户 / 业务系统</span><span class="sq-link is-request"><b>直接提交机器人任务</b></span><span class="sq-to">边缘任务接口</span></div>
+<div class="sq-row"><span class="sq-no">5</span><span class="sq-from">边缘任务接口</span><span class="sq-link is-request"><b>创建任务并启动状态机</b></span><span class="sq-to">Sys2 Harness</span></div>
+<div class="sq-row"><span class="sq-no">6</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-roundtrip"><b>获取初始观测</b><em>标准化 Observation</em></span><span class="sq-to">RobotBackend → ROS 2 / SDK → 真机 / 仿真</span></div>
+<div class="sq-row"><span class="sq-no">7</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-roundtrip"><b>目标 + 观测 + 可用 Policy + 历史</b><em>next_subtask + success_condition</em></span><span class="sq-to">云端 Sys2 模型</span></div>
+<div class="sq-row"><span class="sq-no">8</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-self"><b>保存计划与当前 subtask</b></span><span class="sq-to">Sys2 Harness</span></div>
+</div>
+</div>
+<div class="sq-phase">
+<div class="sq-phase-head"><b>02</b><strong>子任务循环 · 每个 subtask 一次</strong><span>观测、推理、执行、判定在同一循环里</span></div>
+<div class="sq-rows">
+<div class="sq-row"><span class="sq-no">9</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-roundtrip"><b>获取最新观测</b><em>逐层返回</em></span><span class="sq-to">RobotBackend → ROS 2 / SDK → 真机 / 仿真</span></div>
+<div class="sq-row"><span class="sq-no">10</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-roundtrip"><b>Observation + current_subtask</b><em>Action Chunk</em></span><span class="sq-to">端侧 Sys1 VLA</span></div>
+<div class="sq-row"><span class="sq-no">11</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-roundtrip"><b>execute_action(action_chunk)</b><em>ExecutionFeedback</em></span><span class="sq-to">RobotBackend → ROS 2 / SDK → 真机 / 仿真</span></div>
+<div class="sq-row"><span class="sq-no">12</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-self"><b>Monitor / Critic 判断执行状态</b></span><span class="sq-to">Sys2 Harness</span></div>
+<div class="sq-branch"><b>alt</b>Monitor / Critic 的四个分支</div>
+<div class="sq-row"><span class="sq-no">13a</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-self"><b>Subtask 成功：标记完成，退出当前循环</b></span><span class="sq-to">Sys2 Harness</span></div>
+<div class="sq-row"><span class="sq-no">13b</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-self"><b>可恢复的小偏差：保持 subtask，继续调用 VLA</b></span><span class="sq-to">Sys2 Harness</span></div>
+<div class="sq-row"><span class="sq-no">13c</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-roundtrip"><b>Policy 失败或环境改变：失败信息 + 最新观测，请求 replan</b><em>修正 subtask 或新计划</em></span><span class="sq-to">云端 Sys2 模型</span></div>
+<div class="sq-row"><span class="sq-no">13d</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-request"><b>安全异常：cancel / emergency_stop</b><em>本地安全停止</em></span><span class="sq-to">RobotBackend → ROS 2 / SDK → 真机 / 仿真</span></div>
+</div>
+</div>
+<div class="sq-phase">
+<div class="sq-phase-head"><b>03</b><strong>收尾阶段</strong><span>下一子任务或完整任务结束</span></div>
+<div class="sq-rows">
+<div class="sq-row"><span class="sq-no">14</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-roundtrip"><b>当前结果 + 任务历史，请求下一步</b><em>next_subtask 或 task_done</em></span><span class="sq-to">云端 Sys2 模型</span></div>
+<div class="sq-branch"><b>alt</b>仍有下一子任务 / 完整任务结束</div>
+<div class="sq-row"><span class="sq-no">15a</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-self"><b>更新 current_subtask 并继续</b></span><span class="sq-to">Sys2 Harness</span></div>
+<div class="sq-row"><span class="sq-no">15b</span><span class="sq-from">Sys2 Harness</span><span class="sq-link is-request"><b>最终结果</b></span><span class="sq-to">边缘任务接口</span></div>
+<div class="sq-branch"><b>alt</b>启用 Global Master / 当前单机器人模式</div>
+<div class="sq-row"><span class="sq-no">16a</span><span class="sq-from">边缘任务接口</span><span class="sq-link is-request"><b>上报成功、失败与执行摘要</b></span><span class="sq-to">Global Master</span></div>
+<div class="sq-row"><span class="sq-no">16b</span><span class="sq-from">Global Master</span><span class="sq-link is-return"><b>返回全局任务结果</b></span><span class="sq-to">用户 / 业务系统</span></div>
+<div class="sq-row"><span class="sq-no">16c</span><span class="sq-from">边缘任务接口</span><span class="sq-link is-return"><b>返回任务结果</b><em>单机模式</em></span><span class="sq-to">用户 / 业务系统</span></div>
+</div>
+</div>
+</figure>
 
 ## 开放问题
 

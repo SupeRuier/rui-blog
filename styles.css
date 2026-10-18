@@ -330,13 +330,134 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
   .am-split { grid-template-columns: 1fr; }
 }
 
-/* mermaid 规格图：构建时由 tools/render-diagrams.py 渲染成静态 SVG，
-   再用 ::: diagram 指令内联。图是架构规格，尺寸很大（两千多像素），
-   缩到正文宽度会看不清，所以保持原始尺寸 + 横向滚动。 */
+/* 运行时连线规格图：按「源 → 载荷 → 目标」分行，替代原先需要整体缩放才能读的架构图。
+   上面的总架构图回答「有哪些层与组件」，这张只回答「每条连线上跑什么」，两者不重复。 */
+.wire-map { margin: 2.2rem 0 2.5rem; padding: 24px; border: 1px solid var(--line); background: var(--paper); }
+.wire-map figcaption { color: var(--muted); font-size: .75rem; letter-spacing: .04em; }
+.wire-map figcaption strong, .wire-map figcaption span { display: block; }
+.wire-map figcaption strong { color: var(--ink); font-size: .82rem; }
+.wire-map figcaption span { margin-top: 4px; line-height: 1.55; }
+.wm-path { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px; margin-top: 20px; }
+.wm-path > div { position: relative; padding: 10px 11px 11px; border: 1px solid var(--line); border-top: 2px solid var(--accent); background: var(--paper); }
+.wm-path > div:not(:last-child)::after { content: "→"; position: absolute; top: 50%; left: calc(100% + 4px); width: 14px; transform: translateY(-50%); color: var(--accent); font-size: .8rem; font-weight: 700; text-align: center; }
+.wm-path b { display: block; color: var(--accent); font-size: .62rem; letter-spacing: .1em; }
+.wm-path span { display: block; margin-top: 3px; font-size: .72rem; font-weight: 600; line-height: 1.4; }
+.wm-note { margin-top: 12px; padding: 8px 10px; border-left: 2px solid var(--accent); background: var(--bg); color: var(--muted); font-size: .68rem; line-height: 1.55; }
+.wm-note b { margin-right: 6px; color: var(--ink); }
+.wm-groups { display: grid; gap: 12px; margin-top: 16px; }
+.wm-group { border: 1px solid var(--line); }
+.wm-group-head { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: baseline; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.wm-group-head b { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .6rem; letter-spacing: .08em; }
+.wm-group-head strong { font-size: .72rem; }
+.wm-group-head span { color: var(--muted); font-size: .62rem; }
+.wm-rows { display: grid; }
+.wm-row { display: grid; grid-template-columns: minmax(0, 1fr) 198px minmax(0, 1fr); align-items: center; min-height: 42px; padding: 0 8px; border-top: 1px solid var(--line); }
+.wm-row:first-child { border-top: 0; }
+.wm-src, .wm-dst { padding: 7px 4px; font-size: .69rem; font-weight: 600; line-height: 1.4; word-break: keep-all; }
+.wm-src { text-align: right; }
+.wm-dst { text-align: left; }
+.wm-edge { position: relative; display: grid; gap: 1px; padding: 6px 8px; color: var(--muted); font-size: .62rem; line-height: 1.4; text-align: center; }
+.wm-edge::before { content: ""; position: absolute; top: 50%; left: 6px; right: 6px; border-top: 1px solid var(--line); }
+.wm-edge::after { content: "›"; position: absolute; top: 50%; right: 0; z-index: 1; transform: translateY(-55%); background: var(--paper); color: var(--accent); font-size: .9rem; font-weight: 700; line-height: 1; }
+.wm-edge b, .wm-edge em { position: relative; z-index: 1; justify-self: center; max-width: 100%; padding: 0 4px; background: var(--paper); word-break: keep-all; }
+.wm-edge b { color: var(--ink); font-size: .62rem; font-weight: 600; }
+.wm-edge em { color: var(--muted); font-size: .58rem; font-style: normal; }
+.wm-row.is-duplex .wm-edge::after { content: "↔"; }
+.wm-row.is-dashed .wm-edge::before { border-top-style: dashed; }
+.wm-row.is-dashed .wm-src, .wm-row.is-dashed .wm-dst { color: var(--muted); }
+.wm-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; color: var(--muted); font-size: .66rem; }
+.wm-legend b { display: inline-block; width: 22px; margin-right: 5px; vertical-align: middle; }
+.wm-legend .wm-solid { border-top: 2px solid var(--accent); }
+.wm-legend .wm-dashed { border-top: 2px dashed var(--muted); }
+.wm-legend .wm-duplex { color: var(--accent); font-weight: 700; }
+
+/* 单机器人总时序：用「源 → 消息 → 目标」的行式时序替代原先的 lifeline 时序图。
+   请求与返回写在同一条消息里，避免九条 lifeline 在正文宽度下挤成一团。 */
+.seq-map { margin: 2.2rem 0 2.5rem; padding: 24px; border: 1px solid var(--line); background: var(--paper); }
+.seq-map figcaption { color: var(--muted); font-size: .75rem; letter-spacing: .04em; }
+.seq-map figcaption strong, .seq-map figcaption span { display: block; }
+.seq-map figcaption strong { color: var(--ink); font-size: .82rem; }
+.seq-map figcaption span { margin-top: 4px; line-height: 1.55; }
+.seq-map figcaption b { color: var(--ink); }
+.sq-phase { margin-top: 14px; border: 1px solid var(--line); }
+.sq-phase-head { display: flex; align-items: baseline; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.sq-phase-head b { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .6rem; letter-spacing: .08em; }
+.sq-phase-head strong { font-size: .72rem; }
+.sq-phase-head span { margin-left: auto; color: var(--muted); font-size: .62rem; text-align: right; }
+.sq-rows { display: grid; }
+.sq-row { display: grid; grid-template-columns: 26px minmax(0, 138px) minmax(0, 1fr) minmax(0, 138px); align-items: center; min-height: 42px; padding: 5px 9px; border-top: 1px solid var(--line); }
+.sq-row:first-child { border-top: 0; }
+.sq-no { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .6rem; }
+.sq-from { padding-right: 8px; font-size: .68rem; font-weight: 600; line-height: 1.35; text-align: right; }
+.sq-to { padding-left: 8px; font-size: .68rem; font-weight: 600; line-height: 1.35; }
+.sq-link { position: relative; display: grid; gap: 1px; padding: 3px 18px; text-align: center; }
+.sq-link::before { content: ""; position: absolute; top: 50%; left: 4px; right: 4px; border-top: 1px solid var(--line); }
+.sq-link::after { position: absolute; top: 50%; z-index: 1; display: grid; width: 18px; height: 18px; place-items: center; transform: translateY(-55%); background: var(--paper); color: var(--accent); font-weight: 700; line-height: 1; }
+.sq-link.is-request::after { content: "→"; right: 0; }
+.sq-link.is-return::after { content: "←"; left: 0; }
+.sq-link.is-roundtrip::after { content: "⇄"; right: 0; }
+.sq-link.is-self::after { content: "↻"; right: 0; }
+.sq-link b, .sq-link em { position: relative; z-index: 1; justify-self: center; max-width: 100%; padding: 0 4px; background: var(--paper); line-height: 1.45; text-wrap: balance; }
+.sq-link b { color: var(--ink); font-size: .66rem; font-weight: 600; }
+.sq-link em { color: var(--muted); font-size: .61rem; font-style: normal; }
+.sq-branch { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--accent) 5%, var(--bg)); color: var(--muted); font-size: .63rem; line-height: 1.45; }
+.sq-branch b { flex: 0 0 auto; padding: 1px 5px; border: 1px solid var(--line); background: var(--paper); color: var(--accent); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .58rem; font-weight: 700; }
+.sq-branch.is-else b { color: var(--muted); }
+
+/* 数据飞轮的一屏闭环：五段主链路 + 一条回流轨。逐层节点仍由开头的总架构图承担。 */
+.loop-map { margin: 2.2rem 0 2.5rem; padding: 24px; border: 1px solid var(--line); background: var(--paper); }
+.loop-map figcaption { color: var(--muted); font-size: .75rem; letter-spacing: .04em; }
+.loop-map figcaption strong, .loop-map figcaption span { display: block; }
+.loop-map figcaption strong { color: var(--ink); font-size: .82rem; }
+.loop-map figcaption span { margin-top: 4px; line-height: 1.55; }
+.loop-track { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px; margin-top: 20px; }
+.loop-stage { position: relative; padding: 11px 12px 13px; border: 1px solid var(--line); border-top: 2px solid var(--accent); background: var(--paper); }
+.loop-stage:not(:last-child)::after { content: "→"; position: absolute; top: 50%; left: calc(100% + 4px); width: 14px; transform: translateY(-50%); color: var(--accent); font-size: .8rem; font-weight: 700; text-align: center; }
+.loop-stage b { display: block; color: var(--accent); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .6rem; letter-spacing: .1em; }
+.loop-stage strong { display: block; margin-top: 4px; font-size: .78rem; line-height: 1.35; }
+.loop-stage span { display: block; margin-top: 6px; color: var(--muted); font-size: .68rem; line-height: 1.55; }
+.loop-return { display: flex; align-items: baseline; gap: 10px; margin-top: 16px; padding: 9px 12px; border: 1px dashed var(--line); background: var(--bg); color: var(--muted); font-size: .68rem; line-height: 1.55; }
+.loop-return b { flex: 0 0 auto; color: var(--accent); font-size: .72rem; }
+
+@media (max-width: 720px) {
+  .wire-map, .seq-map, .loop-map { padding: 18px; }
+  .wm-path { grid-template-columns: 1fr; gap: 16px; }
+  .wm-path > div:not(:last-child)::after { content: "↓"; top: calc(100% + 1px); left: 50%; width: auto; transform: translateX(-50%); }
+  .wm-row { grid-template-columns: 1fr; padding: 8px 10px; }
+  .wm-src { text-align: left; padding-bottom: 1px; }
+  .wm-src::before { content: "从 "; color: var(--muted); font-weight: 400; }
+  .wm-dst { padding-top: 1px; }
+  .wm-dst::before { content: "到 "; color: var(--muted); font-weight: 400; }
+  .wm-edge { padding: 3px 0 3px 16px; text-align: left; }
+  .wm-edge::before { top: 0; bottom: 0; left: 3px; right: auto; width: 0; border-top: 0; border-left: 1px solid var(--line); }
+  .wm-edge::after { top: 50%; right: auto; left: 0; }
+  .wm-edge b, .wm-edge em { justify-self: start; padding-left: 6px; }
+  .wm-group-head { grid-template-columns: 24px minmax(0, 1fr); }
+  .wm-group-head span { display: none; }
+  .sq-phase-head { display: block; }
+  .sq-phase-head span { display: block; margin: 3px 0 0; text-align: left; }
+  .sq-row { grid-template-columns: 24px minmax(0, 1fr); gap: 1px 6px; padding: 7px 9px; }
+  .sq-no { grid-row: 1 / span 3; }
+  .sq-from, .sq-to, .sq-link { grid-column: 2; text-align: left; padding: 0; }
+  .sq-from::before { content: "从 "; color: var(--muted); font-weight: 400; }
+  .sq-to::before { content: "到 "; color: var(--muted); font-weight: 400; }
+  .sq-link { display: block; padding: 1px 0 1px 22px; }
+  .sq-link::before { top: 0; bottom: 0; left: 3px; right: auto; border-top: 0; border-left: 1px solid var(--line); }
+  .sq-link::after { top: 50%; right: auto; left: 0; }
+  .sq-link b, .sq-link em { display: block; justify-self: auto; padding: 0; background: none; }
+  .loop-track { grid-template-columns: 1fr; gap: 18px; }
+  .loop-stage:not(:last-child)::after { content: "↓"; top: calc(100% + 1px); left: 50%; width: auto; transform: translateX(-50%); }
+  .loop-return { display: block; }
+  .loop-return b { display: block; margin-bottom: 3px; }
+}
+
+/* 内联 SVG 图（如学习曲线）：构建时把 assets/*.svg 内联进页面，
+   再用 ::: diagram 指令挂上缩放与全屏。SVG 尺寸较大，缩到正文宽度会看不清，
+   所以默认适应容器宽度，再提供手动放大。 */
 .article-body .diagram { margin: 2.2rem 0 2.5rem; }
 /* 默认「适应容器宽度」由 CSS 兜底，禁用 JS 时也能看到完整结构；
    放大 / 缩小 / 复位由 diagram.js 接管（它把 width 写成具体像素）。 */
-/* 底色固定为白：mermaid 的 SVG 里字色是写死的深色，跟随暗色模式会看不见。 */
+/* 底色固定为白：SVG 里的字色是写死的深色，跟随暗色模式会看不见。 */
 .diagram-canvas { overflow: auto; max-height: 78vh; padding: 14px; border: 1px solid var(--line); background: #fff; }
 .diagram-canvas svg { display: block; width: 100%; max-width: none; height: auto; }
 .article-body .diagram figcaption { margin-top: .7rem; color: var(--muted); font-size: .78rem; line-height: 1.6; }

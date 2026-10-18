@@ -223,13 +223,21 @@ footer: Embodied Data Flywheel
 
 ## 08 · 端到端链路与落地阶段
 
-开头那张总架构图面向浏览，用站内的 HTML/CSS 图形语言画，读起来快也随页面自适应；下面这张是它的**原始 mermaid 表达**，保留逐条连线与标注，适合对照核对。两张图是同一套设计的两种表达，不引入新信息。
+开头那张总架构图展开每一层的组件与记录；下面把它压成一条闭环，只保留五段主链路和回流方向，便于核对先后顺序。两张图共用同一套设计，不引入新信息。
+
+<figure class="loop-map" aria-labelledby="flywheel-loop-caption">
+<figcaption id="flywheel-loop-caption"><strong>图 · 数据闭环的端到端主链路</strong><span>五段主链路 + 一条回流轨；逐层节点见开头的总架构图。</span></figcaption>
+<div class="loop-track">
+<div class="loop-stage"><b>01 现场执行</b><strong>任务执行 Agent 与机器人</strong><span>常开记录 Episode · Agent Trace · 硬件健康与遥测</span></div>
+<div class="loop-stage"><b>02 证据链</b><strong>Raw Execution Record</strong><span>多模态原始流 + 元数据；时间对齐、质检与保留审计</span></div>
+<div class="loop-stage"><b>03 解释链</b><strong>Semantic Experience</strong><span>事件 / 状态 · 独立验证 · 因果归因</span></div>
+<div class="loop-stage"><b>04 改进链</b><strong>Derived Data Products</strong><span>评测切片 · 训练片段 · 决策轨迹 · 采集队列；按错误结构选出口</span></div>
+<div class="loop-stage"><b>05 门禁与回流</b><strong>回归门禁与灰度</strong><span>冻结基线 · 保护集 · 回滚点；通过后才成为新版本</span></div>
+</div>
+<div class="loop-return"><b>↺ 新版本部署</b>回到现场执行，产生新的 Experience；未通过的候选保留反例与诊断。</div>
+</figure>
 
 Raw 层不因标签或模型更新而改变；Semantic 与 Derived 层可以按版本重算；发布门禁只接收带有明确来源与独立验证结果的候选变更。
-
-::: diagram flywheel-loop
-图 · 数据闭环的端到端链路：现场执行 → 证据链 → 解释链 → 改进链 → 门禁与灰度 → 新版本部署。纵向可滚动，也可放大查看逐条标注。
-:::
 
 链路的实现分成两个面：**控制面**维护任务定义、SOP、版本谱系、访问权限、保留期与评测配置；**数据面**维护原始流、结构化 Trace、标签、特征与索引，两者通过 `experience_id` 与不可变 `artifact_id` 连接。关键接口是这张清单：`BeginRun` / `EndRun`、`AppendTraceEvent`、`UploadChunk`、`EmitSemanticLabel`、`AttachEvaluation`、`RegisterChangeCandidate`、`ReleaseDecision`。接口数量不多，但它们把「记录」和「判断」分开了——没有 `AttachEvaluation` 与 `ReleaseDecision`，前四个接口产出的就只是日志。
 

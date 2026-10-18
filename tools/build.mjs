@@ -194,7 +194,7 @@ function renderDirective(block, file) {
     return `<aside class="tldr">\n<p class="tldr-label">TL;DR</p>\n${renderMarkdown(body, file)}</aside>`
   }
   if (name === 'diagram') {
-    if (!arg) throw new Error(`${file}: ::: diagram 需要一个图名，例如 ::: diagram architecture`)
+    if (!arg) throw new Error(`${file}: ::: diagram 需要一个图名，例如 ::: diagram active-learning-curve`)
     const svgPath = path.join(ROOT, 'assets', `${arg}.svg`)
     if (!existsSync(svgPath)) {
       const have = existsSync(path.join(ROOT, 'assets'))
@@ -202,10 +202,10 @@ function renderDirective(block, file) {
         : []
       throw new Error(
         `${file}: 找不到 assets/${arg}.svg。` +
-        `diagrams/${arg}.mmd 需要先用 python3 tools/render-diagrams.py 渲染。` +
+        `静态 SVG 需要先放进 assets/。` +
         `（现有：${have.join(', ') || '无'}）`)
     }
-    // 构建时内联，而不是 <img src>：mermaid 的 SVG 自带 <style> 且尺寸很大，
+    // 构建时内联，而不是 <img src>：SVG 自带 <style> 且尺寸较大，
     // 内联后文字可选中、可检索，也不多一次请求。图名唯一，id 不冲突。
     const svg = readFileSync(svgPath, 'utf-8').replace(/<\?xml[^>]*\?>\s*/, '')
     const caption = body.trim() ? `\n<figcaption>${marked.parseInline(oneLine(body))}</figcaption>` : ''

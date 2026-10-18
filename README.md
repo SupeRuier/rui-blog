@@ -188,8 +188,6 @@ templates/            页面骨架（post.html / index.html / card.html）
 tools/build.mjs       构建脚本（导出 build / watchSources）
 tools/serve.mjs       本地开发服务器（自动重建 + 页面自动刷新）
 tools/verify-against-main.py  与 main 分支的原始站点做等价性比对
-tools/render-diagrams.py      diagrams/*.mmd → assets/*.svg（手动运行，见下）
-diagrams/             mermaid 图源文件 + 渲染配置（不参与构建）
 styles.css toc.js diagram.js assets/ favicon.svg   原样拷进 dist/
 ```
 
@@ -202,18 +200,12 @@ styles.css toc.js diagram.js assets/ favicon.svg   原样拷进 dist/
 
 | 方式 | 写法 | 适合 |
 | --- | --- | --- |
-| HTML/CSS 图 | 直接写 `<figure class="rsi-mini">` 等（见 `WRITING.md` §3.2） | 概览图、流程、分类——多数情况用这个 |
-| mermaid 图 | `diagrams/*.mmd` → 渲染成 `assets/*.svg` → 正文写 `::: diagram <图名>` | 连线多、需要精确表达规格的架构图与时序图 |
+| HTML/CSS 图 | 直接写 `<figure class="wire-map">`、`seq-map`、`loop-map`、`arch-map`、`rsi-mini` 等（见 `WRITING.md` §3.2） | 概览、流程、架构、时序——多数情况用这个 |
+| 内联 SVG 图 | 手工写 `assets/*.svg`，正文写 `::: diagram <图名>` | 需要真实坐标轴或曲线的图，例如主动学习页的学习曲线 |
 
-mermaid 是**构建时渲染 + 提交 SVG**，不是运行时加载：
+图表优先用 HTML/CSS：文字随版心重排，不依赖图片缩放，暗色模式也能跟随 CSS 变量。只有坐标轴、曲线这类 HTML/CSS 不擅长的内容才用静态 SVG。
 
-```bash
-python3 tools/render-diagrams.py     # 改了 diagrams/*.mmd 之后跑，并把 assets/*.svg 一起提交
-```
-
-这样做的原因：页面不需要 1MB 的 JS，不依赖外部 CDN，GitHub Actions 的构建也不需要无头浏览器；SVG 是静态资产，断网、打印、检索都正常。渲染复用本机 Chrome（见 `diagrams/puppeteer.json`），mermaid-cli 只用 `npx` 临时拉取，**不写进 `package.json`**，所以 `npm install` 依然只有 `marked` 一个依赖。
-
-`::: diagram <图名>` 会把 `assets/<图名>.svg` 在构建时**内联**进页面（文字可选中、可检索），图名不存在会直接构建失败并提示先跑渲染脚本。
+`::: diagram <图名>` 会把 `assets/<图名>.svg` 在构建时**内联**进页面（文字可选中、可检索），图名不存在会直接构建失败。
 
 图的尺寸由 `diagram.js` 控制（约 60 行原生 DOM，无依赖）：
 
@@ -224,8 +216,8 @@ python3 tools/render-diagrams.py     # 改了 diagrams/*.mmd 之后跑，并把 
 - 工具条由脚本注入，所以禁用 JS 时不会留下一排按不动的按钮。
 
 浮层里是原图的**克隆**，内联那份继续留在页面上。克隆时会把它所有的 id 加 `-modal`
-后缀（连同 mermaid 箭头 marker 的 `url(#…)` 引用一起改），避免同页出现重复 id。
+后缀（连同 SVG 内箭头 marker 的 `url(#…)` 引用一起改），避免同页出现重复 id。
 
-这些图按 2000+ 像素的原始尺寸渲染，缩到 720px 正文宽度只能看清结构，细节要靠放大——这是刻意的取舍：**默认不给一个需要横向拖动的巨图**。
+图按原始尺寸绘制，缩到 720px 正文宽度后细节靠放大——这是刻意的取舍：**默认不给一个需要横向拖动的巨图**。
 
-`.diagram-canvas` 的底色**固定为白**，不跟随暗色模式：mermaid 在 SVG 里把字色写死成深色，跟随主题会直接看不见。
+`.diagram-canvas` 的底色**固定为白**，不跟随暗色模式：SVG 里的字色写死成深色，跟随主题会直接看不见。
