@@ -1,10 +1,10 @@
 ---
-title: 待完善：Cosmos 3 案例：统一理解与生成到底统一了什么
-tabTitle: 待完善：Cosmos 3 案例
+title: 统一理解生成多模态模型
+tabTitle: 统一理解生成多模态模型
 description: 以 Cosmos 3 为案例的分析框架：从任务、表示、主干、时空尺度、训练与输出五个层次，拆解「统一理解与生成」究竟统一了什么。
 order: "05"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
-meta: COSMOS 3 · CASE STUDY · FRAMEWORK
+meta: COSMOS 3 CASE STUDY · UNIFIED MULTIMODAL
 cardMeta: Cosmos 3 · Case Study
 summary: 用五个层次拆解 Cosmos 3 的统一声明：任务、表示、主干、时空与训练输出；具体材料待补充。
 footer: Cosmos 3 Case Study
