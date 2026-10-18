@@ -140,9 +140,9 @@ Street Gaussians 提供基线表示：它把街景拆成背景与运动车辆两
 
 这条路线在工业界已经有走完整流程的实现，可以当作本链路的对照样本。地平线的 RAD 用 3DGS 重建真实驾驶片段，把重建结果接成以传感器观测为接口的闭环环境，再在其中训练端到端策略：先做感知预训练，再用模仿学习预训练规划头，最后在重建场景里用 RL 与 IL 联合后训练；动作经自行车模型推到下一步位姿，奖励围绕动态碰撞、静态碰撞、横向位置偏差与朝向偏差设计，发生碰撞或偏差超过阈值就终止 episode[@5][@6]。它用 4305 个关键场景重建出训练与评测环境（3968 / 337），相对纯模仿学习把碰撞率降到约三分之一[@5][@6]。把 RAD 的三步拆开与本链路对照，环境侧的要求几乎完全一致：逐场景重建 → 可重置、能按动作推进并返回观测的环境 → 策略在闭环里训练。差别在规模与工程完整度，不在链路形态。
 
-这条路线的效果有公开 demo 可以对照：同一个转弯片段，上面是纯模仿学习训练出的策略，下面是 RAD 用 RL 后训练之后的策略。转弯同时考验横向动作与纵向速度，是这类闭环策略最容易分化的工况。
+这条路线的效果有公开 demo 可以对照：同一个转弯片段，左边是纯模仿学习训练出的策略，右边是 RAD 用 RL 后训练之后的策略。转弯同时考验横向动作与纵向速度，是这类闭环策略最容易分化的工况。
 
-<figure class="frontier-figure"><div class="video-stack"><div><div class="video-label">纯模仿学习（IL）</div><video src="https://hgao-cv.github.io/RAD/static/videos/clip_1726300101299-IL.mp4" controls muted playsinline preload="metadata"></video></div><div><div class="video-label">RAD · RL 后训练</div><video src="https://hgao-cv.github.io/RAD/static/videos/clip_1726300101299-RAD.mp4" controls muted playsinline preload="metadata"></video></div></div><figcaption><strong>案例 · 同一转弯片段的 IL / RL 对照</strong>。两段取自同一个 clip，场景与渲染一致，差别来自策略本身；点播放，控件里可全屏。视频来自 RAD 官方项目页的外链。</figcaption></figure>
+<figure class="frontier-figure"><div class="video-pair"><div><div class="video-label">纯模仿学习（IL）</div><video src="https://hgao-cv.github.io/RAD/static/videos/clip_1726300101299-IL.mp4" controls muted playsinline preload="metadata"></video></div><div><div class="video-label">RAD · RL 后训练</div><video src="https://hgao-cv.github.io/RAD/static/videos/clip_1726300101299-RAD.mp4" controls muted playsinline preload="metadata"></video></div></div><figcaption><strong>案例 · 同一转弯片段的 IL / RL 对照</strong>。左右两段取自同一个 clip，场景与渲染一致，差别来自策略本身；点播放，控件里可全屏。视频来自 RAD 官方项目页的外链。</figcaption></figure>
 
 不过它的环境本质上是 log replay：交互有限，渲染质量也依赖原始采集的覆盖——换到采集之外的视角，画面就明显变差[@6]。这两点正好落在本文「新视角」一节要补的缺口上，也决定了这类环境更适合做策略后训练，而不是通用的场景生成器。
 
