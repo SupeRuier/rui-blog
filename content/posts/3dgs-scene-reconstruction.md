@@ -64,7 +64,9 @@ footer: 3D Reconstruction
 
 ## Street Gaussians：动态道路场景的显式拆解
 
-[Street Gaussians](https://arxiv.org/abs/2401.01339) 的背景是道路视频中的车辆在运动，而早期动态街景 NeRF 类方案训练和渲染较慢。它把背景与前景车辆组织为不同的高斯点云，给点云附加语义信息，利用可优化的跟踪位姿和时间相关的外观表示处理车辆动态。显式的背景—车辆组合使新视角渲染、车辆替换和位置编辑更自然[@2]；其适用前提仍包括可靠的相机与物体运动估计。
+[Street Gaussians](https://arxiv.org/abs/2401.01339) 的背景是道路视频中的车辆在运动，而早期动态街景 NeRF 类方案训练和渲染较慢。它把背景与前景车辆组织为不同的高斯点云，给点云附加语义信息，利用可优化的跟踪位姿和时间相关的外观表示处理车辆动态。显式的背景—车辆组合使新视角渲染、车辆替换和位置编辑更自然[@2]；其适用前提仍包括可靠的相机与物体运动估计。整体流程如下图。
+
+<figure class="frontier-figure"><a href="../assets/3dgs-street-gaussians-pipeline.jpg" title="查看原图"><img src="../assets/3dgs-street-gaussians-pipeline.jpg" alt="Street Gaussians 流程：几何模型与动态外观模型描述高斯属性；背景模型与物体模型按可优化跟踪框合成后做基于点的渲染，输出渲染图像、分解结果与语义图。"></a><figcaption><strong>图 · Street Gaussians 的表示与渲染流程</strong>。上方为几何模型（位置、不透明度、旋转、尺度），下方为动态外观模型（傅里叶系数、时间基与球谐基）；中部把背景模型与物体模型按可优化跟踪框合成，右侧基于点的渲染输出图像、前景分解与语义图。图较宽，点击可看原图。图源：Street Gaussians 论文。</figcaption></figure>
 
 ## 新视角补全训练：渲染—修复—回灌的迭代循环
 
@@ -80,7 +82,9 @@ footer: 3D Reconstruction
 
 每轮只扩一小段视角是有意为之。外扩越远，可见像素越少、修复模型的自由度越大；把新增视角限制在「上一步几何还能支撑」的范围内，回灌的监督才不至于变成纯生成。
 
-这个循环参照的是 [ReconDreamer](https://arxiv.org/abs/2411.19548)。它面向驾驶场景的新轨迹渲染（3 米、6 米横向偏移与变道），主循环同样是「渲染新视角 → 修复 → 回灌」：先渲染新轨迹视角，由 DriveRestorer 修复重影，再把修复后的视频与原始视频一起用于优化重建模型，迭代到收敛；修复器以退化渲染帧为控制条件，训练数据由不同训练阶段的渲染采样构成，并用掩码强调天空与远处这类困难区域[@6]。差别在落点：ReconDreamer 的「新视角」是车辆轨迹外推，底座是 Street Gaussians 这类逐场景优化的表示；本链路把它当作逐圈扩大视角覆盖的训练手段。
+这个循环参照的是 [ReconDreamer](https://arxiv.org/abs/2411.19548)。它面向驾驶场景的新轨迹渲染（3 米、6 米横向偏移与变道），主循环同样是「渲染新视角 → 修复 → 回灌」：先渲染新轨迹视角，由 DriveRestorer 修复重影，再把修复后的视频与原始视频一起用于优化重建模型，迭代到收敛；修复器以退化渲染帧为控制条件，训练数据由不同训练阶段的渲染采样构成，并用掩码强调天空与远处这类困难区域[@6]。差别在落点：ReconDreamer 的「新视角」是车辆轨迹外推，底座是 Street Gaussians 这类逐场景优化的表示；本链路把它当作逐圈扩大视角覆盖的训练手段。整体流程如下图。
+
+<figure class="frontier-figure"><a href="../assets/3dgs-recondreamer-pipeline.webp" title="查看原图"><img src="../assets/3dgs-recondreamer-pipeline.webp" alt="ReconDreamer 流程：新轨迹渲染视频与噪声图像、3D 框序列、HDMap 序列一起送入 DriveRestorer，解码出修复视频；修复视频按数据采样概率与原始轨迹视频一起回灌动态场景重建，再继续渲染新的轨迹视角。"></a><figcaption><strong>图 · ReconDreamer 的在线修复与渐进数据更新</strong>。左侧为渐进轨迹采样与渲染；中部 DriveRestorer 以噪声图像、新轨迹渲染视频、3D 框序列与 HDMap 序列为输入，解码出修复后的新轨迹视频；右侧按数据采样概率把原始轨迹视频与 1.5 m / 3 m 变道修复视频回灌到动态场景重建。点击可看原图。图源：ReconDreamer 论文。</figcaption></figure>
 
 一致性来源需要单独交代：用视频修复器时，跨视角一致性由时序建模承担；若修复器逐张处理图像，同一块未观测区域可能在不同视角被补成不同内容，回灌后互相拉扯，这时一致性只能靠相邻视角的重叠与后续优化来补救。
 
