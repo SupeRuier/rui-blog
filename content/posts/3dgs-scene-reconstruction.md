@@ -77,7 +77,7 @@ Street Gaussians 提供基线表示：它把街景拆成背景与运动车辆两
 
 新视角这一缺口没有现成像素可监督，只能先把内容补出来，再当作伪监督用。
 
-[ReconDreamer](https://arxiv.org/abs/2411.19548) 是这条路线上的公开参照。它面向驾驶场景的新轨迹渲染（3 米、6 米横向偏移与变道），主循环是「渲染 → 修复 → 回灌」：渲染新轨迹视角，由 DriveRestorer 修复重影，修复后的视频再与原始视频一起优化重建模型，迭代到收敛；修复器以退化渲染帧为控制条件，训练数据取自不同训练阶段的渲染采样，并用掩码强调天空与远处[@6]。整体流程如下图。
+[ReconDreamer](https://arxiv.org/abs/2411.19548) 是这条路线上的公开参照。它面向驾驶场景的新轨迹渲染（3 米、6 米横向偏移与变道），主循环是「渲染 → 修复 → 回灌」：渲染新轨迹视角，由 DriveRestorer 修复重影，修复后的视频再与原始视频一起优化重建模型，迭代到收敛；修复器以退化渲染帧为控制条件，训练数据取自不同训练阶段的渲染采样，并用掩码强调天空与远处[@4]。整体流程如下图。
 
 <figure class="frontier-figure"><a href="../assets/3dgs-recondreamer-pipeline.webp" title="查看原图"><img src="../assets/3dgs-recondreamer-pipeline.webp" alt="ReconDreamer 流程：新轨迹渲染视频与噪声图像、3D 框序列、HDMap 序列一起送入 DriveRestorer，解码出修复视频；修复视频按数据采样概率与原始轨迹视频一起回灌动态场景重建，再继续渲染新的轨迹视角。"></a><figcaption><strong>图 · ReconDreamer 的在线修复与渐进数据更新</strong>。左侧为渐进轨迹采样与渲染；中部 DriveRestorer 以噪声图像、新轨迹渲染视频、3D 框序列与 HDMap 序列为输入，解码出修复后的新轨迹视频；右侧按数据采样概率把原始轨迹视频与 1.5 m / 3 m 变道修复视频回灌到动态场景重建。点击可看原图。图源：ReconDreamer 论文。</figcaption></figure>
 
@@ -138,15 +138,15 @@ Street Gaussians 提供基线表示：它把街景拆成背景与运动车辆两
 
 契约本身很薄：加载与重置、step、关闭。把环境做成服务之后，训练能不能跑起来就取决于两件事：一步的端到端时延（状态推进 + 渲染 + 传输）是否落进策略训练可接受的窗口，以及同一动作在同一状态下是否返回同一观测。这是这一步真正的交付物——不是一张分数表，而是一套**可复用的接口与预算**；链路闭合之后，要动的更多是策略的规模与结构，接口可以复用。
 
-这条路线在工业界已经有走完整流程的实现，可以当作本链路的对照样本。地平线的 RAD 用 3DGS 重建真实驾驶片段，把重建结果接成以传感器观测为接口的闭环环境，再在其中训练端到端策略：先做感知预训练，再用模仿学习预训练规划头，最后在重建场景里用 RL 与 IL 联合后训练；动作经自行车模型推到下一步位姿，奖励围绕动态碰撞、静态碰撞、横向位置偏差与朝向偏差设计，发生碰撞或偏差超过阈值就终止 episode[@7][@8]。它用 4305 个关键场景重建出训练与评测环境（3968 / 337），相对纯模仿学习把碰撞率降到约三分之一[@7][@8]。把 RAD 的三步拆开与本链路对照，环境侧的要求几乎完全一致：逐场景重建 → 可重置、能按动作推进并返回观测的环境 → 策略在闭环里训练。差别在规模与工程完整度，不在链路形态。
+这条路线在工业界已经有走完整流程的实现，可以当作本链路的对照样本。地平线的 RAD 用 3DGS 重建真实驾驶片段，把重建结果接成以传感器观测为接口的闭环环境，再在其中训练端到端策略：先做感知预训练，再用模仿学习预训练规划头，最后在重建场景里用 RL 与 IL 联合后训练；动作经自行车模型推到下一步位姿，奖励围绕动态碰撞、静态碰撞、横向位置偏差与朝向偏差设计，发生碰撞或偏差超过阈值就终止 episode[@5][@6]。它用 4305 个关键场景重建出训练与评测环境（3968 / 337），相对纯模仿学习把碰撞率降到约三分之一[@5][@6]。把 RAD 的三步拆开与本链路对照，环境侧的要求几乎完全一致：逐场景重建 → 可重置、能按动作推进并返回观测的环境 → 策略在闭环里训练。差别在规模与工程完整度，不在链路形态。
 
 这条路线的效果有公开 demo 可以对照：同一个转弯片段，上面是纯模仿学习训练出的策略，下面是 RAD 用 RL 后训练之后的策略。转弯同时考验横向动作与纵向速度，是这类闭环策略最容易分化的工况。
 
 <figure class="frontier-figure"><div class="video-stack"><div><div class="video-label">纯模仿学习（IL）</div><video src="https://hgao-cv.github.io/RAD/static/videos/clip_1726300101299-IL.mp4" controls muted playsinline preload="metadata"></video></div><div><div class="video-label">RAD · RL 后训练</div><video src="https://hgao-cv.github.io/RAD/static/videos/clip_1726300101299-RAD.mp4" controls muted playsinline preload="metadata"></video></div></div><figcaption><strong>案例 · 同一转弯片段的 IL / RL 对照</strong>。两段取自同一个 clip，场景与渲染一致，差别来自策略本身；点播放，控件里可全屏。视频来自 RAD 官方项目页的外链。</figcaption></figure>
 
-RAD 的工程取舍也印证了本文的几条纪律。它把 IL 留作正则项、并在碰撞或偏差过大时直接终止 episode——公开解读给出的原因是，触发这些事件后重建环境会产生带噪的传感器数据，对 RL 训练有害[@8]；这与「外扩越远、监督越退化为纯生成」是同一个现象，处理方式也一样：把不确定的部分圈出来单独报告。它把评测放在 337 个未参与训练的场景上，也就是「保留视角」在场景级别的版本。它公开的边界同样具体：这类环境本质上仍是 log replay、缺少真实交互，非刚性行人、视野外信息与低光照的渲染质量有限[@8]。这些限制决定了下游能训出什么，而本链路在小规模上先量的是它的上游——环境能不能加载、能不能按同一规则推进、时延能不能被训练循环接受。
+不过它的环境本质上是 log replay：交互有限，渲染质量也依赖原始采集的覆盖——换到采集之外的视角，画面就明显变差[@6]。这两点正好落在本文「新视角」一节要补的缺口上，也决定了这类环境更适合做策略后训练，而不是通用的场景生成器。
 
-同一条路线上还有几种相邻的做法：DreamerV3 用同一套世界模型跨多个域训练控制策略[@4]，WALL-WM 把世界模型与语言—动作学习放在一起[@5]，ReconDreamer 用在线修复把新轨迹渲染接进闭环仿真[@6]。它们的评测各自独立设计，任务与规模不同，指标不能与本链路横向比较；能对齐的仍然是链路形态——**闭环能不能跑，与闭环跑得好不好，是两个必须分开报告的问题**。RAD 已经在后者上给出证据，本链路这一步先把前者连同它的接口、预算与失效边界做实。
+闭环能不能跑，与闭环跑得好不好，是两个必须分开报告的问题：RAD 把后者做出来了，本链路这一步先把前者连同接口、预算与失效边界做实。
 
 ::: my-take
 我认为「可编辑世界」的真正难点不在编辑操作，而在**编辑之后如何仍然相信这个场景**。渲染图看不出几何错误；而一旦场景被用来生成训练数据或驱动策略，几何错误就会以标签错误或 reward 错误的形式继续往下传，且更难回溯。
@@ -159,8 +159,6 @@ RAD 的工程取舍也印证了本文的几条纪律。它把 IL 留作正则项
 1. [3D Gaussian Splatting for Real-Time Radiance Field Rendering](https://arxiv.org/abs/2308.04079)，2023。3DGS 基础表示。
 2. [Street Gaussians: Modeling Dynamic Urban Scenes with Gaussian Splatting](https://arxiv.org/abs/2401.01339)，2024。动态街景分层与编辑。
 3. [Data Pyramid for Embodied Manipulation](https://arxiv.org/html/2607.24744v1)，2026。五层具身数据分类、采集与数据配方综述。
-4. [Mastering Diverse Domains through World Models (DreamerV3)](https://arxiv.org/abs/2301.04104)，2023。环境预测与控制实例。
-5. [WALL-WM: World Action Language Learning](https://arxiv.org/abs/2606.01955)，2026。世界模型与语言—动作联合学习；事件边界与变长动作段预测。
-6. [ReconDreamer: Crafting World Models for Driving Scene Reconstruction via Online Restoration](https://arxiv.org/abs/2411.19548)，2024。DriveRestorer 在线修复与渐进数据更新。
-7. [RAD: Training an End-to-End Driving Policy via Large-Scale 3DGS-based Reinforcement Learning](https://arxiv.org/abs/2502.13144)，2025（NeurIPS 2025）。3DGS 闭环环境 + RL/IL 的端到端驾驶策略训练；代码见 [hustvl/RAD](https://github.com/hustvl/RAD)，[项目页](https://hgao-cv.github.io/RAD/)含 IL / RL 对照 demo。
-8. [地平线 RAD：基于 3DGS 大规模强化学习的端到端驾驶策略](https://developer.horizon.auto/blog/13215)，2025。三阶段训练流程、场景规模、奖励阈值与局限的技术解读。
+4. [ReconDreamer: Crafting World Models for Driving Scene Reconstruction via Online Restoration](https://arxiv.org/abs/2411.19548)，2024。DriveRestorer 在线修复与渐进数据更新。
+5. [RAD: Training an End-to-End Driving Policy via Large-Scale 3DGS-based Reinforcement Learning](https://arxiv.org/abs/2502.13144)，2025（NeurIPS 2025）。3DGS 闭环环境 + RL/IL 的端到端驾驶策略训练；代码见 [hustvl/RAD](https://github.com/hustvl/RAD)，[项目页](https://hgao-cv.github.io/RAD/)含 IL / RL 对照 demo。
+6. [地平线 RAD：基于 3DGS 大规模强化学习的端到端驾驶策略](https://developer.horizon.auto/blog/13215)，2025。三阶段训练流程、场景规模、奖励阈值与局限的技术解读。
