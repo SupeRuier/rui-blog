@@ -134,6 +134,14 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 .rsi-mini-branches.rsi-five, .rsi-mini-branches.rsi-four { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 18px; }
 .rsi-mini-branches.rsi-five::before, .rsi-mini-branches.rsi-five::after, .rsi-mini-branches.rsi-four::before, .rsi-mini-branches.rsi-four::after, .rsi-mini-branches.rsi-five > div::before, .rsi-mini-branches.rsi-four > div::before { display: none; }
 .rsi-mini-branches.rsi-five > div:last-child { grid-column: 1 / -1; }
+/* 两级总览图：上排三项改进用分支连接线指回基线，下排三项用处是并列的使用方式，
+   不画连接线。两级之间用箭头表示「改完之后才谈怎么用」。 */
+.rsi-mini-tier + .rsi-mini-tier { position: relative; margin-top: 34px; }
+.rsi-mini-tier + .rsi-mini-tier::before { content: "↓"; position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); color: var(--accent); }
+.rsi-mini .rsi-mini-tier-label { margin: 0; color: var(--accent); font-family: inherit; font-size: .72rem; font-weight: 700; letter-spacing: .12em; line-height: 1.5; }
+.rsi-mini .rsi-mini-tier-label span { margin-left: 8px; color: var(--muted); font-size: .75rem; font-weight: 400; letter-spacing: 0; }
+.rsi-mini-branches.rsi-flat { margin-top: 13px; }
+.rsi-mini-branches.rsi-flat::before, .rsi-mini-branches.rsi-flat::after, .rsi-mini-branches.rsi-flat > div::before { display: none; }
 .rsi-how-flow { display: grid; gap: 0; margin-top: 20px; }
 .rsi-how-flow > div { position: relative; padding: 13px 16px; border: 1px solid var(--line); border-left: 2px solid var(--accent); }
 .rsi-how-flow > div + div { margin-top: 22px; }
@@ -269,6 +277,7 @@ body.is-diagram-modal { overflow: hidden; }
   .rsi-mini-branches > div::before { left: -17px; top: 50%; width: 16px; height: 0; border-left: 0; border-top: 1px solid var(--line); }
   .rsi-mini-branches.rsi-five, .rsi-mini-branches.rsi-four { grid-template-columns: 1fr; margin: 20px 0 0; padding-left: 0; border-left: 0; }
   .rsi-mini-branches.rsi-five > div:last-child { grid-column: auto; }
+  .rsi-mini-branches.rsi-flat { margin: 13px 0 0; padding-left: 0; border-left: 0; }
   footer { align-items: flex-start; flex-direction: column; justify-content: center; gap: 4px; }
 }
 

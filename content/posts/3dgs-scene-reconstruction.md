@@ -28,7 +28,7 @@ footer: 3D Reconstruction
 
 [3D Gaussian Splatting（3DGS）](https://arxiv.org/abs/2308.04079)用可优化的三维高斯作为显式场景表示，将多视角图像拟合成可以快速渲染的新视角[@1]。做可编辑合成时，除了外观质量，还必须考虑动态物体、视角缺失和编辑后的几何一致性。
 
-<figure class="rsi-mini"><figcaption>总览 · 以 Street Gaussians 为基线，三个缺口对应三项改进；资产、数据与闭环是建成之后的使用方式</figcaption><div class="rsi-mini-branches"><div><strong>1 监督</strong><span>标定、位姿与点云深度都来自观测 → 先修测量，接受误差下限</span></div><div><strong>2 地面</strong><span>弱纹理、漂浮高斯、尺度来源不明 → 平面、法向与稠密 Mesh 约束</span></div><div><strong>3 新视角</strong><span>只在训练视角上有监督 → 渲染—修复—回灌，逐圈外扩</span></div></div></figure>
+<figure class="rsi-mini"><figcaption>总览 · Street Gaussians 给基线，三个缺口对应三项改进，三项改进之后是三种使用方式</figcaption><div class="rsi-mini-tiers"><div class="rsi-mini-tier"><p class="rsi-mini-tier-label">基线<span>Street Gaussians · 背景与车辆分层，可渲染、可编辑</span></p><div class="rsi-mini-branches"><div><strong>1 监督 · 先修输入</strong><span>标定、位姿与点云深度都来自观测 → 修测量本身，并给出整条链路的误差下限</span></div><div><strong>2 地面 · 再修地基</strong><span>弱纹理、漂浮高斯、尺度来源不明 → 平面、法向与稠密 Mesh 约束</span></div><div><strong>3 新视角 · 补上没拍到的视角</strong><span>只在训练视角上有监督 → 渲染—修复—回灌逐圈外扩，并按保留视角设停止准则</span></div></div></div><div class="rsi-mini-tier"><p class="rsi-mini-tier-label">使用<span>场景可被信任之后，这套框架拿来做什么</span></p><div class="rsi-mini-branches rsi-flat"><div><strong>资产添加</strong><span>分层保证可分离；逐项检查原视角一致性、新视角遮挡、光照与阴影、以及是否破坏原正确区域</span></div><div><strong>数据生产</strong><span>抽帧、选视角、生成 (图像, 标签) 对；每条样本标来源：真实观测 / 插值视角 / 生成补全</span></div><div><strong>闭环仿真与策略 PoC</strong><span>能加载、能查碰撞、按动作推进并返回观测；先验证链路闭合、可重复性与延迟，再谈策略能力</span></div></div></div></div></figure>
 
 三项改进不是并列的功能清单，而是从基线失效处依次长出来的：**先修输入**（监督），**再修地基**（地面），**然后把监督扩到没有像素的视角**（新视角）。阅读顺序即此顺序，每一节末尾给出该项的验收证据；资产、数据与闭环三节放在三项之后，讲这套框架怎么被使用。
 
