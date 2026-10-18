@@ -24,7 +24,22 @@ footer: Active Learning
 在标注、训练与评估成本约束下，怎样判断是否值得做主动学习，怎样选择一批真正有边际价值的数据，又怎样证明这套选择比随机采样更划算？
 :::
 
-<figure class="frontier-figure"><a href="../assets/active-learning-decision-map.png" title="查看原图"><img src="../assets/active-learning-decision-map.png" alt="主动学习决策图：先判断随机采样是否足够、标签是否昂贵以及选择收益能否覆盖系统成本；再根据候选来源选择池式、流式或生成式查询，使用信息量、代表性、预期改进和学习评分估计价值，在批次层面处理冗余、覆盖、配额与异质成本；完成选择、标注、入库重训和评估闭环后，用学习曲线、随机基线和成本归一化结果决定下一轮或停止。图的底部单独说明大模型时代经典前提的变化及其向数据选择的迁移。"></a><figcaption>图 1 · 主动学习的总决策图。主线回答「是否值得做、怎样选择、如何验证与停止」；底部单独标出大模型时代的前提变化与数据选择。点击可看原图。</figcaption></figure>
+<figure class="al-decision-map" aria-labelledby="al-map-caption">
+<figcaption id="al-map-caption"><strong>图 1 · 主动学习的总决策图</strong><span>主线回答「是否值得做、怎样选择、如何验证与停止」；大模型部分单独说明经典前提的变化及其向数据选择的迁移。</span></figcaption>
+<div class="al-map-principle"><span>统一判断原则</span><strong>样本价值 = 相对于当前模型、已有数据与目标分布的预期边际收益 − 完整成本</strong></div>
+<div class="al-map-body">
+<div class="al-map-flow">
+<section class="al-map-step"><div class="al-map-step-head"><b>01</b><strong>是否值得做？</strong></div><ul><li>随机采样是否不够</li><li>新增监督是否昂贵</li><li>收益能否覆盖系统成本</li></ul><div class="al-map-verdict"><span>足够</span>不做主动学习</div></section>
+<section class="al-map-step"><div class="al-map-step-head"><b>02</b><strong>候选从哪里来？</strong></div><div class="al-map-options"><span><b>池式</b>预先收集</span><span><b>流式</b>持续到达</span><span><b>生成式</b>主动产生</span></div><div class="al-map-note">候选覆盖决定选择上限</div></section>
+<section class="al-map-step"><div class="al-map-step-head"><b>03</b><strong>如何估计价值？</strong></div><div class="al-map-quadrants"><span>信息量</span><span>代表性</span><span>预期改进</span><span>学习评分</span></div><div class="al-map-note">绑定模型、已标注集与目标指标</div></section>
+<section class="al-map-step"><div class="al-map-step-head"><b>04</b><strong>如何形成批次？</strong></div><div class="al-map-quadrants"><span>冗余</span><span>覆盖</span><span>配额</span><span>异质成本</span></div><div class="al-map-note">优化批次净收益，而非单点 top-k</div></section>
+<section class="al-map-step"><div class="al-map-step-head"><b>05</b><strong>如何完成闭环？</strong></div><ol class="al-map-loop"><li>选择</li><li>标注与质检</li><li>入库与重训</li><li>独立评估</li></ol><div class="al-map-note">记录版本、偏差与成本账本</div></section>
+<section class="al-map-step"><div class="al-map-step-head"><b>06</b><strong>如何验证与停止？</strong></div><ul><li>学习曲线对比随机基线</li><li>成本归一化、分片与多种子</li></ul><div class="al-map-gate"><span><b>继续</b>目标未达 · 收益足够 · 预算未尽</span><span><b>停止</b>目标达成 / 收益不足 / 预算耗尽</span></div></section>
+</div>
+<div class="al-map-risks"><strong>常见失效</strong><span>未校准</span><span>噪声与歧义</span><span>分布外样本</span><span>批次冗余</span><span>选择偏差</span><span>测试集泄漏</span></div>
+</div>
+<div class="al-map-llm"><div class="al-map-llm-title"><span>单独讨论</span><strong>大模型时代：经典主动学习与数据选择之间的 Gap</strong></div><div class="al-map-llm-flow"><div><b>经典主动学习</b><span>购买新的监督信息</span><small>标签是主要成本 · 单样本边际作用清晰 · 多轮重训可接受</small></div><div class="al-map-shift"><b>前提变化</b><span>标签变便宜，训练与验证变贵；单样本作用被规模稀释；不确定性更难解释</span></div><div><b>对应形态：数据选择</b><span>重组已有或生成的信息</span><small>质量 · 复杂度 · 多样性 · 目标相关性 · 梯度影响 · 数据配比</small></div></div><div class="al-map-shared"><b>共享原则</b>边际价值 · 批量冗余 · 分布偏差 · 成本归一化验证</div></div>
+</figure>
 
 这张图把全文压缩为六个连续判断：**是否值得做、候选从哪里来、如何估计价值、如何形成批次、如何完成闭环、如何验证与停止**。大模型部分不参与经典主动学习的主流程，而是在最后检查原有前提发生了什么变化。
 
