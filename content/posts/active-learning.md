@@ -30,7 +30,7 @@ footer: Active Learning
 在标注成本与训练成本约束下，如何定义「值得标注」的样本，并检验新增数据的边际收益？
 :::
 
-我在 GitHub 整理的 [awesome-active-learning](https://github.com/SupeRuier/awesome-active-learning) 不只是论文清单，还按问题场景、选样策略、理论、实践和应用组织资料[@1]。它引出的基本问题很朴素：标注贵、预算有限，而未标注样本对目标任务的贡献并不相同，能否让模型主动决定下一批请专家标什么？
+GitHub 上的开源项目 [awesome-active-learning](https://github.com/SupeRuier/awesome-active-learning) 不只是论文清单，还按问题场景、选样策略、理论、实践和应用组织资料[@1]。它引出的基本问题很朴素：标注贵、预算有限，而未标注样本对目标任务的贡献并不相同，能否让模型主动决定下一批请专家标什么？
 
 <figure class="rsi-mini"><figcaption>总览 · 选择 → 标注 → 训练 → 评估：一条会自我改变分布的闭环</figcaption><div class="rsi-mini-branches rsi-four"><div><strong>选择</strong><span>在候选池上估计边际价值，并处理批次内冗余与异质标注成本</span></div><div><strong>标注</strong><span>交给 oracle；成本、噪声水平与一致性都是预算的一部分</span></div><div><strong>训练</strong><span>在「真实数据 + 被选数据」的混合集上重训；类别先验已被改变</span></div><div><strong>评估</strong><span>学习曲线 + 成本归一化 + 与随机采样对照；测试集必须与选择过程隔离</span></div></div></figure>
 

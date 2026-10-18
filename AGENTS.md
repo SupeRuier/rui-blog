@@ -52,6 +52,10 @@
 
    新增文献目录类文章时设置 `section: references` 并补上 `back` / `backLabel` 指向父文章。
 
+9. **正文不出现第一人称。**
+   「我」「我们」「我的」「我认为」等写法只允许出现在 `::: my-take` 块内；正文其它位置用「本文」「建议」「更合适的理解是」等客观归因。判断标准与改写示例见 `WRITING.md` §3.4。
+   `npm run build` 由 `checkFirstPerson` 扫描 My Take 之外的「我」（排除「自我」这类构词与代码块），有命中就打印警告，**警告必须清零**。
+
 ## 每次改动后的检查
 
 ```bash
@@ -59,7 +63,7 @@ npm run build     # 必须通过；构建失败时 dist/ 会停在上一版
 npm run dev       # 本地看效果，改完存盘页面自动刷新
 ```
 
-构建输出会打印文章数、首页卡片数与警告（`validate()`：slug 重复、`[@N]` 与参考文献不匹配、首页文章缺 `summary` / `cardMeta` / `order`）。**警告必须清零**，不要带着警告提交。
+构建输出会打印文章数、首页卡片数与警告（`validate()`：slug 重复、`[@N]` 与参考文献不匹配、首页文章缺 `summary` / `cardMeta` / `order`；`checkFirstPerson()`：My Take 之外出现「我」）。**警告必须清零**，不要带着警告提交。
 
 改动 `tools/`、`package.json` 后需要重启 `npm run dev`（构建脚本本身不参与监听）。
 

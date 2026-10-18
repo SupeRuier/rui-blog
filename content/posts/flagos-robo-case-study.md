@@ -16,7 +16,7 @@ footer: Robo Deployment
 :::
 
 ::: tldr
-一个公开案例能支撑的结论，取决于它公开到了哪一层。本文把内容分成三层并始终标明：**公开设计**（文档与论文明确写出的）、**工程判断**（我基于公开架构提出的接口方案）、**待验证**（既不在文档里、也没有验证过，例如调用频率、ROS Action 映射、断网恢复）。
+一个公开案例能支撑的结论，取决于它公开到了哪一层。本文把内容分成三层并始终标明：**公开设计**（文档与论文明确写出的）、**工程判断**（基于公开架构提出的接口方案）、**待验证**（既不在文档里、也没有验证过，例如调用频率、ROS Action 映射、断网恢复）。
 
 在两个可核验的公开设计之上——FlagOS-Robo 的 VLM / VLA 训练与 Serving 工具链，以及 RoboOS 的 Brain–Cerebellum 分层与共享记忆——本文要问的是：**System 2 与 System 1 之间的执行契约应该长什么样**。
 
@@ -29,7 +29,7 @@ footer: Robo Deployment
 
 [FlagOS](https://flagos.io/Home) 是面向多种 AI 芯片的系统软件栈，不能直接等同于机器人 Agent Runtime[@1]。其领域项目 [FlagOS-Robo](https://docs.flagos.io/projects/FlagOS-Robo/en/latest/flagos-robo-user-guide.html) 把 VLM / VLA 的数据加载、训练、推理、Serving 和评测串起来，支持端到云部署[@2][@3]；与之关联的 [RoboOS](https://github.com/FlagOpen/RoboOS) 则给出了 Brain–Cerebellum 的分层 Agent 系统[@4]。评估 System 2 与 System 1 的交互，需要把「模型能部署」与「任务能闭环执行」分开。
 
-<figure class="rsi-mini"><figcaption>本文的证据分级 · 三类内容不混写</figcaption><div class="rsi-mini-branches"><div><strong>公开设计</strong><span>官方文档与论文明确写出的架构、模块与接口示例</span></div><div><strong>工程判断</strong><span>我基于公开架构提出的接口方案，标注为判断而非事实</span></div><div><strong>待验证</strong><span>调用频率、ROS Action 映射、断网恢复、端到端时延</span></div></div></figure>
+<figure class="rsi-mini"><figcaption>本文的证据分级 · 三类内容不混写</figcaption><div class="rsi-mini-branches"><div><strong>公开设计</strong><span>官方文档与论文明确写出的架构、模块与接口示例</span></div><div><strong>工程判断</strong><span>基于公开架构提出的接口方案，标注为判断而非事实</span></div><div><strong>待验证</strong><span>调用频率、ROS Action 映射、断网恢复、端到端时延</span></div></div></figure>
 
 ## 公开设计：端云怎么切
 
@@ -43,11 +43,11 @@ footer: Robo Deployment
 
 ## 工程判断：真正落地还缺哪些契约
 
-如果把这套结构接入一台真实机器人，我会首先定义子任务 / Skill 调用的 goal、feedback、result、cancel 与超时语义；固定 observation、机器人状态和任务 ID 在云端 Brain、边缘调度器与 Policy 服务之间的归属；让 Planner 低频或由关键事件触发，Monitor / 完成判定可更频繁运行，高频控制留在机器人本地。这里是基于公开架构提出的接口方案，**不是** FlagOS-Robo 已公开实现的调用频率、ROS Action 映射或网络故障恢复机制。
+如果把这套结构接入一台真实机器人，需要首先定义子任务 / Skill 调用的 goal、feedback、result、cancel 与超时语义；固定 observation、机器人状态和任务 ID 在云端 Brain、边缘调度器与 Policy 服务之间的归属；让 Planner 低频或由关键事件触发，Monitor / 完成判定可更频繁运行，高频控制留在机器人本地。这里是基于公开架构提出的接口方案，**不是** FlagOS-Robo 已公开实现的调用频率、ROS Action 映射或网络故障恢复机制。
 
 ## 接口语义清单：七个必须写死的字段
 
-把上面那套结构接到真实机器人上，我会先定义下面这张清单。它是**工程判断**，不是 FlagOS-Robo 已公开的实现细节。
+把上面那套结构接到真实机器人上，需要先定义下面这张清单。它是**工程判断**，不是 FlagOS-Robo 已公开的实现细节。
 
 | 语义 | 需要定义的核心内容 | 不定义会怎样 |
 | --- | --- | --- |

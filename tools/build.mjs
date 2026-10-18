@@ -355,6 +355,32 @@ async function loadPosts() {
  */
 const orderValue = (p) => (p.order === undefined ? -1 : Number(p.order) || -1)
 
+/**
+ * 正文不得出现第一人称：需要作者立场的表述应放进 ::: my-take，
+ * 其余位置用「本文」「建议」等客观归因。见 WRITING.md §3.4。
+ * 排除「自我」「忘我」这类构词，以及代码块注释里的内容。
+ */
+function checkFirstPerson(post) {
+  const warn = []
+  const lines = post.body.split('\n')
+  let inTake = false
+  let inFence = false
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (/^\s*```/.test(line)) { inFence = !inFence; continue }
+    if (inFence) continue
+    if (/^:::\s*$/.test(line)) { inTake = false; continue }
+    if (/^:::\s*my-take\b/.test(line)) { inTake = true; continue }
+    if (inTake) continue
+    const hit = [...line.matchAll(/我/g)].find((m) => !'自忘敌唯'.includes(line[m.index - 1] || ''))
+    if (hit) {
+      const snippet = line.slice(Math.max(0, hit.index - 14), hit.index + 14).trim()
+      warn.push(`${post.file}（正文第 ${i + 1} 行）：出现第一人称「…${snippet}…」，请改为客观表述或移入 ::: my-take`)
+    }
+  }
+  return warn
+}
+
 function validate(posts) {
   const warn = []
   const seen = new Map()
@@ -374,6 +400,8 @@ function validate(posts) {
     if (p.index !== false && p.order === undefined && !p.pinned) {
       warn.push(`${p.file}: 会显示在首页，但没有 order，位置会落到最后`)
     }
+
+    warn.push(...checkFirstPerson(p))
   }
   return warn
 }
