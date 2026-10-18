@@ -1,0 +1,77 @@
+sequenceDiagram
+    participant U as "用户/业务系统"
+    participant G as "Global Master（可选）"
+    participant E as "边缘任务接口"
+    participant H as "Sys2 Harness"
+    participant M as "云端 Sys2 模型"
+    participant P as "端侧 Sys1 VLA"
+    participant B as "RobotBackend"
+    participant R as "ROS 2 / SDK"
+    participant HW as "真机/仿真"
+
+    alt 启用 Global Master
+        U->>G: 提交全局任务
+        G->>E: 下发 TaskEnvelope
+        E-->>G: 接收确认
+    else 当前单机器人模式
+        U->>E: 直接提交机器人任务
+    end
+
+    E->>H: 创建任务并启动状态机
+    H->>B: 获取初始观测
+    B->>R: 请求图像与本体状态
+    R->>HW: 读取传感器
+    HW-->>R: 图像、关节、末端状态
+    R-->>B: 标准化观测
+    B-->>H: Observation
+
+    H->>M: 目标＋观测＋可用Policy＋历史
+    M-->>H: next_subtask＋success_condition
+    H->>H: 保存计划与当前subtask
+
+    loop 当前 subtask 未完成
+        H->>B: 获取最新观测
+        B->>R: 读取状态
+        R->>HW: 获取传感器数据
+        HW-->>H: 最新观测逐层返回
+
+        H->>P: Observation＋current_subtask
+        P-->>H: Action Chunk
+
+        H->>B: execute_action(action_chunk)
+        B->>R: Topic / Action / SDK调用
+        R->>HW: 执行动作
+        HW-->>R: 执行反馈
+        R-->>B: 状态、异常、完成信息
+        B-->>H: ExecutionFeedback
+
+        H->>H: Monitor判断执行状态
+
+        alt Subtask成功
+            H->>H: 标记完成，退出当前循环
+        else 可恢复的小偏差
+            H->>H: 保持subtask，继续调用VLA
+        else Policy失败或环境改变
+            H->>M: 失败信息＋最新观测，请求replan
+            M-->>H: 修正subtask或新计划
+        else 安全异常
+            H->>B: cancel / emergency_stop
+            B->>R: 本地安全停止
+            R->>HW: 停止执行
+        end
+    end
+
+    H->>M: 当前结果＋任务历史，请求下一步
+    M-->>H: next_subtask 或 task_done
+
+    alt 仍有下一子任务
+        H->>H: 更新current_subtask并继续
+    else 完整任务结束
+        H->>E: 最终结果
+        alt 启用 Global Master
+            E->>G: 上报成功、失败与执行摘要
+            G-->>U: 返回全局任务结果
+        else 当前单机器人模式
+            E-->>U: 返回任务结果
+        end
+    end
