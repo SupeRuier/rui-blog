@@ -43,6 +43,10 @@
   aside.append(button, panel);
   article.before(aside);
 
+  // 目录默认展开：所有文章一进入就显示完整章节列表；窄屏下仍是浮层，
+  // 点外部、点链接或按 Esc 可收起。
+  setOpen(true);
+
   function setOpen(open) {
     panel.hidden = !open;
     aside.classList.toggle('is-open', open);
