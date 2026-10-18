@@ -30,10 +30,23 @@ npm run dev   # 默认 http://localhost:8000
 
 1. **构建** —— 把 `content/` 渲染成 `dist/`（等同于 `npm run build`）。
 2. **起静态服务** —— 服务的是 `dist/`，不是源文件。`/` 是首页，`/posts/<文件名>.html` 是文章页。
-3. **监听源文件** —— 变化后自动重建，再通过 SSE 通知浏览器刷新。
+3. **监听源文件** —— 变化后自动重建，并且**只通知受影响的页面**刷新。
 
 于是你的循环就变成：改 `content/posts/*.md` → 存盘 → 终端出现
-`↻ 源文件已更新，已通知浏览器刷新` → **页面自己刷新**，不用按 F5。
+`↻ content/posts/foo.md → /posts/foo.html` → **那一页自己刷新**，别的标签页不动。
+
+哪些改动刷哪些页面，由构建时记录的「页面 → 依赖」表决定：
+
+| 你改了什么 | 谁会刷新 |
+| --- | --- |
+| 某篇文章的正文 | 只有 `posts/<该文章>.html` |
+| 某篇文章的 `title` / `summary` / `order` / `pinned` / `cardMeta` | 该文章页 + 首页（卡片变了） |
+| 新增或删除文章 | 首页（新文章页会出现在下一次打开时） |
+| `styles.css`、`toc.js`、`diagram.js`、`favicon.svg`、`content/site.json` | 全部页面 |
+| `templates/*.html` | 用到该模板的页面 |
+| `assets/**` 里被文章引用的图 | 引用它的那几篇文章 |
+
+认不出依赖关系时会保守地全站刷新（日志里显示「全部页面」），宁可多刷一次也不留旧页面。
 
 即使监听漏了事件（云盘目录偶发），手动刷新一次也一定是最新内容：服务端在返回
 HTML 前会先确认一次源文件指纹，变了就先重建再响应。
@@ -42,10 +55,10 @@ HTML 前会先确认一次源文件指纹，变了就先重建再响应。
 
 | 你改了什么 | 会触发重建吗 |
 | --- | --- |
-| `content/posts/*.md`、`content/site.json` | 会，并刷新页面 |
-| `templates/*.html`（页面骨架） | 会，并刷新页面 |
+| `content/posts/*.md`、`content/site.json` | 会，按上表定向刷新 |
+| `templates/*.html`（页面骨架） | 会，按上表定向刷新 |
 | `assets/**`（换图、加图） | 会，并重新拷进 `dist/assets/` |
-| `styles.css`、`toc.js`、`favicon.svg` | 会，且 `?v=` 版本号自动更新 |
+| `styles.css`、`toc.js`、`diagram.js`、`favicon.svg` | 会，全站刷新，且 `?v=` 版本号自动更新 |
 | `dist/` 里的任何东西 | 不会。`dist/` 是产物，每次构建整个重建，别往里放东西 |
 | `tools/`、`package.json` | 不会。改了构建脚本要重启服务 |
 

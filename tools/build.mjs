@@ -479,6 +479,60 @@ async function buildIndex(posts, vars) {
   return { html: index, listed: visible, main, refs }
 }
 
+/* ------------------------------------------------------------ 依赖表 */
+
+/**
+ * 每个页面依赖哪些源文件 —— 开发服务器据此只刷新受影响的页面。
+ *
+ * 全局源文件（样式、脚本、站点文案）改了就整站都过时，所以每个页面都带上它们。
+ */
+const GLOBAL_DEPS = ['content/site.json', 'styles.css', 'toc.js', 'diagram.js', 'favicon.svg']
+
+const INDEX_TEMPLATES = [
+  'templates/index.html',
+  'templates/card.html',
+  'templates/card-pinned.html',
+  'templates/ref-section.html',
+]
+
+/** 正文里引用到的资产：`::: diagram x` 内联 assets/x.svg，`![](assets/…)` 直接引用。 */
+function assetDeps(body) {
+  const out = new Set()
+  for (const m of body.matchAll(/^:::\s*diagram\s+([\w.-]+)/gm)) out.add(`assets/${m[1]}.svg`)
+  for (const m of body.matchAll(/assets\/[\w./-]+\.(?:svg|png|jpe?g|webp|gif)/gi)) out.add(m[0])
+  return out
+}
+
+/**
+ * 首页卡片上会出现的字段。只改正文不该牵动首页，所以首页是否刷新
+ * 不看文章内容，只看这几个字段有没有变。
+ */
+function cardSignature(post) {
+  return createHash('sha256')
+    .update(JSON.stringify([
+      post.slug, post.title, post.summary ?? '', post.order ?? null,
+      post.pinned ?? null, post.section ?? null, post.cardMeta ?? post.meta ?? '',
+      post.index ?? null,
+    ]))
+    .digest('hex')
+    .slice(0, 12)
+}
+
+function buildDeps(posts) {
+  const deps = new Map()
+  deps.set('/', new Set([...GLOBAL_DEPS, ...INDEX_TEMPLATES]))
+
+  const cardSigs = new Map()
+  for (const post of posts) {
+    deps.set(
+      `/posts/${post.slug}.html`,
+      new Set([...GLOBAL_DEPS, 'templates/post.html', post.file, ...assetDeps(post.body)]),
+    )
+    cardSigs.set(post.slug, cardSignature(post))
+  }
+  return { deps, cardSigs }
+}
+
 /* ------------------------------------------------------------- 主流程 */
 
 export async function build() {
@@ -516,12 +570,17 @@ export async function build() {
   console.log(
     `✓ dist/ · ${posts.length} 篇文章（首页 ${main.length} 张卡片 + 文献 ${refs.length} 篇）` +
     ` · css v${vars.cssVersion} toc v${vars.tocVersion} diagram v${vars.diagramVersion}`)
+
+  return buildDeps(posts)
 }
 
 /**
  * 监听源文件，变化时重建。返回 { stop, checkNow }。
  *
- * onRebuild 只在「确实重建了」之后调用（开发服务器用它通知浏览器刷新）。
+ * onRebuild 只在「确实重建了」之后调用，参数是 (changed, result)：
+ *   changed  这次变了的源文件相对路径数组
+ *   result   build() 的返回值（页面依赖表 + 卡片指纹）
+ * 开发服务器据此只刷新受影响的页面，而不是全站一起刷。
  * checkNow() 会等到构建真正结束才 resolve，因此可以安全地「先确保最新再响应请求」。
  */
 export async function watchSources(onRebuild) {
@@ -541,10 +600,12 @@ export async function watchSources(onRebuild) {
     current = (async () => {
       try {
         const now = await sourceFingerprint()
-        if (now !== print) {
-          await build()
+        const changed = diffFingerprint(print, now)
+        if (changed.length) {
+          const result = await build()
+          // 用构建前的指纹：构建期间又改了的文件，下一轮还能被 diff 出来重新构建
           print = now
-          onRebuild?.()
+          onRebuild?.(changed, result)
         }
       } catch (e) {
         console.error(`✗ 构建失败：${e.message}`)
@@ -605,27 +666,38 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 }
 
 const SOURCE_DIRS = ['content', 'templates', 'assets']
-const SOURCE_FILES = ['styles.css', 'toc.js', 'favicon.svg']
+const SOURCE_FILES = ['styles.css', 'toc.js', 'diagram.js', 'favicon.svg']
 
-/** 所有源文件的 路径 + 大小 + mtime 指纹，用来判断是否真的需要重建。 */
+/**
+ * 每个源文件「相对路径 → 大小:mtime」的指纹表。
+ *
+ * 以前这里把整张表压成一个哈希，只能判断「变了没有」；现在按文件返回，
+ * 才能算出**哪几个文件**变了，进而只刷新依赖它们的页面。
+ */
 async function sourceFingerprint() {
-  const files = []
+  const map = new Map()
   for (const dir of SOURCE_DIRS) {
     const base = path.join(ROOT, dir)
     if (!existsSync(base)) continue
     for (const rel of await readdir(base, { recursive: true })) {
       const full = path.join(base, rel)
-      if (!(await stat(full)).isDirectory()) files.push(full)
+      const s = await stat(full)
+      if (!s.isDirectory()) map.set(`${dir}/${rel}`, `${s.size}:${s.mtimeMs}`)
     }
   }
   for (const f of SOURCE_FILES) {
-    if (existsSync(path.join(ROOT, f))) files.push(path.join(ROOT, f))
+    const full = path.join(ROOT, f)
+    if (!existsSync(full)) continue
+    const s = await stat(full)
+    map.set(f, `${s.size}:${s.mtimeMs}`)
   }
+  return map
+}
 
-  const parts = []
-  for (const f of files.sort()) {
-    const s = await stat(f)
-    parts.push(`${f}:${s.size}:${s.mtimeMs}`)
-  }
-  return createHash('sha256').update(parts.join('\n')).digest('hex')
+/** 两张指纹表的差异：值变了或文件新增/删除，都算改动。 */
+function diffFingerprint(before, after) {
+  const changed = []
+  for (const [f, v] of after) if (before.get(f) !== v) changed.push(f)
+  for (const f of before.keys()) if (!after.has(f)) changed.push(f)
+  return changed.sort()
 }

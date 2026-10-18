@@ -28,24 +28,84 @@ const TYPES = {
   '.json': 'application/json; charset=utf-8',
 }
 
-/** 注入到每个 HTML 里：订阅重建事件，重建完成后自己 location.reload()。 */
+/**
+ * 注入到每个 HTML 里：订阅重建事件，只有「自己这页受影响」时才 reload。
+ * 服务端发来 {"reload":["/posts/foo.html"]}；认不准时发 {"reload":"*"}。
+ */
 const LIVE_RELOAD = `<script>
 (() => {
+  const here = location.pathname === '/index.html' ? '/' : location.pathname;
   const es = new EventSource('/__reload');
-  es.onmessage = () => location.reload();
+  es.onmessage = (e) => {
+    let pages;
+    try { pages = JSON.parse(e.data).reload; } catch { pages = '*'; }
+    if (pages === '*' || pages.includes(here)) location.reload();
+  };
 })();
 </script>`
 
 const clients = new Set()
 let watcher = null
+/** 页面 → 依赖的源文件（build() 返回）。 */
+let deps = new Map()
+/** slug → 卡片字段指纹，用来判断首页要不要跟着刷。 */
+let cardSigs = new Map()
+
+/**
+ * 这次改动波及哪些页面。返回 '*' 表示认不准，宁可整站都刷。
+ * 依赖表由构建产出，所以「改一篇文章只刷那一篇」不需要在这里写死规则。
+ */
+function affectedPages(changed) {
+  if (!deps.size) return '*'
+  const pages = new Set()
+  for (const f of changed) {
+    let hit = false
+    for (const [page, set] of deps) {
+      if (set.has(f)) { pages.add(page); hit = true }
+    }
+    if (hit) continue
+    // 新增/删除的文章：它自己还没有页面（或页面已删除），但首页卡片会变
+    if (f.startsWith('content/posts/')) { pages.add('/'); continue }
+    // 没被任何页面引用的资产：不用刷新
+    if (f.startsWith('assets/')) continue
+    return '*'
+  }
+  return pages
+}
+
+function cardsChanged(before, after) {
+  if (!before.size || before.size !== after.size) return true
+  for (const [slug, sig] of after) if (before.get(slug) !== sig) return true
+  return false
+}
+
+function notify(changed, result) {
+  let pages = affectedPages(changed)
+
+  if (result) {
+    // 正文改动不动卡片；标题、summary、order 这些变了首页才需要跟着刷
+    if (pages !== '*' && cardsChanged(cardSigs, result.cardSigs)) pages.add('/')
+    // 页面已经删掉了就没有客户端可刷；新增页面的刷新由上面的 '/' 覆盖
+    if (pages !== '*') for (const p of [...pages]) if (!result.deps.has(p)) pages.delete(p)
+    deps = result.deps
+    cardSigs = result.cardSigs
+  }
+
+  // 所有页面都受影响时不必逐个列 URL，直接发 '*'
+  const all = pages === '*' || pages.size === deps.size
+  const payload = `data: ${JSON.stringify({ reload: all ? '*' : [...pages] })}\n\n`
+  for (const res of clients) res.write(payload)
+
+  const where = all ? '全部页面' : (pages.size ? [...pages].join('、') : '无需刷新')
+  console.log(`↻ ${changed.join('、')} → ${where}`)
+}
 
 async function prepare() {
-  await build()
+  const result = await build()
+  deps = result.deps
+  cardSigs = result.cardSigs
   if (STATIC) return
-  watcher = await watchSources(() => {
-    for (const res of clients) res.write('data: reload\n\n')
-    console.log('↻ 源文件已更新，已通知浏览器刷新')
-  })
+  watcher = await watchSources(notify)
 }
 
 try {
