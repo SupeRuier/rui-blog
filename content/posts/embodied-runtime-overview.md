@@ -1,6 +1,6 @@
 ---
-title: 具身调度与部署：运行时框架总览
-tabTitle: 运行时框架总览
+title: 待完善：具身调度与部署：运行时框架总览
+tabTitle: 待完善：运行时框架总览
 description: Global Master—Robot Agent 的具身 Multi-Agent 调度框架：目标架构、控制面边界、单机器人时序与预留接口。
 order: "14"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
@@ -10,6 +10,8 @@ summary: Global Master—Robot Agent 的具身 Multi-Agent 调度框架：目标
 pinned: 置顶 · 框架总览
 footer: Embodied Runtime Framework
 ---
+
+**本文尚未完全整理完成，内容仍在继续梳理。**
 
 ::: note
 V0.2 的范围是**真实运行时的调度与部署**；模型训练与数据生产链路分别由训练和数据文章展开。

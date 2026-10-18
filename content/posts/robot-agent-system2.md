@@ -1,6 +1,6 @@
 ---
-title: Robot Agent System 2：规划、执行与系统闭环
-tabTitle: Robot Agent System 2
+title: 待完善：Robot Agent System 2：规划、执行与系统闭环
+tabTitle: 待完善：Robot Agent System 2
 description: 从认知、编排、执行与反馈四个平面理解 Robot Harness，以及 Robot Agent System 2 的规划、执行与系统闭环。
 order: "08"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
@@ -9,6 +9,8 @@ cardMeta: Robot Agent   # 首页卡片右上角，比文章页眉短
 summary: 从主循环与四类调度协议出发，理解 Robot Harness 的认知、控制、执行、反馈与能力演化闭环。
 footer: Robot Agent
 ---
+
+**本文尚未完全整理完成，内容仍在继续梳理。**
 
 ::: tldr
 谈到 Robot Agent 的 System 2，多数讨论停在「Planner 要更聪明」。但决定系统能否工作的，通常是**它怎样被接入一个持续运行的物理闭环**：规划结果要被绑定到可执行能力、在合适时刻下发、执行中受监控、状态变化后失效，并按真实结果决定继续、重试、重规划还是安全停止。承担这些职责的系统层，本文称为 **Robot Harness**。

@@ -1,6 +1,6 @@
 ---
-title: 世界理解 VLM：从能力定义到任务、数据与训练验证
-tabTitle: 世界理解 VLM
+title: 待完善：世界理解 VLM：从能力定义到任务、数据与训练验证
+tabTitle: 待完善：世界理解 VLM
 description: 世界理解 VLM：把场景、空间、因果等抽象能力拆成可构建数据、可训练、可验证的任务。
 order: "04"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
@@ -9,6 +9,8 @@ cardMeta: World · Embodied VLM   # 首页卡片右上角，比文章页眉短
 summary: 把抽象理解能力拆成可构建数据、可训练、可验证的任务，并分层检验。
 footer: World · Embodied VLM
 ---
+
+**本文尚未完全整理完成，内容仍在继续梳理。**
 
 ::: note
 本文聚焦理解现实世界与具身场景的通用 VLM，分开讨论训练路线、训练数据和评估方法。动作 Policy 与预测未来状态的 World Model 属于相邻但独立的建模问题。

@@ -1,6 +1,6 @@
 ---
-title: System 2 与 System 1 的执行契约：以 FlagOS-Robo 为例
-tabTitle: System 2 与 System 1 的执行契约
+title: 待完善：System 2 与 System 1 的执行契约：以 FlagOS-Robo 为例
+tabTitle: 待完善：System 2 与 System 1 的执行契约
 description: 以 FlagOS-Robo 为例看 System 2 与 System 1 的执行契约：目标、反馈、取消、超时、幂等与降级的接口语义。
 order: "11"
 index: false                         # 已降为运行时框架总览的子页，不上首页
@@ -10,6 +10,8 @@ cardMeta: Robo Deployment · Case Study   # 首页卡片右上角，比文章页
 summary: 目标、执行、反馈、取消、超时与降级的接口语义，以及公开设计与个人判断的分界。
 footer: Robo Deployment
 ---
+
+**本文尚未完全整理完成，内容仍在继续梳理。**
 
 ::: note
 公开资料 case study，分析范围为架构与接口。正文按「公开设计」「工程判断」「待验证」标记证据状态。

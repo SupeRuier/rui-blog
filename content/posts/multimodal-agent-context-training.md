@@ -1,6 +1,6 @@
 ---
-title: 多模态 Agent 的 Rollout、推理上下文与训练对齐
-tabTitle: 多模态 Agent 上下文与训练
+title: 待完善：多模态 Agent 的 Rollout、推理上下文与训练对齐
+tabTitle: 待完善：多模态 Agent 上下文与训练
 description: 从 Raw Rollout 到推理上下文，再到 SFT 与 RL：用三个节点、三条边比较多模态 Agent 的上下文构造与训练数据。
 order: "10"
 date:
@@ -9,6 +9,8 @@ cardMeta: Multimodal Agent · Context & Training
 summary: 三个节点、三条边：原始交互如何装配为推理上下文，又如何变成训练样本与监督信号。
 footer: Multimodal Agent · Context & Training
 ---
+
+**本文尚未完全整理完成，内容仍在继续梳理。**
 
 ::: tldr
 持续看图、调用工具的 Agent 会产生完整交互历史，模型每次推理则接收其中经过选择和加工的一部分。交互到学习的链路包含三个部分：**原始 Rollout、实际推理上下文、训练样本与监督信号**。

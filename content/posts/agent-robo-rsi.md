@@ -1,6 +1,6 @@
 ---
-title: Agent RSI 与 Robo RSI：持续自我改进的闭环
-tabTitle: Agent RSI 与 Robo RSI
+title: 待完善：Agent RSI 与 Robo RSI：持续自我改进的闭环
+tabTitle: 待完善：Agent RSI 与 Robo RSI
 description: RSI Unified Taxonomy V1.0：用一套 WHAT、WHEN、HOW、WHERE、CAPABILITY、GOVERNANCE 框架分析 Agent 与 Robo RSI。
 order: "09"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
@@ -9,6 +9,8 @@ cardMeta: Agent RSI · Robo RSI   # 首页卡片右上角，比文章页眉短
 summary: WHAT / WHEN / HOW / WHERE / CAPABILITY / GOVERNANCE 六轴框架，比较软件 Agent 与具身 Agent 的自我改进。
 footer: Agent RSI · Robo RSI
 ---
+
+**本文尚未完全整理完成，内容仍在继续梳理。**
 
 ::: note
 RSI Unified Taxonomy V1.0：只保留一套通用分类。Robo / Embodied RSI 是同一框架中带有物理交互、动作策略、本体差异及物理成本与安全约束的实例；六轴用于定位和比较研究方法。

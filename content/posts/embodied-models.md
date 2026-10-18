@@ -1,6 +1,6 @@
 ---
-title: 具身 Policy 的输入、动作表示与执行接口
-tabTitle: 具身 Policy
+title: 待完善：具身 Policy 的输入、动作表示与执行接口
+tabTitle: 待完善：具身 Policy
 description: 具身 Policy 的输入、动作表示与执行接口：只分析模型层，明确与系统层的边界。
 order: "07"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
@@ -9,6 +9,8 @@ cardMeta: Embodied Model   # 首页卡片右上角，比文章页眉短
 summary: Policy / VLA 的输入、跨本体动作表示、Action Chunk 与底层控制接口。
 footer: Embodied Model
 ---
+
+**本文尚未完全整理完成，内容仍在继续梳理。**
 
 具身模型通过观测、语言条件与本体状态预测动作，再由执行接口将动作转换为机器人命令。数据形式、训练目标、动作表示与控制约束共同决定 Policy 的能力边界。
 

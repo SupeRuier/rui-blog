@@ -1,6 +1,6 @@
 ---
-title: 具身 Agent 数据飞轮：从部署记录到能力演进
-tabTitle: 具身 Agent 数据飞轮
+title: 待完善：具身 Agent 数据飞轮：从部署记录到能力演进
+tabTitle: 待完善：具身 Agent 数据飞轮
 description: 统一 Experience 单元、Raw / Semantic / Derived 分层、失败归因、多出口自改进与回归门禁：具身数据闭环的链路与判据。
 order: "11"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
@@ -9,6 +9,8 @@ cardMeta: Embodied Data Flywheel   # 首页卡片右上角，比文章页眉短
 summary: 部署记录怎样变成能力演进：证据单元、语义分层、失败归因、多出口更新与发布门禁。
 footer: Embodied Data Flywheel
 ---
+
+**本文尚未完全整理完成，内容仍在继续梳理。**
 
 ::: note
 本文综合部署即评测、验证式自演进等公开工作与工程判断，形成一套具身数据飞轮的系统设计。带引用编号的内容来自公开材料，其余为本文的设计取舍。
