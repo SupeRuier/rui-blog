@@ -127,18 +127,6 @@ Diffusion 与 Flow Matching 是两条主干，差别在于建模对象（离散�
 
 质检通过不等于有效。一组无人二轮车数据在补充合成样本、使其接近原有人标数据量时，检测精度约提高 **4 个绝对百分点**，召回基本稳定；继续加入数据，精度继续上升而召回略降。收敛判据因此落在下游：既要看真实测试集上的收益，也要看被牺牲的指标，不能用生成样例的观感代替。
 
-### 补充：控制图驱动的生成
-
-框与布局只是控制信号的一种。更一般的做法是把条件写成**结构化的场景表示**：以 HDMap（车道线、可行驶区域、目标框）或 LiDAR 深度图为控制输入，让模型生成同一视角下的真实感画面。下图是 Cosmos-Transfer1-7B 的两组输入与输出[@7]：上排以 HDMap 为条件，下排以 LiDAR 深度为条件；控制图携带的几何与语义正好对应前面说的几何轴，标签也能从控制图推导，而不必从像素反推。
-
-<figure class="frontier-figure"><img src="../assets/generative-cosmos-transfer.webp" alt="Cosmos-Transfer1-7B 的两组条件生成结果：上排输入为 HDMap 渲染（车道线与目标框），下排输入为 LiDAR 深度图，右侧为对应的夜间道路生成画面。"><figcaption><strong>案例 · 控制图驱动的生成（Cosmos-Transfer1-7B）</strong>。每行左侧为控制输入、右侧为生成结果：上排 HDMap，下排 LiDAR 深度。图源：NVIDIA Cosmos。</figcaption></figure>
-
-控制式生成并不只服务智能驾驶。把控制图换成任务相关的几何与语义表示——工作空间布局、物体位姿、相机与机械臂位姿——同一套「控制图 → 感知数据」的做法可以用来构造具身场景的数据；输出也不必是单帧，视频序列同样成立，Cosmos3 这类面向物理智能的多模态世界模型就是同一方向[@8]。决定数据能不能用的仍然不是模型：控制信号写得多细，决定了需求能被表达多少、标签能覆盖多大范围。
-
-::: note
-**待补 · Cosmos3 效果图**：官方示例暂未取得，此处预留；用于展示同一类控制式生成在具身任务上的输出。
-:::
-
 ## 场景二 · 外生补（参考图插入）：数据几乎没有
 
 这一类缺口出在身份轴上：目标类别在已采集的数据池里几乎没有——一条都没有，或极端情况下只有一两条，比如罕见车型、特殊外观设备、道路中的大型动物——而它需要在指定位置、指定尺度上出现。这类信息不在训练集里，学习补不回来，只能从外部引入。补法落在**构造**上：不为这批数据训练变换能力，只调用现成的预训练模型，把外部素材按放置规则合成进场景。
@@ -196,5 +184,3 @@ Insert Anything 走的是 DiT 上的 in-context editing[@5]：把抠掉背景的
 4. [Dyna Robotics, Dyna-2: A 1-Million-Hour Scaling Law for World-Action Models](https://www.dyna.co/dyna-2)，2026-08。数据规模作为主要瓶颈的公开判断。
 5. [Insert Anything: Image Insertion via In-Context Editing in DiT](https://arxiv.org/abs/2504.15009)，2025。参考图目标插入方法。
 6. [General Object Foundation Model for Images and Videos at Scale](https://arxiv.org/abs/2312.09158)，2023。GLEE 的开放类别定位与分割方法。
-7. [Cosmos-Transfer1: Conditional World Generation with Adaptive Multimodal Control](https://arxiv.org/abs/2503.14492)，2025。以 HDMap、LiDAR、分割与深度等多模态控制生成世界画面。
-8. [Cosmos 3: Omnimodal World Models for Physical AI](https://arxiv.org/abs/2606.02800)，2026。面向物理智能的多模态世界模型。

@@ -146,6 +146,19 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 /* 缺口卡片里的「改进」小子节：接线的一级是缺口，改进是挂在它下面的小节点。 */
 .rsi-mini-branches .rsi-subnode { margin-top: 11px; padding: 9px 11px; border-left: 2px solid var(--accent); background: var(--bg); color: var(--muted); font-size: .72rem; line-height: 1.6; }
 .rsi-mini-branches .rsi-subnode b { display: block; margin-bottom: 2px; color: var(--accent); font-size: .64rem; font-weight: 700; letter-spacing: .14em; }
+/* 闭环仿真架构图：左列策略侧、右列环境服务，中间一列是两侧共享的 step 契约。
+   全部用 div 写，避免命中 .article-body p 的正文排版。 */
+.rsi-arch-figure { margin: 2.1rem 0 2.5rem; padding: 24px; border: 1px solid var(--line); background: var(--paper); }
+.rsi-arch-figure figcaption { color: var(--muted); font-size: .75rem; letter-spacing: .04em; }
+.rsi-arch { display: grid; grid-template-columns: minmax(0, 1fr) 152px minmax(0, 1fr); gap: 12px; margin-top: 20px; }
+.rsi-arch-col { display: grid; gap: 10px; align-content: start; }
+.rsi-arch-title { color: var(--accent); font-size: .72rem; font-weight: 700; letter-spacing: .12em; }
+.rsi-arch-col > div:not(.rsi-arch-title) { padding: 12px 14px; border: 1px solid var(--line); border-top: 2px solid var(--accent); }
+.rsi-arch-col strong { display: block; font-size: .85rem; line-height: 1.4; }
+.rsi-arch-col > div > span { display: block; margin-top: 5px; color: var(--muted); font-size: .76rem; line-height: 1.55; }
+.rsi-arch-link { display: grid; align-content: center; gap: 12px; }
+.rsi-arch-io { padding: 8px 6px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); font-size: .72rem; line-height: 1.5; text-align: center; }
+.rsi-arch-io b { display: block; color: var(--ink); font-size: .74rem; }
 .rsi-how-flow { display: grid; gap: 0; margin-top: 20px; }
 .rsi-how-flow > div { position: relative; padding: 13px 16px; border: 1px solid var(--line); border-left: 2px solid var(--accent); }
 .rsi-how-flow > div + div { margin-top: 22px; }
@@ -283,6 +296,8 @@ body.is-diagram-modal { overflow: hidden; }
   .rsi-mini-branches.rsi-five > div:last-child { grid-column: auto; }
   .rsi-mini-branches.rsi-flat { margin: 13px 0 0; padding-left: 0; border-left: 0; }
   .rsi-mini-branches.rsi-two { grid-template-columns: 1fr; }
+  .rsi-arch-figure { padding: 18px; }
+  .rsi-arch { grid-template-columns: 1fr; gap: 10px; }
   footer { align-items: flex-start; flex-direction: column; justify-content: center; gap: 4px; }
 }
 
