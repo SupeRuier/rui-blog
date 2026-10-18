@@ -142,7 +142,7 @@ Street Gaussians 提供基线表示：它把街景拆成背景与运动车辆两
 
 这条路线的效果有公开 demo 可以对照：同一个转弯片段，上面是纯模仿学习训练出的策略，下面是 RAD 用 RL 后训练之后的策略。转弯同时考验横向动作与纵向速度，是这类闭环策略最容易分化的工况。
 
-<figure class="frontier-figure"><div class="video-stack"><div><div class="video-label">纯模仿学习（IL）</div><video src="../assets/rad-clip-1726300101299-il.mp4" controls muted playsinline preload="metadata"></video></div><div><div class="video-label">RAD · RL 后训练</div><video src="../assets/rad-clip-1726300101299-rl.mp4" controls muted playsinline preload="metadata"></video></div></div><figcaption><strong>案例 · 同一转弯片段的 IL / RL 对照</strong>。两段取自同一个 clip，场景与渲染一致，差别来自策略本身；点播放，控件里可全屏。视频来自 RAD 官方项目页。</figcaption></figure>
+<figure class="frontier-figure"><div class="video-stack"><div><div class="video-label">纯模仿学习（IL）</div><video src="https://hgao-cv.github.io/RAD/static/videos/clip_1726300101299-IL.mp4" controls muted playsinline preload="metadata"></video></div><div><div class="video-label">RAD · RL 后训练</div><video src="https://hgao-cv.github.io/RAD/static/videos/clip_1726300101299-RAD.mp4" controls muted playsinline preload="metadata"></video></div></div><figcaption><strong>案例 · 同一转弯片段的 IL / RL 对照</strong>。两段取自同一个 clip，场景与渲染一致，差别来自策略本身；点播放，控件里可全屏。视频来自 RAD 官方项目页的外链。</figcaption></figure>
 
 RAD 的工程取舍也印证了本文的几条纪律。它把 IL 留作正则项、并在碰撞或偏差过大时直接终止 episode——公开解读给出的原因是，触发这些事件后重建环境会产生带噪的传感器数据，对 RL 训练有害[@8]；这与「外扩越远、监督越退化为纯生成」是同一个现象，处理方式也一样：把不确定的部分圈出来单独报告。它把评测放在 337 个未参与训练的场景上，也就是「保留视角」在场景级别的版本。它公开的边界同样具体：这类环境本质上仍是 log replay、缺少真实交互，非刚性行人、视野外信息与低光照的渲染质量有限[@8]。这些限制决定了下游能训出什么，而本链路在小规模上先量的是它的上游——环境能不能加载、能不能按同一规则推进、时延能不能被训练循环接受。
 
