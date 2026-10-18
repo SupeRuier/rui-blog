@@ -87,7 +87,7 @@ GitHub 上的开源项目 [awesome-active-learning](https://github.com/SupeRuier
 
 ## 第三步：用四类信号估计价值
 
-选样策略可以按「它相信什么信号能代表价值」分成四类：信息量、代表性、预期改进和学习评分[@1]。
+选样策略可以按「它相信什么信号能代表价值」分成四类：信息量、代表性、预期改进和学习评分[@1][@13]。
 
 <figure class="rsi-mini"><figcaption>四类选样信号：都在近似边际价值，但依赖的假设不同</figcaption><div class="rsi-mini-branches rsi-four"><div><strong>信息量</strong><span>不确定性、margin、熵、模型间分歧；假设模型越没把握越值得标</span></div><div><strong>代表性</strong><span>核心集、聚类、密度与覆盖；假设补上未覆盖区域收益最大</span></div><div><strong>预期改进</strong><span>误差下降、梯度或影响函数；尝试直接估计对目标指标的贡献</span></div><div><strong>学习评分</strong><span>从历史轮次学习样本价值；假设过去的选择经验可以迁移</span></div></div></figure>
 
@@ -205,3 +205,4 @@ LESS 用梯度相似度选择面向目标任务的指令数据[@10]；DEITA 将�
 10. [LESS: Selecting Influential Data for Targeted Instruction Tuning](https://arxiv.org/abs/2402.04333)，Mengzhou Xia 等，ICML 2024。
 11. [What Makes Good Data for Alignment? A Comprehensive Study of Automatic Data Selection in Instruction Tuning](https://arxiv.org/abs/2312.15685)，Wei Liu 等，ICLR 2024。
 12. [Data Selection for Language Models via Importance Resampling](https://arxiv.org/abs/2302.03169)，Sang Michael Xie、Shibani Santurkar、Tengyu Ma、Percy Liang，NeurIPS 2023。
+13. [Learning with not Enough Data Part 2: Active Learning](https://lilianweng.github.io/posts/2022-02-20-active-learning/)，Lilian Weng，2022。主动学习、采集函数与深度主动学习方法综述。
