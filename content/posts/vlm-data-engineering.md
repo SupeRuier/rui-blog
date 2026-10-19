@@ -55,6 +55,18 @@ Hy-Embodied-VLM-1.0 进一步把能力放进感知—行动—反馈链：三个
 
 从已有语言与视觉能力出发，规划模态对齐、跨域持续训练与具身任务适配，分别观察每一阶段获得的能力和旧能力是否回退。训练目标可以覆盖视觉问答、空间与时序推理、目标定位、可交互性判断及因果链条表达；图像和视频的采样方式、长上下文成本、数据混合比例与损失配置应与目标能力一起讨论。训练路线是否有效，必须由各阶段的对照评估回答，不能仅凭训练 loss 下降认定具身理解增强（参考 [RoboBrain 2.0](https://arxiv.org/abs/2507.02029)[@1] 的分阶段训练）。
 
+### ZDTaichu5.0-9B：课程式扩展到 128K，再做可验证 RL
+
+<figure class="training-map" aria-labelledby="taichu-training-caption"><figcaption id="taichu-training-caption"><b>案例 1 · ZDTaichu5.0-9B</b><strong>世界知识与空间能力主要在大规模预训练中形成，后续阶段逐步提高推理密度、上下文长度与答案精度。</strong></figcaption><div class="training-track"><div class="training-step"><i>01 · 8K</i><b>视觉语言预训练</b><span>图文对齐 · OCR · 短视频</span><em>364B tokens</em></div><div class="training-step"><i>02 · 16K</i><b>CPT</b><span>文档 / PDF · 中文长尾 · 视频</span><em>737B tokens</em></div><div class="training-step"><i>03 · 32K</i><b>SFT</b><span>图像推理 · 空间 / 物理 · CAD</span><em>136B tokens</em></div><div class="training-step"><i>04 · 128K</i><b>长上下文扩展</b><span>长文档 · 长视频 · 专家指令</span><em>28B tokens</em></div><div class="training-step"><i>05 · 128K</i><b>高质量退火</b><span>空间 · OCR · 结构化视觉任务</span><em>10B tokens</em></div><div class="training-step training-step-accent"><i>06 · GRPO</i><b>可验证奖励 RL</b><span>答案正确 · 空间定位 · 输出格式</span><em>过滤过易与不可解样本</em></div></div><div class="training-callout"><b>1.28T tokens</b><span>前两阶段合计 1.101T，约占五阶段数据的 86%；RL 未计入该 token 总量。</span></div></figure>
+
+公开训练配方显示，数据预算集中在视觉语言预训练与 CPT；SFT、长上下文和退火负责把已有表征组织成复杂指令与长程推理，最终用 GRPO 对可自动判分的输出做精确对齐[@5]。
+
+### Hy-Embodied-VLM-1.0：RL 激发推理，再把成功轨迹回流
+
+<figure class="training-map" aria-labelledby="hy-training-caption"><figcaption id="hy-training-caption"><b>案例 2 · Hy-Embodied-VLM-1.0</b><strong>关键不是一路续训，而是让第一轮 RL 发现推理轨迹，再从干净的预训练检查点重新内化。</strong></figcaption><div class="training-track training-track-hy"><div class="training-step"><i>θgeneral</i><b>通用 VLM</b><span>保留通用视觉语言能力</span></div><div class="training-step"><i>θpt</i><b>Embodied CPT</b><span>2D / 3D · 深度 · 可供性 · 轨迹</span></div><div class="training-step"><i>θSFT</i><b>Mid-training + SFT</b><span>全能力监督 + 数万条高质量思维轨迹</span></div><div class="training-step training-step-accent"><i>Stage-I RL</i><b>GRPO 激发推理</b><span>16 rollouts · 任务结构化奖励</span></div><div class="training-step"><i>数据回流</i><b>Best-of-4 rollout</b><span>正确性 · Critic · 自一致性过滤</span><em>约 1M 长 CoT</em></div><div class="training-step training-step-restart"><i>重新从 θpt 启动</i><b>Rejection-Sampling FT</b><span>长 CoT + 直接回答数据</span><em>得到 θcons</em></div></div><div class="training-specialize"><div><i>连续奖励专家</i><b>定位 · 轨迹 · 深度 · 尺度</b><span>优化几何与度量精度</span></div><div><i>离散奖励专家</i><b>决策 · 导航 · 规划 · 反思</b><span>优化长程推理正确性</span></div><strong class="training-fuse">参数融合 → θfinal</strong></div></figure>
+
+第一阶段 GRPO 按输出结构选择奖励：框用 IoU、点用距离、轨迹用 Fréchet distance，离散答案用 exact match，无法规则判定时才使用 LLM Judge。通过筛选的 rollout 形成约 100 万条长 CoT；RFT 从 θpt 重启而不是沿用 θRL，最后再训练连续／离散奖励专家并融合[@6]。
+
 分阶段训练有两个必须显式设计的东西：**每阶段的判据**，以及**回退检查**。前者防止「这一阶段到底学会了什么」变成一句无法验证的描述；后者针对的是灾难性遗忘——具身适配阶段把通用视觉语言能力压低，是这条路线最常见的代价，而它只会在跨阶段对照里暴露。
 
 数据混合比例不是调参细节，而是一个与能力目标绑定的设计量：把具身数据比例拉高会提升具身切片，同时压低通用能力，这个交换必须被报告，而不是只在提升的那一侧报数字。
@@ -123,3 +135,5 @@ Hy-Embodied-VLM-1.0 进一步把能力放进感知—行动—反馈链：三个
 2. [STI-Bench: Are MLLMs Ready for Precise Spatial-Temporal World Understanding?](https://arxiv.org/abs/2503.23765)，2025。空间与时序世界理解评测。
 3. [OpenVLA: An Open-Source Vision-Language-Action Model](https://arxiv.org/abs/2406.09246)，2024。输出空间为动作 token 的对照方向。
 4. [Data Pyramid for Embodied Manipulation](https://arxiv.org/html/2607.24744v1)，2026。五层具身数据分类、采集与数据配方综述。
+5. [ZDTaichu5.0-9B: From Visual Understanding to Spatial Intelligence](https://taichu-ai.github.io/ZDTaichu5.0-9B/)，2026。六阶段训练配方、上下文扩展与五阶段 token 分布。
+6. [Hy-Embodied-VLM-1.0: Efficient Physical-World Agents](https://arxiv.org/abs/2607.12894)，2026。Embodied CPT、两阶段 RL、拒绝采样微调与专家融合流程。
