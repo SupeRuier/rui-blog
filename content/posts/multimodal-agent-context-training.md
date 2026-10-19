@@ -20,6 +20,8 @@ footer: Multimodal Agent · Context & Training
 最关键的对齐是**信息可见性**：训练输入应遵守推理时的信息边界。完整轨迹的成功结果可以提供奖励，却不能提前出现在模型选择动作时的上下文里。轨迹级奖励、逐轮训练样本与窗口化视觉历史可以同时存在，不能只用「Trajectory RL」概括全部设计。
 
 **上下文前缀连续性决定了训练重放的工程形态**：严格追加的历史便于合成一条因果序列；压缩、删图或重构后的输入则需要按每次调用复现。这个区别来自上下文构造方式，文本与多模态 Agent 都可能采用其中任一种。
+
+Agentic RL 还要把 Harness 内部发生的多次模型调用恢复为可训练序列。面对重试、Subagent 和 Context Compaction，更稳妥的工程对象不是一条被强行拼接的对话，而是按实际前缀关系构建的 **Rollout Call Graph**。
 :::
 
 Computer Use、GUI、Browser 与视觉工具调用 Agent 的动作多为点击、输入或工具调用。[具身 Policy](embodied-models.html)则对接连续控制接口。两类系统都需要从不断增长的观测历史中构造预算有限的模型输入，再将交互结果转化为训练监督。
@@ -127,6 +129,34 @@ C_{t+1} = C_t ⊕ y_t ⊕ o_{t+1}
 
 文本 Agent 在长程运行中也会压缩或裁剪历史，多模态 Agent 也可以保留完整视觉前缀。因此训练形态需要由**上下文构造、序列计算与奖励归属**共同定义，不能由是否含图像直接推断。
 
+## Agentic RL：从 Rollout 展开到 Training Sequence
+
+在传统的 White-box RL 中，Trainer 自己驱动 `env.step()` 循环，因此天然持有每个动作的 Token 和采样概率。现实的 Claude Code、Codex 或 OpenCode 类 Harness 则更像 Black-box Environment：**Harness 拥有交互循环，Trainer 只能在模型 API 边界看到一串 Request–Response**。FineEnvs 的 Multi-harness RL 工程在 Harness 与推理引擎之间放置 Capture Proxy，不改 Harness 本身就记录 Prompt Token、采样 Token、Behavior Log Probability 与会话标识[@12]。
+
+这里有两个不能用文本日志代替的约束：
+
+1. **Token 必须保真**：对输出文本重新 Tokenize，可能得到不同的 Token ID；Harness 还可能修补 JSON、改写空白或添加 Role Marker。RL 更新应绑定模型实际采样的 Token，而不是被 Harness 编辑后的文本。
+2. **Behavior Log Probability 必须在采样时保存**：异步训练中的当前权重可能已经变化，事后重算不能恢复生成该轨迹时的行为策略。
+
+### Rollout 不是线性对话，而是调用图
+
+工程上先把每次模型调用存为节点，再为它寻找一个父节点：父调用的 `prompt ⊕ completion` 必须是当前 Prompt 的**最长精确 Token 前缀**。这个规则把 Harness 的隐式控制流展开为可验证的结构[@12]：
+
+- 正常追加的下一轮连到上一轮；
+- Retry 从同一前缀重新采样，因此成为 Sibling Branch；
+- Subagent 通常拥有新 System Prompt，无法延伸原前缀，因此开启新 Root；
+- Context Compaction 改写了旧前缀，同样开启新 Root，而不伪装成原序列的继续。
+
+<figure class="frontier-figure"><div class="context-flow-canvas"><img src="../assets/agentic-rl-rollout-sequences.svg" alt="Rollout 中的追加调用、重试分支、Subagent 和 Compaction 被建成调用图，再由根到叶导出多条训练序列。"></div><figcaption><strong>Rollout Call Graph → Training Sequences</strong>。每次调用按最长精确 Token 前缀连边；Retry 形成分支，Subagent 与 Compaction 形成新 Root。图根据 FineEnvs Multi-harness RL 的机制重绘[@12]。</figcaption></figure>
+
+### 从调用图构建 Sequence
+
+调用图中每条 **Root-to-leaf Path** 导出为一条训练 Sequence。Prompt 与工具观测是条件上下文，`loss_mask = 0`；模型实际采样的 Completion 是优化对象，`loss_mask = 1`。如果某轮缺少 Log Probability 或 Token 对齐失败，它仍可以作为后续轮的上下文，但不作为训练 Target[@12]。
+
+这与前文的 Prefix Continuity 是同一原则的可执行版：**只在 Token 级前缀真正连续时合并轮次；前缀被重构就切断 Sequence**。对多模态 Agent，还需要把图像版本、排列位置与视觉预处理结果纳入同一前缀身份；仅文本 Token 一致，不足以证明多模态输入一致。
+
+在此之上，任务 Verifier 对完整 Rollout 给出奖励，优化器再沿可训练路径更新策略。具体是 GRPO 还是其他 Policy Gradient 并不改变上述数据约束；Multi-harness 训练只是进一步在任务之外改变 Harness，让模型同时接触不同的工具命名、上下文结构与控制流，降低对单一 Harness 的格式和行为过拟合。
+
 ## 代表工作按六个维度比较
 
 「未披露」表示对应公开材料未给出模型训练流程；Harness 的上下文实现不构成底层模型训练方法的证据。
@@ -141,6 +171,7 @@ C_{t+1} = C_t ⊕ y_t ⊕ o_{t+1}
 | WebChain[@9] | 截图、动作、网页结构与元数据 | 全 Trace 或窗口化组织 | 取决于所选数据格式与部署 | Trace / Seed SFT；Assistant Mask | SFT 数据格式，非统一训练器 | 验证后的交互示范 |
 | OpenWebRL[@10] | 浏览器轨迹、截图、任务结果 | 发布集保存逐轮 Prompt 与历史元数据 | 已序列化的逐轮多模态输入 | 当前响应监督；轨迹关联保留 | Turn SFT，后续在线 RL | 成功示范、格式与任务完成奖励 |
 | Xiaomi-GUI-0[@11] | 截图、响应、动作与结果 | 当前截图与有界响应历史 | 任务、当前观测与近期历史 | 三个阶段共享逐轮表示 | SFT → Step RL → Agentic RL | 单响应协议反馈与完整任务反馈 |
+| FineEnvs Multi-harness RL[@12] | Harness 内的多次调用、重试、Subagent 与奖励 | Capture Proxy 记录精确 Token 前缀与 Log Probability | Harness 实际发送的逐次 Prompt | 最长 Token 前缀建图；Root-to-leaf 导出 Sequence | Multi-harness Agentic RL | Verifier 的轨迹级奖励 |
 
 这些实现覆盖数据链路的不同环节：Pi 与 DeepSeek 显式分离会话记录与模型请求；Fara 与 WebChain 将视觉窗口和 Loss Mask 落到训练格式；Xiaomi-GUI-0 区分单响应反馈与完整 Rollout 反馈，同时用逐轮表示控制训练序列长度[@11]。
 
@@ -184,3 +215,4 @@ Prefix Continuity 将这条原则落实到计算：稳定前缀允许共享历�
 9. [WebChain](https://huggingface.co/datasets/webagentlab/webchain)，作者数据卡。Trace SFT、Seed/Demo SFT 与监督格式。
 10. [OpenWebRL SFT Trajectories](https://huggingface.co/datasets/OpenWebRL/OpenWebRL-SFT-Trajectories)，作者数据卡。逐轮 SFT 数据与后续在线 RL 的关系。
 11. [Xiaomi-GUI-0 Technical Report](https://arxiv.org/html/2606.31410v1)，2026。逐轮上下文、分阶段训练、奖励与恢复监督。
+12. [The Ultimate Guide to Multi-harness RL](https://huggingface.co/spaces/FineEnvs/multi-harness-rl)，FineEnvs / Hugging Face，2026。Harness-owned Rollout、Capture Proxy、Token 保真、Rollout Call Graph 与 Training Sequence 构建。
