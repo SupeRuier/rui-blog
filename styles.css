@@ -229,6 +229,37 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 /* 缺口卡片里的「改进」小子节：接线的一级是缺口，改进是挂在它下面的小节点。 */
 .rsi-mini-branches .rsi-subnode { margin-top: 11px; padding: 9px 11px; border-left: 2px solid var(--accent); background: var(--bg); color: var(--muted); font-size: .72rem; line-height: 1.6; }
 .rsi-mini-branches .rsi-subnode b { display: block; margin-bottom: 2px; color: var(--accent); font-size: .64rem; font-weight: 700; letter-spacing: .14em; }
+/* Figure 2 能力分类的 HTML 重绘：状态理解 → 局部转移 → 长程自适应。 */
+.capability-map { margin: 2.1rem 0 2.5rem; padding: 22px; border: 1px solid var(--line); background: var(--paper); }
+.capability-map figcaption b, .capability-map figcaption span { display: block; }
+.capability-map figcaption b { color: var(--ink); font-size: .82rem; }
+.capability-map figcaption span { margin-top: 3px; color: var(--muted); font-size: .72rem; line-height: 1.55; }
+.capability-level { margin-top: 18px; border: 1px solid var(--line); border-top: 3px solid var(--ink); }
+.capability-level-mid { border-top-color: color-mix(in srgb, var(--accent) 65%, var(--ink)); }
+.capability-level-top { border-top-color: var(--accent); }
+.capability-level-head { display: grid; grid-template-columns: 66px minmax(180px, .8fr) minmax(240px, 1.2fr); align-items: center; border-bottom: 1px solid var(--line); }
+.capability-level-head > * { padding: 10px 12px; }
+.capability-level-head i { align-self: stretch; display: grid; place-items: center; background: var(--ink); color: var(--paper); font-size: .62rem; font-style: normal; font-weight: 700; letter-spacing: .08em; }
+.capability-level-mid .capability-level-head i { background: color-mix(in srgb, var(--accent) 65%, var(--ink)); }
+.capability-level-top .capability-level-head i { background: var(--accent); }
+.capability-level-head strong { font-size: .84rem; line-height: 1.4; }
+.capability-level-head span { color: var(--muted); font-size: .7rem; line-height: 1.45; }
+.capability-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.capability-groups > div { min-height: 112px; padding: 12px 13px 14px; }
+.capability-groups > div + div { border-left: 1px solid var(--line); }
+.capability-groups b, .capability-groups span { display: block; }
+.capability-groups b { font-size: .76rem; line-height: 1.4; }
+.capability-groups span { margin-top: 7px; color: var(--muted); font-size: .68rem; line-height: 1.55; }
+.capability-connector { position: relative; display: grid; grid-template-columns: 110px minmax(0, 1fr); width: calc(100% - 52px); margin: 18px auto 0; border: 1px solid var(--line); font-size: .67rem; line-height: 1.45; }
+.capability-connector::before, .capability-connector::after { content: ""; position: absolute; left: 50%; height: 18px; border-left: 1px solid var(--accent); }
+.capability-connector::before { bottom: 100%; }
+.capability-connector::after { top: 100%; }
+.capability-connector b { padding: 8px 10px; background: var(--bg); color: var(--accent); text-align: center; }
+.capability-connector span { padding: 8px 11px; color: var(--muted); }
+.capability-loop { display: grid; grid-template-columns: 150px minmax(0, 1fr); margin-top: 12px; border-left: 3px solid var(--accent); background: var(--bg); font-size: .69rem; line-height: 1.5; }
+.capability-loop b, .capability-loop span { padding: 9px 11px; }
+.capability-loop b { color: var(--accent); }
+.capability-loop span { color: var(--muted); }
 /* 闭环仿真架构图：左列策略侧、右列环境服务，中间一列是两侧共享的 step 契约。
    全部用 div 写，避免命中 .article-body p 的正文排版。 */
 .rsi-arch-figure { margin: 2.1rem 0 2.5rem; padding: 24px; border: 1px solid var(--line); background: var(--paper); }
@@ -500,6 +531,16 @@ body.is-diagram-modal { overflow: hidden; }
   .rsi-mini-branches.rsi-five > div:last-child { grid-column: auto; }
   .rsi-mini-branches.rsi-flat { margin: 13px 0 0; padding-left: 0; border-left: 0; }
   .rsi-mini-branches.rsi-two { grid-template-columns: 1fr; }
+  .capability-map { padding: 18px; }
+  .capability-level-head { grid-template-columns: 58px minmax(0, 1fr); }
+  .capability-level-head span { grid-column: 1 / -1; border-top: 1px solid var(--line); }
+  .capability-groups { grid-template-columns: 1fr; }
+  .capability-groups > div { min-height: 0; }
+  .capability-groups > div + div { border-top: 1px solid var(--line); border-left: 0; }
+  .capability-connector { grid-template-columns: 1fr; width: calc(100% - 24px); }
+  .capability-connector b { text-align: left; }
+  .capability-loop { grid-template-columns: 1fr; }
+  .capability-loop span { padding-top: 0; }
   .rsi-arch-figure { padding: 18px; }
   .rsi-arch { grid-template-columns: 1fr; gap: 10px; }
   footer { align-items: flex-start; flex-direction: column; justify-content: center; gap: 4px; }

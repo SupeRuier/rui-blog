@@ -45,6 +45,10 @@ footer: World · Embodied VLM
 
 每条能力都要能写出三件事：**输入是什么、输出以什么形式表达、怎样算通过**。这三件事写不出来，说明这条能力还没有被定义清楚，此时去找数据只会得到一个「能训但不知道在训什么」的结果。
 
+Hy-Embodied-VLM-1.0 进一步把能力放进感知—行动—反馈链：三个层级分别回答**当前状态是什么、立即行动会怎样改变状态、如何根据历史与反馈持续推进**。它是数据与评测的组织框架，不是固定的模型推理程序[@6]。
+
+<figure class="capability-map" aria-labelledby="capability-map-caption"><figcaption id="capability-map-caption"><b>能力地图 · 从当前状态到长期自适应</b><span>Figure 2 的 HTML 重绘：每一级都包含三个互补能力组，上一级是下一级的能力基础。</span></figcaption><div class="capability-level"><div class="capability-level-head"><i>Level 1</i><strong>行动相关的状态理解</strong><span>建立当前物理场景的可行动表示</span></div><div class="capability-groups"><div><b>物理与语义感知</b><span>物体 / 部件识别 · 属性与状态 · 计数 / 指点 · 深度与尺度</span></div><div><b>空间推理</b><span>3D 几何与关系 · 距离 / 朝向 · 视角与多视图 · 空间记忆 / 可放置区域</span></div><div><b>机器人中心理解</b><span>本体与视角 · 任务相关对象 / 功能部件 · 可供性 · 操作与放置区域</span></div></div></div><div class="capability-connector"><b>状态 → 行动</b><span>从「场景中有什么、在哪里、是否可交互」进入局部决策</span></div><div class="capability-level capability-level-mid"><div class="capability-level-head"><i>Level 2</i><strong>行动—状态转移推理</strong><span>选择并定位立即行动，预测局部后果</span></div><div class="capability-groups"><div><b>交互理解</b><span>人 / 机器人 / 物体参与者 · 交互目标与语义 · 时间定位</span></div><div><b>行动决策与 Grounding</b><span>下一动作 / 技能 · 目标与功能部件 · 动作点 · 轨迹 / Visual Trace</span></div><div><b>物理可行性与局部影响</b><span>空间前提 · 可执行性 · 作用机制 · 后置条件与即时状态变化</span></div></div></div><div class="capability-connector"><b>行动 → 反馈</b><span>从单步可行性进入历史维护、进度判断与策略修正</span></div><div class="capability-level capability-level-top"><div class="capability-level-head"><i>Level 3</i><strong>序列与自适应推理</strong><span>围绕长期目标组合、监控并修正决策</span></div><div class="capability-groups"><div><b>长程组合与规划</b><span>目标分解 · 因果顺序 · 进度感知续接 · 多步技能组合</span></div><div><b>视觉语言导航</b><span>语言目标 · 空间记忆 · 自运动 / 历史 · 地图推理 · 多步导航与转向恢复</span></div><div><b>反思、修复与恢复</b><span>失败检测 / 诊断 · 因果与反事实 · 计划修复 · 恢复、重规划与继续执行</span></div></div></div><div class="capability-loop"><b>反馈回到状态理解</b><span>新观测和执行结果更新当前状态，形成持续的感知—行动—反馈闭环。</span></div></figure>
+
 > **一个常见的方法论反转：先有数据集，再从数据集反推能力清单。** 这样做出来的能力清单必然与那个数据集的标注体系同构，「能力」就退化成了「这个数据集上的分数」。更稳的顺序是先写能力与判分接口，再去找或造数据；找不到合适数据是一个有用的信号，说明这条能力暂时无法验证。
 
 ## 训练：先定义能力，再设计阶段
