@@ -229,27 +229,6 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 /* 缺口卡片里的「改进」小子节：接线的一级是缺口，改进是挂在它下面的小节点。 */
 .rsi-mini-branches .rsi-subnode { margin-top: 11px; padding: 9px 11px; border-left: 2px solid var(--accent); background: var(--bg); color: var(--muted); font-size: .72rem; line-height: 1.6; }
 .rsi-mini-branches .rsi-subnode b { display: block; margin-bottom: 2px; color: var(--accent); font-size: .64rem; font-weight: 700; letter-spacing: .14em; }
-/* 世界理解 VLM 训练案例：HTML 顺序链 + RL 数据回流与专家分支。 */
-.training-map { margin: 2.1rem 0 2.5rem; padding: 22px; border: 1px solid var(--line); background: var(--paper); }
-.training-map figcaption b, .training-map figcaption strong { display: block; }
-.training-map figcaption b { color: var(--accent); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
-.training-map figcaption strong { margin-top: 4px; font-size: .82rem; line-height: 1.55; }
-.training-track { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; margin-top: 19px; padding: 1px 1px 12px; }
-.training-step { position: relative; min-height: 168px; padding: 13px 10px; border: 1px solid var(--line); border-top: 2px solid var(--ink); background: var(--paper); }
-.training-step:not(:last-child)::after { content: "→"; position: absolute; top: 50%; left: calc(100% + 1px); width: 14px; transform: translateY(-50%); color: var(--accent); font-weight: 700; text-align: center; }
-.training-step i, .training-specialize i { display: block; color: var(--accent); font-size: .62rem; font-style: normal; font-weight: 700; letter-spacing: .09em; }
-.training-step b, .training-specialize b { display: block; margin-top: 7px; font-size: .8rem; line-height: 1.4; }
-.training-step span, .training-step em, .training-specialize span { display: block; margin-top: 7px; color: var(--muted); font-size: .69rem; font-style: normal; line-height: 1.5; }
-.training-step em { margin-top: 12px; color: var(--ink); font-weight: 650; }
-.training-step-accent { border-top-color: var(--accent); background: color-mix(in srgb, var(--accent) 4%, var(--paper)); }
-.training-step-restart { border-style: dashed; border-top: 2px solid var(--accent); }
-.training-callout { display: grid; grid-template-columns: 112px minmax(0, 1fr); margin-top: 5px; border: 1px solid var(--line); font-size: .7rem; line-height: 1.5; }
-.training-callout b { display: grid; place-items: center; padding: 10px; background: var(--ink); color: var(--paper); }
-.training-callout span { padding: 10px 12px; color: var(--muted); }
-.training-specialize { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line); }
-.training-specialize::before { content: "Stage-II reward-specialized RL"; position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); padding: 0 8px; background: var(--paper); color: var(--accent); font-size: .62rem; font-weight: 700; letter-spacing: .08em; white-space: nowrap; }
-.training-specialize > div { padding: 12px 13px; border: 1px solid var(--line); }
-.training-fuse { grid-column: 1 / -1; padding: 9px 12px; background: var(--ink); color: var(--paper); font-size: .72rem; letter-spacing: .06em; text-align: center; }
 /* 闭环仿真架构图：左列策略侧、右列环境服务，中间一列是两侧共享的 step 契约。
    全部用 div 写，避免命中 .article-body p 的正文排版。 */
 .rsi-arch-figure { margin: 2.1rem 0 2.5rem; padding: 24px; border: 1px solid var(--line); background: var(--paper); }
@@ -521,13 +500,6 @@ body.is-diagram-modal { overflow: hidden; }
   .rsi-mini-branches.rsi-five > div:last-child { grid-column: auto; }
   .rsi-mini-branches.rsi-flat { margin: 13px 0 0; padding-left: 0; border-left: 0; }
   .rsi-mini-branches.rsi-two { grid-template-columns: 1fr; }
-  .training-map { padding: 18px; }
-  .training-track { grid-template-columns: none; grid-auto-columns: minmax(138px, 76%); grid-auto-flow: column; gap: 20px; overflow-x: auto; scrollbar-width: thin; }
-  .training-step { min-height: 146px; }
-  .training-callout { grid-template-columns: 1fr; }
-  .training-callout b { place-items: start; }
-  .training-specialize { grid-template-columns: 1fr; }
-  .training-fuse { grid-column: auto; }
   .rsi-arch-figure { padding: 18px; }
   .rsi-arch { grid-template-columns: 1fr; gap: 10px; }
   footer { align-items: flex-start; flex-direction: column; justify-content: center; gap: 4px; }
