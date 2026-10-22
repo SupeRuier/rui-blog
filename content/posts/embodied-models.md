@@ -118,6 +118,16 @@ Cosmos 3 将 Ego 与 Effector 的相对运动编码为 9D：3D 平移加 6D 连�
 
 直接在 RGB 上叠加图形并不自动构成可靠接口。Point-VLA 的结果表明，保留全局场景的框叠加比只给文字坐标或遮掉框外区域更有效，并通过平移与局部外观增强减少绝对坐标和训练外观过拟合[@10]。VP-VLA 则发现辅助 Grounding Loss、关键帧监督和 Prompt 几何都会影响模型是否真正使用标记；把标记直接覆盖在主观测上还可能干扰原始视觉特征[@11]。更稳妥的输入契约是同时保留**原始观测**与**Visual Prompt 图**，并用配对训练或显式 Grounding Objective 建立标记到动作的对齐。
 
+### 两种架构流程：静态指代与动态调度
+
+<figure class="frontier-figure"><a href="../assets/point-vla-training-pipeline.jpg" title="查看 Point-VLA 原始流程图"><img src="../assets/point-vla-training-pipeline.jpg" alt="Point-VLA 训练流程：输入示范 Episode 和文字指令，MLLM 在首帧生成目标框，经 CutMix 与平移增强后，将固定 Visual Prompt 与各时刻机器人观测共同输入 Policy，预测后续 Action Chunk。"></a><figcaption><strong>Point-VLA 官方流程图</strong> · MLLM 从示范 Episode 生成首帧目标框；增强后的固定 Visual Prompt 与整段当前观测配对，用于训练 Action Chunk 预测。来源：Point-VLA 项目页与论文 Figure 3<a class="citation" href="#ref-10" aria-label="跳转到参考文献 10">[10]</a>。</figcaption></figure>
+
+Point-VLA 把 Grounding 放在 Episode 级数据构造与调用入口：目标框只在首帧生成一次，随后与 `#0 … #t … #n` 的当前观测并行送入 Policy。图中的 CutMix 改变框内外观，Translation 改变框的位置，两者分别抑制外观记忆和绝对坐标记忆。它适合单一目标在一段轨迹中保持有效的任务；如果目标或操作阶段发生变化，外层系统需要重新生成 Prompt 或启动新的 Policy 调用[@10]。
+
+<figure class="frontier-figure"><a href="../assets/vp-vla-system-pipeline.png" title="查看 VP-VLA 原始架构图"><img src="../assets/vp-vla-system-pipeline.png" alt="VP-VLA 双系统架构：System 2 Planner 用冻结 VLM 把用户请求拆成子任务并识别目标对象和位置，再由 SAM 或用户生成十字标记与边界框；Visual Prompt 和原始图像进入 System 1 VLA，同时预测 Grounding 坐标与 Action Chunk。"></a><figcaption><strong>VP-VLA 官方架构图</strong> · System 2 将用户目标编译成当前子任务、对象与位置，通过 SAM 或人工输入生成 Visual Prompt；System 1 同时优化 Grounding 与 Action Chunk。来源：VP-VLA 官方仓库与论文 Figure 3<a class="citation" href="#ref-11" aria-label="跳转到参考文献 11">[11]</a>。</figcaption></figure>
+
+VP-VLA 把同一思路升级成运行时接口。冻结 VLM 负责子任务分解与当前阶段判断，SAM 将对象名和目标位置转换为十字标记与区域框，原始图像和 Prompt 图作为两路输入进入 VLA；Grounding Head 预测标记坐标，Action Head 输出 Action Chunk。夹爪开合等事件触发 System 2 重新判断阶段，使视觉锚点从抓取对象切换到放置区域。这里的关键不是多放一张图片，而是把 **Planner 的符号决策 → 可检查的视觉约束 → Policy 动作**连成显式数据流[@11]。
+
 ### 性能结果与 Benchmark 的覆盖盲区
 
 两篇工作的结果都支持 Visual Prompt，但证据强度并不相同，也不能只比较论文中的最终平均成功率。
@@ -201,5 +211,5 @@ Visual Prompt 将 Policy 的输入接口从「一句自然语言」扩展为**�
 7. [RynnBrain 1.1: Towards More Capable and Generalizable Embodied Foundation Model](https://arxiv.org/html/2607.17977v1)，2026。§4.2–4.3：81 维动作空间、Mask 与 G1 特例。
 8. [Cosmos 3: Omnimodal World Models for Physical AI](https://arxiv.org/abs/2606.02800)，2026。统一几何动作表示与动作模态建模。
 9. [Cosmos 3 Action Generation Cookbook](https://github.com/NVIDIA/cosmos/blob/main/cookbooks/cosmos3/generator/action/README.md)，官方实现。动作分量、维度与采样设置。
-10. [Point What You Mean: Visually Grounded Instruction Policy](https://arxiv.org/abs/2512.18933)，2026。以框、点等视觉指代扩展 VLA 输入，支持静态首帧 Grounding、纯文字兼容与自动数据标注。
-11. [VP-VLA: Visual Prompting as an Interface for Vision-Language-Action Models](https://arxiv.org/abs/2603.22003)，2026。以事件驱动的 Visual Prompt 连接 System 2 Planner 与 System 1 Controller，并通过辅助 Grounding Objective 对齐视觉锚点与动作。
+10. [Point What You Mean: Visually Grounded Instruction Policy](https://arxiv.org/abs/2512.18933)，2026；[项目页](https://yuhang-harry.github.io/Point-VLA/)。以框、点等视觉指代扩展 VLA 输入，支持静态首帧 Grounding、纯文字兼容与自动数据标注。
+11. [VP-VLA: Visual Prompting as an Interface for Vision-Language-Action Models](https://arxiv.org/abs/2603.22003)，2026；[官方仓库](https://github.com/JIA-Lab-research/VP-VLA)。以事件驱动的 Visual Prompt 连接 System 2 Planner 与 System 1 Controller，并通过辅助 Grounding Objective 对齐视觉锚点与动作。
