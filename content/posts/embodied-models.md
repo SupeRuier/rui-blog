@@ -120,6 +120,10 @@ Cosmos 3 将 Ego 与 Effector 的相对运动编码为 9D：3D 平移加 6D 连�
 
 ### 两种架构流程：静态指代与动态调度
 
+<figure class="frontier-figure"><a href="../assets/point-vla-inference-interface.jpg" title="查看 Point-VLA 原始推理接口图"><img src="../assets/point-vla-inference-interface.jpg" alt="Point-VLA 推理接口对比：在多个相似瓶子的场景中，文字 Prompt 对目标描述存在歧义，Text-VLA 抓取错误；用户在图像上框选目标后，Visual Prompt 提供明确指代，Point-VLA 抓取正确。"></a><figcaption><strong>Point-VLA 官方推理接口图</strong> · 文字需要间接描述相似物体，Visual Prompt 则把目标直接绑定到图像区域；高层意图仍由短文字表达。来源：Point-VLA 项目页与论文 Figure 2<a class="citation" href="#ref-10" aria-label="跳转到参考文献 10">[10]</a>。</figcaption></figure>
+
+这张图说明 Visual Prompt 改变的首先是**调用接口**：上层不再把实例身份压成一串方位关系，而是把 `pick / place` 与目标区域分别编码。Policy 因而接收 `(短语义意图, 当前观测, 带框参考图)`，而不是继续从长文本中恢复像素位置。框可以来自 GUI 直接圈选，也可以由人体指点、VLM 与检测 / 分割模块转换得到；这些上游来源最终复用同一个 Policy 输入格式[@10]。
+
 <figure class="frontier-figure"><a href="../assets/point-vla-training-pipeline.jpg" title="查看 Point-VLA 原始流程图"><img src="../assets/point-vla-training-pipeline.jpg" alt="Point-VLA 训练流程：输入示范 Episode 和文字指令，MLLM 在首帧生成目标框，经 CutMix 与平移增强后，将固定 Visual Prompt 与各时刻机器人观测共同输入 Policy，预测后续 Action Chunk。"></a><figcaption><strong>Point-VLA 官方流程图</strong> · MLLM 从示范 Episode 生成首帧目标框；增强后的固定 Visual Prompt 与整段当前观测配对，用于训练 Action Chunk 预测。来源：Point-VLA 项目页与论文 Figure 3<a class="citation" href="#ref-10" aria-label="跳转到参考文献 10">[10]</a>。</figcaption></figure>
 
 Point-VLA 把 Grounding 放在 Episode 级数据构造与调用入口：目标框只在首帧生成一次，随后与 `#0 … #t … #n` 的当前观测并行送入 Policy。图中的 CutMix 改变框内外观，Translation 改变框的位置，两者分别抑制外观记忆和绝对坐标记忆。它适合单一目标在一段轨迹中保持有效的任务；如果目标或操作阶段发生变化，外层系统需要重新生成 Prompt 或启动新的 Policy 调用[@10]。
