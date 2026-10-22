@@ -38,6 +38,20 @@ RoboDojo 的完整评测给出了第一个具有传播力的结果：Astra 在 4
 
 NVIDIA 的 Astranomy 把问题拆得最清楚。它在 RoboLab-120 上区分三种配置 [@2]：
 
+### 2.1 三种配置是控制栈，不是三档 reasoning
+
+三种配置都使用 GPT-6 Astra 和 `medium` reasoning effort，差别不在模型是否“思考得更多”，而在**上下文由谁维护、动作由谁提出、最终由谁决定执行**：
+
+| 配置 | 会话与工具 | 动作提议者 | Astra 的控制权 | 学习型 Policy 是否在执行链中 |
+| --- | --- | --- | --- | --- |
+| Direct Policy | 普通 API 调用；相邻调用之间不保留对话历史 | Astra 直接输出末端位姿、关节目标或 B-spline 动作块 | Astra 决定每个动作块 | 否；只有几何转换和机器人 Controller |
+| Agentic Policy | 持久 Codex 会话；保留交互历史，并可使用图像检查、计算和笔记工具 | Astra 在代理循环中调用动作工具 | Astra 仍决定每个末端目标 | 否；Codex 是 Harness，不是另一个动作 Policy |
+| Orchestrated Policy | Astra 位于 Codex Harness 中，跨决策保留有界记忆；原生工具关闭 | Cosmos3-Nano-Policy 先提出 15 步轨迹 | Astra 审核后可接受、缩短、编辑或改发末端目标 | 是；Astra 与 WAM 共同位于控制链中 |
+
+所以，如果只按**推理运行时**粗分，确实可以看到两类：无持久会话的 API 推理，以及有持久上下文的 agentic 推理；Agentic 与 Orchestrated 都属于后者。但论文的 `Policy Configurations` 实际有三种，因为 Orchestrated 又改变了**动作所有权**：Astra 从唯一动作生成者变成学习型 Policy 的监督者。把它们说成“两种推理范式”会漏掉这层最关键的结构差异。
+
+三种控制栈在完整 RoboLab-120 上的结果如下：
+
 | 配置 | Astra 的职责 | 成功率 / Score | 延迟 | 每个成功回合的 Token / API 成本 |
 | --- | --- | ---: | ---: | ---: |
 | Direct Policy | 固定提示下直接生成末端位姿 | 66.3% / 76.7 | 18.56 s / call | 160k / $1.96 |
@@ -47,6 +61,22 @@ NVIDIA 的 Astranomy 把问题拆得最清楚。它在 RoboLab-120 上区分三�
 Agentic 相比 Direct 提升了 8.5 个成功率百分点，但 Token 约变为 193 倍，每个成功回合的 API 成本约变为 18.6 倍。这组对照揭示了「agentic」的实际含义：更强的成绩来自持续上下文、更长的认知循环和更高的资源消耗，而不是免费获得的模型增益。
 
 Orchestrated 更能说明「混合」不一定更好。它让 Astra 监督一个专用 WAM，消耗 1,100 万 Token，但成功率与 Direct 基本持平。Astra 介入了 14.5% 的模拟步骤，大部分在修正抓取、物体选择或规划问题，却没有把这些局部修正稳定转化成更高的终局成功率。
+
+### 2.2 用同一坐标系看其他工作
+
+`Direct`、`Agentic` 和 `Orchestrated` 是 Astranomy 对自身系统的命名，不是该领域已经统一的分类。跨论文比较时，更稳妥的做法是分别检查**动作所有权、会话记忆、可执行工具和学习型 Policy**，再判断最接近哪一种配置：
+
+| 工作 | 模型实际做什么 | 历史 / 执行层 | 学习型 Policy | 与 Astranomy 的近似对应 |
+| --- | --- | --- | --- | --- |
+| RoboDojo [@1] | Astra 逐轮调用工具，输出末端或关节目标 | 保留全部文本与工具历史，只保留最近两个观测轮次的图像 | 无 | **Agentic-like**：有状态工具循环，但不是 Astranomy 的 Codex 配置 |
+| RoboMME waypoint [@5] | Astra 输出每个 Cartesian waypoint 和夹爪命令 | 单一持续会话保留全 episode 的经采样历史；RoboMME motion planner 执行 waypoint | 无 | **Direct × Agentic 的交叉项**：动作所有权像 Direct，记忆形态像 Agentic |
+| Claude Plays Robotics [@3] | 分别测试直接力矩、Python Controller、模型设计并训练 RL Policy、监督预训练 Policy | 接口随实验变化 | 后两类存在 | 覆盖 **Direct、程序生成和 Orchestrated**，不是单一配置 |
+| 六领域系统研究 [@4] | 同时测试 Astra 直接控制，以及与 π0.5、步态或全身 Controller 协作 | 按领域配置闭环反馈 | 混合实验中存在 | 同时覆盖 **Direct 与 Orchestrated** |
+| Body Knowledge / Experience / Skills [@6] | Astra 根据图像生成动作与程序，并复用经验和可执行视觉反馈技能 | Agent Harness 执行和复用程序 | 主要技能实验中没有预训练动作 Policy | **Agentic / programmatic** |
+| PyRUA-Lean [@7] | Astra 编写 Python cell 组合动作原语，在本地检查和重试 | 代码执行器承接局部闭环，只回传模型请求的图像与状态 | 原语可包含 VLA | 以 **Agentic** 为主；调用 VLA 时同时具有 delegated / orchestrated 成分 |
+| RoboHarm [@8] | Astra 作为 agent policy，通过工具调用输出绝对末端位姿 | Inspect Robots Harness，最多 40 次 LLM 调用 | MolmoAct2 只是独立对照，不受 Astra 监督 | **Agentic-like**，不是 Orchestrated |
+
+这张对应表也说明，`Direct` 不应被理解为“没有任何低层 Controller”，`Agentic` 也不等于“模型不再直接控制机器人”。判断边界的关键是：低层模块只是执行模型已经选定的目标，还是一个学习型 Policy 在提出动作；以及跨步记忆、检查与重试究竟由普通会话、代理 Harness 还是本地程序承担。
 
 Astranomy 还表明，动作表示、机器人几何描述、观测历史和任务提示都会显著影响结果。这些不是无关紧要的 Prompt 细节，而是 Policy 接口的一部分。
 
