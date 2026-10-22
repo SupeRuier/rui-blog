@@ -2,7 +2,7 @@
 title: 待完善：具身调度与部署：运行时框架总览
 tabTitle: 待完善：运行时框架总览
 description: Global Master—Robot Agent 的具身 Multi-Agent 调度框架：目标架构、控制面边界、单机器人时序与预留接口。
-order: "14"
+order: "15"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: RUNTIME · MULTI-AGENT · SCHEDULING · DEPLOYMENT
 cardMeta: Runtime · Multi-Agent Scheduling

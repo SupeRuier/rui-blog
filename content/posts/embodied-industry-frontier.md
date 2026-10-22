@@ -7,7 +7,7 @@ cardMeta: Embodied AI · Living Note   # 首页卡片右上角，比文章页眉
 summary: 从数据与泛化，到长程工作流、持续运行与 Policy API：带日期的能力及商业化进展。
 pinned: 置顶 · 持续更新
 footer: Embodied Industry Frontier · Living Note
-order: "13"
+order: "14"
 ---
 
 ::: tldr
