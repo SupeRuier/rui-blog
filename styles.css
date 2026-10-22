@@ -272,19 +272,48 @@ footer { border-top: 1px solid var(--line); min-height: 110px; display: flex; ju
 .training-track { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; margin-top: 19px; padding: 1px 1px 12px; }
 .training-step { position: relative; min-height: 168px; padding: 13px 10px; border: 1px solid var(--line); border-top: 2px solid var(--ink); background: var(--paper); }
 .training-step:not(:last-child)::after { content: "→"; position: absolute; top: 50%; left: calc(100% + 1px); width: 14px; transform: translateY(-50%); color: var(--accent); font-weight: 700; text-align: center; }
-.training-step i, .training-specialize i { display: block; color: var(--accent); font-size: .62rem; font-style: normal; font-weight: 700; letter-spacing: .09em; }
-.training-step b, .training-specialize b { display: block; margin-top: 7px; font-size: .8rem; line-height: 1.4; }
-.training-step span, .training-step em, .training-specialize span { display: block; margin-top: 7px; color: var(--muted); font-size: .69rem; font-style: normal; line-height: 1.5; }
+.training-step i { display: block; color: var(--accent); font-size: .62rem; font-style: normal; font-weight: 700; letter-spacing: .09em; }
+.training-step b { display: block; margin-top: 7px; font-size: .8rem; line-height: 1.4; }
+.training-step span, .training-step em { display: block; margin-top: 7px; color: var(--muted); font-size: .69rem; font-style: normal; line-height: 1.5; }
 .training-step em { margin-top: 12px; color: var(--ink); font-weight: 650; }
 .training-step-accent { border-top-color: var(--accent); background: color-mix(in srgb, var(--accent) 4%, var(--paper)); }
-.training-step-restart { border-style: dashed; border-top: 2px solid var(--accent); }
 .training-callout { display: grid; grid-template-columns: 112px minmax(0, 1fr); margin-top: 5px; border: 1px solid var(--line); font-size: .7rem; line-height: 1.5; }
 .training-callout b { display: grid; place-items: center; padding: 10px; background: var(--ink); color: var(--paper); }
 .training-callout span { padding: 10px 12px; color: var(--muted); }
-.training-specialize { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line); }
-.training-specialize::before { content: "Stage-II reward-specialized RL"; position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); padding: 0 8px; background: var(--paper); color: var(--accent); font-size: .62rem; font-weight: 700; letter-spacing: .08em; white-space: nowrap; }
-.training-specialize > div { padding: 12px 13px; border: 1px solid var(--line); }
-.training-fuse { grid-column: 1 / -1; padding: 9px 12px; background: var(--ink); color: var(--paper); font-size: .72rem; letter-spacing: .06em; text-align: center; }
+.hy-origin { margin-top: 18px; padding: 9px 12px; background: var(--ink); color: var(--paper); font-size: .73rem; text-align: center; }
+.hy-pipeline { display: grid; gap: 20px; margin-top: 20px; }
+.hy-stage { position: relative; display: grid; grid-template-columns: 220px minmax(0, 1fr); border: 1px solid var(--line); border-left: 3px solid var(--ink); }
+.hy-stage::before { content: "↓"; position: absolute; bottom: calc(100% + 1px); left: 50%; transform: translateX(-50%); color: var(--accent); line-height: 18px; }
+.hy-stage-rl { border-left-color: var(--accent); }
+.hy-stage-title { padding: 12px 14px; border-right: 1px solid var(--line); background: var(--bg); }
+.hy-stage-title i, .hy-stage-title b, .hy-stage-title em { display: block; }
+.hy-stage-title i { color: var(--accent); font-size: .62rem; font-style: normal; font-weight: 700; letter-spacing: .06em; }
+.hy-stage-title b { margin-top: 5px; font-size: .83rem; }
+.hy-stage-title em { margin-top: 5px; color: var(--muted); font-size: .67rem; font-style: normal; overflow-wrap: anywhere; }
+.hy-stage-body { display: grid; align-content: center; gap: 6px; padding: 12px 14px; }
+.hy-stage-body > span, .hy-stage-body > strong, .hy-stage-body > small { display: block; font-size: .72rem; line-height: 1.55; }
+.hy-stage-body > span, .hy-stage-body > small { color: var(--muted); }
+.hy-stage-body > small { font-size: .65rem; }
+.hy-stage-body .hy-restart { padding-left: 9px; border-left: 2px dashed var(--accent); color: var(--accent); }
+.hy-data-edge { display: grid; grid-template-columns: 165px minmax(0, 1fr); gap: 8px; margin-inline: 20px; padding: 10px 12px; border: 1px dashed var(--accent); background: color-mix(in srgb, var(--accent) 4%, var(--paper)); font-size: .7rem; line-height: 1.55; }
+.hy-data-edge > b { color: var(--accent); }
+.hy-data-edge > span { color: var(--muted); }
+.hy-data-edge strong { color: var(--ink); }
+.hy-experts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hy-experts > div { padding: 8px 9px; border: 1px solid var(--line); }
+.hy-experts b, .hy-experts span { display: block; font-size: .69rem; line-height: 1.5; }
+.hy-experts span { margin-top: 3px; color: var(--muted); font-size: .64rem; }
+.hy-legend { margin-top: 12px; color: var(--muted); font-size: .67rem; line-height: 1.6; }
+.mixture-budget { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+.mixture-budget > div { padding: 12px 10px; border: 1px solid var(--line); background: var(--bg); text-align: center; }
+.mixture-budget b, .mixture-budget span { display: block; }
+.mixture-budget b { color: var(--accent); font-size: 1rem; }
+.mixture-budget span { margin-top: 3px; color: var(--muted); font-size: .68rem; }
+.mixture-loop { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 18px; }
+.mixture-loop > div { position: relative; padding: 12px; border: 1px solid var(--line); }
+.mixture-loop > div:not(:last-child)::after { content: "→"; position: absolute; top: 50%; left: 100%; width: 20px; transform: translateY(-50%); color: var(--accent); text-align: center; }
+.mixture-loop b, .mixture-loop span { display: block; font-size: .74rem; line-height: 1.5; }
+.mixture-loop span { margin-top: 6px; color: var(--muted); font-size: .68rem; }
 /* 闭环仿真架构图：左列策略侧、右列环境服务，中间一列是两侧共享的 step 契约。
    全部用 div 写，避免命中 .article-body p 的正文排版。 */
 .rsi-arch-figure { margin: 2.1rem 0 2.5rem; padding: 24px; border: 1px solid var(--line); background: var(--paper); }
@@ -571,8 +600,13 @@ body.is-diagram-modal { overflow: hidden; }
   .training-step { min-height: 146px; }
   .training-callout { grid-template-columns: 1fr; }
   .training-callout b { place-items: start; }
-  .training-specialize { grid-template-columns: 1fr; }
-  .training-fuse { grid-column: auto; }
+  .hy-stage { grid-template-columns: 1fr; }
+  .hy-stage-title { border-right: 0; border-bottom: 1px solid var(--line); }
+  .hy-data-edge { grid-template-columns: 1fr; margin-inline: 8px; }
+  .hy-experts { grid-template-columns: 1fr; }
+  .mixture-budget { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mixture-loop { grid-template-columns: 1fr; }
+  .mixture-loop > div:not(:last-child)::after { content: "↓"; top: 100%; left: 50%; transform: translateX(-50%); line-height: 20px; }
   .rsi-arch-figure { padding: 18px; }
   .rsi-arch { grid-template-columns: 1fr; gap: 10px; }
   footer { align-items: flex-start; flex-direction: column; justify-content: center; gap: 4px; }
