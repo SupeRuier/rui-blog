@@ -26,6 +26,7 @@ RSI Unified Taxonomy V1.0：只保留一套通用分类。Robo / Embodied RSI �
 - **数据回传不等于自我改进。** 采集、日志、失败样本入库都只是输入；只有经验确实改变了未来的系统状态、且该改变在后续任务上被验证为能力变化，才构成一次改进。
 - **CAPABILITY 的三种变化不能混写**：Enhancement（已会 → 更好）、Acquisition（原本不会 → 会）、Generalization（已有能力 → 新分布仍有效）。只保留成功轨迹并提高成功率，不是从失败中学习。
 - **Robo 不是第二套 taxonomy**，而是同一框架中带物理交互、动作策略、本体差异与物理成本的实例。
+- **功能分类与 RSI 分类回答不同问题。** Agentic Robotics 的 Model / Data / Environment / Harness 四域说明 Agent 在哪里发挥作用；本文六轴说明经验如何形成、验证并持久化为能力变化。前者不能替代后者。
 
 文末给出跨案例对照与这套框架的适用边界。
 :::
@@ -100,6 +101,25 @@ GOVERNANCE 不描述获得了哪一种能力，而是检查改进是否值得**�
 <figure class="rsi-mini"><figcaption>具身系统给统一分类增加的四组约束与实例</figcaption><div class="rsi-mini-branches rsi-four"><div><strong>Physical Interaction</strong><span>仿真、真机、fleet 与可观测物理反馈</span></div><div><strong>Policy / Action</strong><span>VLA、Action-level 归因、底层 Controller</span></div><div><strong>Embodiment</strong><span>物体可供性、新场景与跨本体迁移</span></div><div><strong>World Cost &amp; Safety</strong><span>Robot Hours、磨损、碰撞与部署门槛</span></div></div></figure>
 
 标注一篇 Robo 方法时，仍然按 WHAT / WHEN / HOW / WHERE / CAPABILITY / GOVERNANCE 六轴走，只在对应节点注明具身实例。比如同一条**失败 → 诊断 → 修订 → 回放 → 验证 → 上线**链路：失败可能来自真机；归因需要定位物理动作；被改的可能是 VLA 参数，也可能是 Skill / Controller Code 或 Planner–Policy 编排；验收还必须覆盖真实执行的安全与旧任务回归。**仿真成功不是「真机习得能力」的同义词**。
+
+## 与 Agentic Robots 功能分类的关系 {#agentic-robots-taxonomy}
+
+*Towards Agentic Robots: Model, Data, Environment, and Harness* 把 Agentic Robotics 定义为：Agent 根据目标自主规划并协调任务执行，结合环境观察与执行反馈选择 Action、Skill 或 Tool，持续判断进度并在失败时调整；只有动作预测或底层反馈控制，还不足以构成这种 Agentic 能力[@10]。论文进一步按 **Agent 在系统中承担的功能**提出四个领域、十七个非互斥类别：
+
+<figure class="rsi-mini"><figcaption>Agentic Robots · 四个功能领域、十七个非互斥类别</figcaption><div class="rsi-mini-branches rsi-four"><div><strong>Model · 5</strong><span>Training · Perception · Planning · Robot Control · Adaptation</span></div><div><strong>Data · 3</strong><span>Collection · Annotation · Refinement</span></div><div><strong>Environment · 3</strong><span>Reconstruction · Task Generation · Benchmarking</span></div><div><strong>Harness · 6</strong><span>Orchestration · Memory · Monitoring &amp; Recovery · Skills · Infrastructure · Layered Systems</span></div></div></figure>
+
+这是一套**功能坐标系**，不是把每篇工作唯一归档到一个格子。一个系统可以同时做 Data Collection、Model Adaptation 与 Harness Skills；同一套 Harness 也可以同时具备 Orchestration、Memory、Monitoring and Recovery。它与本文六轴互补，但不能一一等同：
+
+| 四域回答的功能问题 | 在 RSI 六轴中还要追问什么 | 不足以证明 RSI 的常见情况 |
+| --- | --- | --- |
+| **Model**：怎样训练、感知、规划、控制与适应 | WHAT 是否真的修改参数或决策规则；WHEN 是任务内还是跨任务；CAPABILITY 是否变化 | 重规划或条件输入变化只改善本轮执行，没有持久更新 |
+| **Data**：怎样采集、标注与筛选经验 | HOW 中监督信号如何形成、失败如何归因；数据改变了哪个更新对象 | 数据被回传或清洗，但没有进入可验证的更新 |
+| **Environment**：怎样构建场景、任务、课程与评测 | WHERE 提供什么学习场域；HOW 如何生成训练与验证信号；是否存在冻结评测 | 自动生成了更多任务，却没有证明能力增长或排除评测泄漏 |
+| **Harness**：怎样编排、记忆、监控、恢复、复用技能与分层执行 | WHAT 修改 Memory / Skill / Code / Harness 的哪一部分；GOVERNANCE 如何验证、版本化与回滚 | Monitoring and Recovery 只完成任务内纠错，结果未沉淀到后续任务 |
+
+两套 taxonomy 的接口由一句话概括：**四域定位 Agent 在哪里起作用，六轴判断这种作用是否构成持续自我改进。** 尤其在 Harness 中，Orchestration 与 Infrastructure 需要分开：前者决定调用哪个 Model / Policy / Skill / Tool 以及何时交接控制，后者负责把能力暴露为接口并执行服务、通信、运行时检查与版本门禁。Memory 保存可检索的历史与知识，Skills 保存可复用的程序性能力；Layered Systems 则规定 Planner、学习型 Policy 与解析式控制器之间的职责、频率与权限边界。
+
+论文对 Skills 的讨论还给出一条接近 RSI 的演进路径：从生成 Code as Policies，到验证并保存 Skill Library，再到根据执行反馈修订技能并保留新版本，最后把轨迹用于 Policy 或代码生成模型训练[@10]。只有当修订被持久化、在后续任务上验证并通过回归与部署门禁时，这条功能链才跨过本文所定义的 RSI 边界。
 
 ## 跨案例对照：同一套六轴，七类不同的系统 {#cross-case}
 
@@ -176,3 +196,4 @@ GOVERNANCE 不描述获得了哪一种能力，而是检查改进是否值得**�
 7. [Automated Design of Agentic Systems](https://arxiv.org/abs/2408.08435)，2024。
 8. [RoboCat: A Self-Improving Generalist Agent for Robotic Manipulation](https://arxiv.org/abs/2306.11706)，2023。
 9. [RISE: Self-Improving Robot Policy with Compositional World Model](https://arxiv.org/abs/2602.11075)，2026。
+10. [Towards Agentic Robots: Model, Data, Environment, and Harness](https://arxiv.org/abs/2610.20442)，2026。本文引用其四域十七类功能分类，以及 Harness 中 Orchestration、Memory、Monitoring and Recovery、Skills、Infrastructure 与 Layered Systems 的边界。
