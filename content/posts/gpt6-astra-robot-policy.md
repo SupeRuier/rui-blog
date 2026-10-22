@@ -1,17 +1,17 @@
 ---
-title: 待完善：GPT-6 Astra 作为 Robot Policy：高成功率背后的系统账单
-tabTitle: GPT-6 Astra Robot Policy
-description: 从控制接口、时间语义、Token 与代理脚手架、安全边界四个维度，重新解读 GPT-6 Astra 作为机器人策略的高成功率。
+title: 待完善：通用大模型作为 Robot Policy——高成功率背后的系统账单
+tabTitle: 通用大模型 Robot Policy
+description: 以 GPT-6 Astra、Claude 与其他前沿模型为案例，从控制接口、时间语义、Token、代理脚手架和安全边界重新解读通用大模型作为机器人策略的高成功率。
 order: "13"
 date:
-meta: GPT-6 ASTRA · ROBOT POLICY · EVALUATION
-cardMeta: GPT-6 Astra · Robot Policy
-summary: 排行榜第一不等于可部署：用控制接口、时间、Token、脚手架与安全五本账，重新审计通用模型的机器人成功率。
-footer: GPT-6 Astra · Robot Policy Evaluation
+meta: FRONTIER MODELS · ROBOT POLICY · EVALUATION
+cardMeta: Frontier Models · Robot Policy
+summary: 排行榜第一不等于可部署：以 Astra、Claude 等模型为案例，用控制接口、时间、Token、脚手架与安全五本账重新审计通用大模型的机器人成功率。
+footer: Frontier Models · Robot Policy Evaluation
 ---
 
 ::: tldr
-- GPT-6 Astra 已经能在多个仿真操作基准上直接输出末端位姿，并在 RoboDojo、RoboLab-120 和 RoboMME 上超过多个专用 Policy。这是真实的能力跃迁，但还不是可部署的实时控制结论。
+- 以 GPT-6 Astra 为主的近期研究表明，通用大模型已经能直接输出末端位姿、编写可执行 Controller 或监督专用 Policy；Claude 等模型也在相同方向上显示出能力。这是真实的能力跃迁，但还不是可部署的实时控制结论。
 - 成功率不是基础模型的单一属性，而是**模型 × 动作接口 × 观测与历史 × 执行脚手架 × 时间预算**的系统结果。同一个 Astra，只是改变动作表示、几何提示、历史保留方式和 Codex 代理环境，成绩与成本就会大幅变化。
 - 最惊艳的数字都有隐藏条件：推理时暂停模拟器、每回合消耗数百万到数千万 Token、接入预训练控制器或本地重试程序，以及只在精心界定的仿真任务上评测。
 - 评估通用模型作为 Robot Policy，不应只报告 task success。至少还要同时报告控制合约、墙钟时间、Token/API 成本、自主性、安全事件和真实时间是否被暂停。
@@ -21,7 +21,7 @@ footer: GPT-6 Astra · Robot Policy Evaluation
 
 ## 01 · 先把问题说清：排行榜第一究竟属于谁
 
-传统具身系统常把职责分为两层：语言或视觉语言模型负责高层规划，高频 Policy 或 Controller 负责把子目标变成动作。GPT-6 Astra 引人注目的地方，是它开始穿过这条边界：模型不只选技能，还可以逐次选择末端位姿、夹爪命令或关节目标。
+传统具身系统常把职责分为两层：语言或视觉语言模型负责高层规划，高频 Policy 或 Controller 负责把子目标变成动作。近期前沿模型引人注目的地方，是它们开始穿过这条边界：模型不只选技能，还可以逐次选择末端位姿、夹爪命令或关节目标，或者直接编写和修复可执行控制程序。本文以公开证据最完整的 GPT-6 Astra 为主线，但讨论对象是这类**通用大模型作为 Robot Policy 或 Policy Builder** 的系统，而不是某一个模型品牌。
 
 RoboDojo 的完整评测给出了第一个具有传播力的结果：Astra 在 42 个任务、2,100 次试验中取得 22.48% 平均成功率和 28.97 Score，超过当时排行榜的 40 个公开 Policy [@1]。它证明通用多模态模型的数值动作输出不再只是一次性 Demo。
 
@@ -156,6 +156,12 @@ Anthropic 的上下文截断实验又补上了反向证据：在多个操作任�
 | 可执行技能 | Python 局部循环、视觉检查和重试 | 把高频局部反馈从昂贵的远程调用下沉到本地 |
 | 专用 Policy | VLA、WAM、步态或全身控制器 | 接管对频率、接触和动力学要求更高的部分 |
 
+ASPIRE 提供了一组很适合放在这里的跨模型对照 [@9]。它固定环境、机器人编程 API 和评测协议，让 12 个模型分别驱动同一套迭代调试流程，在最初为空的技能库上完成 10 个 LIBERO-Pro Goal 任务。这里不是裸模型直接输出动作，而是**直接更换同一 Agent Harness 背后的基础模型**；纵轴是每个程序在 50 个 held-out seeds 上的成功率，横轴是调试这 10 个任务的估算 API 成本。
+
+<figure class="frontier-figure"><img src="../assets/aspire-success-cost-frontier.png" alt="ASPIRE 在十个 LIBERO-Pro 任务上比较十二个前沿模型的成功率与每任务 API 成本，绿色阶梯线标出成本成功率前沿"><figcaption><strong>成功率—成本前沿不按模型价格单调上升。</strong> 在固定 ASPIRE Harness 下，GPT-6 Luna 约为 15% / 0.83 美元每任务，Claude Haiku 5.5 为 68% / 3.97 美元，GPT-6.1 Sol 为 88% / 9.52 美元，Claude Sonnet 5.5 为 98.8% / 12.11 美元，Claude Opus 5.5 为 99.2% / 18.29 美元。GPT-6 Astra 达到 94.4%，但每任务约 35.37 美元，因此不在这条 Pareto frontier 上。图源：<a href="https://research.nvidia.com/labs/gear/aspire/#benchmarks">Lu et al., ASPIRE, Figure 8</a>；从官方论文原图裁切。</figcaption></figure>
+
+这张图把“模型更强”和“系统更划算”分成了两个坐标。更昂贵的 Opus 5、Fable 5.1 或 Astra 并不会自动落在前沿上；与此同时，这也不是永久的模型排行榜，因为价格、版本和 Harness 都会变化。它更像一种应被复用的报告格式：在固定接口与评测协议下，同时画出成功率、成本，并明确哪些点被更便宜且更成功的配置支配。
+
 电梯按钮实验对前三项做了直接测量 [@6]。完整机器人几何与相机信息将仿真完成时间缩短 57.4%，成功经验缩短 68.6%；将 Astra 自发生成的视觉反馈程序由研究人员重构为可复用技能后，局部任务时间又降低 29–31%。这些数字证明经验和技能有效，也证明裸模型在缺少本体知识时需要昂贵探索。
 
 PyRUA-Lean 则把动作原语、检查和重试放进本地 Python cell，只在需要时返回图像和状态 [@7]。在 700 个仿真任务上，它在使用同一 Astra Planner 和同一批机器人原语的情况下，将成功率从 63.1% 提升到 71.7%，同时减少 49% 的 LLM 调用和 65% 的输入 Token。
@@ -250,7 +256,7 @@ RoboHarm 则专门测量模型是否会拒绝危险的物理指令 [@8]。在刺
 这样的架构不是回到简单的「LLM 做 System 2、Policy 做 System 1」。真正的新变化是，两者的边界可以在任务中动态变化：通用模型可以在高信息量节点直接下发 waypoint，在成熟区间则将控制权交给专用 Policy；当进度停滞、目标变化或安全条件触发时，再收回决策权。
 
 ::: my-take
-我认为 GPT-6 Astra 对机器人架构最重要的信号，不是「通用模型即将取代 VLA」，而是 **Policy 的边界开始由运行时决定**。通用模型可以偶尔深入到数值动作层，但是否值得这样做，应由当下任务的语义不确定性、实时 deadline、专用 Policy 置信度、Token 成本和安全风险共同决定。
+我认为 Astra、Claude 等通用大模型对机器人架构最重要的信号，不是「通用模型即将取代 VLA」，而是 **Policy 的边界开始由运行时决定**。通用模型可以偶尔深入到数值动作层，也可以生成局部 Controller 或监督专用 Policy；但是否值得这样做，应由当下任务的语义不确定性、实时 deadline、专用 Policy 置信度、Token 成本和安全风险共同决定。
 
 因此，下一代 Robot Harness 的核心能力不只是调用更多 Policy，而是在每个决策点判断：**这次推理的预期信息价值，是否超过它的延迟、金钱与物理风险。**
 :::
@@ -280,3 +286,4 @@ RoboHarm 则专门测量模型是否会拒绝危险的物理指令 [@8]。在刺
 6. He, S. et al. [*Robot Manipulation with GPT-6-Astra: Body Knowledge, Experience Reuse, Emergent Skills, and Sim2Real Transfer*](https://arxiv.org/abs/2609.31770). arXiv, 2026.
 7. Si, R. et al. [*Fewer Tokens, Better Action: GPT-6 Astra Robot Agents with 14% Higher Success Rate but 65% Fewer Tokens*](https://arxiv.org/abs/2610.01939). arXiv, 2026.
 8. Sun, E. et al. [*RoboHarm: Do Frontier Robot Policies Refuse Unsafe Instructions?*](https://robocurve.org/roboharm/). Robocurve, 2026.
+9. Lu, R. et al. [*ASPIRE: Agentic /Skills Discovery for Robotics*](https://research.nvidia.com/labs/gear/aspire/). NVIDIA GEAR, 2026.
