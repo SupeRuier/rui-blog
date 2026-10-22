@@ -1,36 +1,38 @@
 ---
 title: 待完善：具身 Policy 的输入、动作表示与执行接口
 tabTitle: 待完善：具身 Policy
-description: 具身 Policy 的输入、动作表示与执行接口：只分析模型层，明确与系统层的边界。
+description: 具身 Policy 的语言、视觉 Prompt 与本体输入，跨本体动作表示及执行接口：明确模型层与系统层的边界。
 order: "07"
 date:                                # 占位，暂不填；填 YYYY-MM-DD 会显示在文章页页眉
 meta: EMBODIED MODEL · FRAMEWORK
 cardMeta: Embodied Model   # 首页卡片右上角，比文章页眉短
-summary: Policy / VLA 的输入、跨本体动作表示、Action Chunk 与底层控制接口。
+summary: Policy / VLA 的语言与视觉 Prompt 输入、跨本体动作表示、Action Chunk 与底层控制接口。
 footer: Embodied Model
 ---
 
 **本文尚未完全整理完成，内容仍在继续梳理。**
 
-具身模型通过观测、语言条件与本体状态预测动作，再由执行接口将动作转换为机器人命令。数据形式、训练目标、动作表示与控制约束共同决定 Policy 的能力边界。
+具身模型通过观测、语言或视觉指令与本体状态预测动作，再由执行接口将动作转换为机器人命令。数据形式、训练目标、动作表示与控制约束共同决定 Policy 的能力边界。
 
-<figure class="rsi-mini"><figcaption>总览 · 数据形式 → 训练目标 → 动作接口 → 评测方式</figcaption><div class="rsi-mini-branches rsi-four"><div><strong>数据形式</strong><span>观测、语言条件、本体状态与动作标注的坐标系与标注结构</span></div><div><strong>训练目标</strong><span>预测动作 / Action Chunk、预测未来状态、或输出技能调用</span></div><div><strong>动作接口</strong><span>动作空间、控制频率、chunk 时长、超时与取消语义</span></div><div><strong>评测方式</strong><span>给定正确子目标的成功率、跨场景与跨本体泛化、数据效率</span></div></div></figure>
+<figure class="rsi-mini"><figcaption>总览 · 数据形式 → 训练目标 → 动作接口 → 评测方式</figcaption><div class="rsi-mini-branches rsi-four"><div><strong>数据形式</strong><span>原始观测、语言 / 视觉 Prompt、本体状态与动作标注</span></div><div><strong>训练目标</strong><span>预测动作 / Action Chunk、未来状态，或对齐视觉指代</span></div><div><strong>动作接口</strong><span>动作空间、控制频率、chunk 时长、超时与取消语义</span></div><div><strong>评测方式</strong><span>给定正确子目标与视觉锚点的成功率、泛化与数据效率</span></div></div></figure>
 
 ::: tldr
-Policy / VLA 根据子目标与当前观测预测动作，其设计包含四个相互约束的部分：**数据形式、训练目标、动作接口、评测方式**。
+Policy / VLA 根据子目标与当前观测预测动作，其设计包含四个相互约束的部分：**数据形式、训练目标、动作接口、评测方式**。输入条件不必只有文字；在原始 RGB 上标出目标物体、交互点或放置区域的 Visual Prompt，可以把难以用语言稳定表达的空间指代变成 Policy 可直接消费的视觉锚点。
 
-三个核心判断：
+四个核心判断：
 
 - **动作表示与数据标注强耦合**。关节、末端位姿与 URR 描述不同的动作语义；Action Chunk 描述时间组织；控制器负责把它们变成当前本体的命令。三个维度需要分别核对。
 - **Policy 与控制器运行在不同时间尺度**。模型预测多长、实际执行多长、何时接受新观测，共同决定系统响应速度；底层伺服闭环与视觉 Policy 的重规划也要分别看。
+- **Visual Prompt 是指令接口，不是普通观测增强**。框、十字标记或 Mask 需要与相机、时刻和子目标绑定；Policy 也需要在训练中学会把标记关联到动作，而不能假设任意 VLA 会自动理解叠加图形。
 - **接口约定比网络结构更常成为失败来源**：坐标系、单位、动作范围、超时与取消语义如果没约定清楚，「模型不行」的结论往往站不住。
 
-System 2 与 Harness 负责调用时机、运行时治理和反馈组织；Policy 层负责在给定条件下生成动作。两层的能力与失败需要分别评测。
+System 2 与 Harness 负责调用时机、运行时治理和反馈组织，也可以把子目标编译成结构化 Visual Prompt；Policy 层负责在给定语言意图、视觉锚点与当前观测下生成动作。两层的能力与失败需要分别评测。
 :::
 
 ## 主要形态
 
 - VLA：从视觉、语言和状态直接预测动作或 Action Chunk，例见[OpenVLA](https://arxiv.org/abs/2406.09246)[@1]
+- Visual-prompted VLA：除当前观测与简短动作意图外，再接收框、点、十字标记或 Mask 等空间锚点。Point-VLA 将首帧目标框作为整段轨迹的固定视觉指令[@10]；VP-VLA 则由上层 Planner 在关键事件后更新目标物体与放置区域[@11]
 - WAM / World Model：显式建模动作条件下的未来状态或视觉变化，世界模型控制例见[DreamerV3](https://arxiv.org/abs/2301.04104)[@2]；DreamerV3 不等同于 VLA
 - 层级模型：高层产生目标、子任务或技能，低层 Policy 完成控制（可参看[层级 VLA 调度研究](https://arxiv.org/abs/2606.10267)[@3]）
 - 具身基座模型：以统一架构覆盖理解与动作的公开实现，例见 [WALL-X / WALL-OSS](https://github.com/X-Square-Robot/wall-x)[@5]
@@ -89,12 +91,32 @@ Cosmos 3 将 Ego 与 Effector 的相对运动编码为 9D：3D 平移加 6D 连�
 
 ## 输入数据与观测范围
 
-输入空间通常由四部分组成，每一部分都有对应的设计问题：
+输入空间通常由五部分组成，每一部分都有对应的设计问题：
 
 - **视觉观测**：单帧、多帧还是多视角。单帧在遮挡下容易失效；多帧提供运动信息但抬高上下文成本。
 - **语言条件**：粒度是关键。任务级指令（「收拾桌子」）难以验证，子目标级条件（「抓住杯柄」）既更容易被判分，也更容易被 System 2 绑定到具体能力。
+- **视觉 Prompt**：在原始图像坐标中用框、点、十字标记或 Mask 指定目标、交互锚点与空间约束。它承载的是「对哪里做什么」，需要与无标记的当前观测区分，并声明使用哪一路相机、生成时刻和有效期。
 - **本体状态**：关节角、末端位姿、夹爪开合。在需要精确接触的任务上，仅靠视觉通常不够，而本体状态是低成本的高价值输入。
 - **历史与力觉**：历史动作、触觉、力矩。它们提升接触丰富任务的表现，但不是所有平台都能提供。
+
+### Visual Prompt：把空间指代变成可操作的 Policy 输入
+
+文字适合表达动作意图与语义约束，却不擅长稳定指定「八个相似瓶子中的这一个」、无纹理桌面上的一个落点，或陌生类别的目标实例。Visual Prompt 将这部分信息留在图像空间：语言只表达 `pick`、`place` 等高层意图，目标框、交互点或放置区域则提供像素级指代。Point-VLA 在六类真实操作任务中使用最小文字加目标框，相比详细文字指令显著提高了易混淆物体与精确位置任务的成功率；同一 Policy 通过文字与视觉指令混合训练，仍可接受纯文字输入[@10]。
+
+对上层规划调度而言，这提供了比自然语言描述更易操作的中间接口。Planner 不必生成脆弱的方位长句，而可以输出**子目标 + 视觉锚点 + 空间约束**；感知模块再把对象名或指点转换为像素区域，Harness 负责校验并绑定到 Policy 调用。VP-VLA 展示了这一动态版本：上层把长任务拆成阶段，用十字标记表示抓取对象中心、用框表示放置区域，并在夹爪开合等交互状态变化时更新 Prompt[@11]。因此 Visual Prompt 既是 Policy 输入，也是 System 2 与 System 1 之间可检查、可回放的描述接口。
+
+两项工作也暴露了不同的时序选择：Point-VLA 使用**每个 Episode 一次生成、整段复用的首帧 Prompt**，成本低但目标移动或阶段切换后可能过期；VP-VLA 使用**事件触发、随子目标更新的 Prompt**，更适合多阶段任务，但依赖 Planner、分割器和完成事件的正确性。工程接口至少需要明确以下字段：
+
+| 字段 | 需要回答的问题 |
+| --- | --- |
+| `intent / subgoal` | 当前是抓取、放置、推动，还是其他原子能力？ |
+| `prompt_type + geometry` | 点、框、十字标记还是 Mask；坐标如何归一化？ |
+| `camera + frame_id` | 标记属于哪一路相机、哪一帧，能否与当前观测对齐？ |
+| `role` | 标记表示目标物体、交互锚点，还是目标区域 / 空间约束？ |
+| `validity + refresh_trigger` | Prompt 在何时失效；按时间、场景变化还是执行事件刷新？ |
+| `source + confidence` | 来自人工、VLM、检测 / 分割模型还是追踪器；低置信度如何拒绝或回退？ |
+
+直接在 RGB 上叠加图形并不自动构成可靠接口。Point-VLA 的结果表明，保留全局场景的框叠加比只给文字坐标或遮掉框外区域更有效，并通过平移与局部外观增强减少绝对坐标和训练外观过拟合[@10]。VP-VLA 则发现辅助 Grounding Loss、关键帧监督和 Prompt 几何都会影响模型是否真正使用标记；把标记直接覆盖在主观测上还可能干扰原始视觉特征[@11]。更稳妥的输入契约是同时保留**原始观测**与**Visual Prompt 图**，并用配对训练或显式 Grounding Objective 建立标记到动作的对齐。
 
 **归一化与坐标系必须显式约定**。这一条看起来是工程细节，实际上决定了同一份数据能否跨本体复用：动作的参考系（世界 / 基座 / 末端）、单位（弧度 / 角度、米 / 毫米）、以及动作范围，如果没有在数据 schema 里写死，跨本体迁移时几乎必然出错。
 
@@ -116,16 +138,17 @@ Policy 的推理频率通常远低于控制器频率——Policy 可能在 10 Hz
 
 | 层面 | 负责 |
 | --- | --- |
-| Policy / VLA | 给定**正确的子目标**与当前观测，产生可执行动作 |
-| System 2 / Harness | 何时调用、调用哪个 Policy、参数绑定与安全约束、超时与取消、把结果变成反馈 |
+| Policy / VLA | 给定**正确的子目标、视觉锚点**与当前观测，产生可执行动作；报告 Prompt 不可用或执行失败 |
+| System 2 / Harness | 何时调用、调用哪个 Policy；生成或请求 Visual Prompt；校验相机、帧与有效期；处理超时、取消与反馈 |
 
-分界处的典型症状是双向的：**把 Policy 能力不足记成调度问题**，会引导团队去优化 Prompt 和流程；**把接口契约缺失记成模型问题**，会引导团队去堆数据和换模型。两种都白费力气。判断方法是控制变量——用人工给定的正确子目标替换高层输出，如果成功率没有明显提升，瓶颈就不在调度层。这条判据以及更完整的五层归因框架见[评测一文](robot-agent-evaluation.html)；系统层自身的组织方式见 [Robot Agent System 2](robot-agent-system2.html)。
+分界处的典型症状是双向的：**把 Policy 能力不足记成调度问题**，会引导团队去优化 Prompt 和流程；**把接口契约缺失记成模型问题**，会引导团队去堆数据和换模型。两种都白费力气。判断时应逐级控制变量：先以人工给定的正确子目标与视觉锚点替换上层输出，再分别替换自动 Grounding 和 Policy。若正确锚点仍不能改善成功率，瓶颈更可能在 Policy 或执行侧；若人工锚点有效而自动锚点无效，问题在 Planner、感知 Grounding 或坐标绑定。这条判据以及更完整的五层归因框架见[评测一文](robot-agent-evaluation.html)；系统层自身的组织方式见 [Robot Agent System 2](robot-agent-system2.html)。
 
 ## 评测方式
 
 Policy 层的评测要刻意与系统层分开，否则数字不可解释：
 
-- **给定正确子目标的成功率**——这是最能代表 Policy 能力的口径，因为高层误差已被排除；
+- **给定正确子目标与正确视觉锚点的成功率**——这是最能代表 Visual-Prompted Policy 能力的口径，因为高层规划与 Grounding 误差已被排除；同时保留纯文字条件，检查混合训练是否损伤原有指令能力；
+- **Grounding 接口消融**——分别测试人工 / 自动锚点、静态 / 事件更新、原始观测 + 独立 Prompt 图 / 直接叠加，以及过期、错位和错误标记下的拒绝与恢复；
 - **跨场景、跨物体、跨本体泛化**——同一能力在分布外是否仍成立；
 - **OOD 与干扰**：遮挡、光照变化、动态物体；
 - **数据效率**：达到同一成功率需要多少条演示。这一项常被忽略，但它直接决定数据成本；
@@ -135,6 +158,8 @@ Policy 层的评测要刻意与系统层分开，否则数字不可解释：
 
 ::: my-take
 Policy 的可复用性取决于**接口约定**。动作坐标系、单位、动作范围、预测与执行时域、超时和取消语义，共同决定数据能否跨本体使用，以及失败能否被正确归因。
+
+Visual Prompt 将 Policy 的输入接口从「一句自然语言」扩展为**语义意图 + 可执行空间约束**。这比让上层 Planner 发明越来越精细的方位描述更适合调度：接口可视、可校验、可回放，也能把目标选择错误与动作执行错误分开。但它不会消除 Grounding 问题，只是把 Grounding 从 Policy 内部的隐式能力，变成 Planner、感知模块与 Harness 必须共同维护的显式契约。
 
 跨本体统一动作空间需要同时建立**共同语义、时间组织和执行映射**。URR 目标轨迹、81 维超集与几何动作模态将本体差异放在不同位置；其价值取决于视觉监督、动作标签与实际执行的一致性，以及新本体接入时需要重新学习的部分。
 :::
@@ -150,3 +175,5 @@ Policy 的可复用性取决于**接口约定**。动作坐标系、单位、动
 7. [RynnBrain 1.1: Towards More Capable and Generalizable Embodied Foundation Model](https://arxiv.org/html/2607.17977v1)，2026。§4.2–4.3：81 维动作空间、Mask 与 G1 特例。
 8. [Cosmos 3: Omnimodal World Models for Physical AI](https://arxiv.org/abs/2606.02800)，2026。统一几何动作表示与动作模态建模。
 9. [Cosmos 3 Action Generation Cookbook](https://github.com/NVIDIA/cosmos/blob/main/cookbooks/cosmos3/generator/action/README.md)，官方实现。动作分量、维度与采样设置。
+10. [Point What You Mean: Visually Grounded Instruction Policy](https://arxiv.org/abs/2512.18933)，2026。以框、点等视觉指代扩展 VLA 输入，支持静态首帧 Grounding、纯文字兼容与自动数据标注。
+11. [VP-VLA: Visual Prompting as an Interface for Vision-Language-Action Models](https://arxiv.org/abs/2603.22003)，2026。以事件驱动的 Visual Prompt 连接 System 2 Planner 与 System 1 Controller，并通过辅助 Grounding Objective 对齐视觉锚点与动作。
