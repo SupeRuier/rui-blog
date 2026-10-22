@@ -84,6 +84,8 @@ RoboMME 研究提供了最高的聚合数字之一：Astra 在 800 个记忆型�
 | Astranomy Direct [@2] | 不使用持久代理对话 | 默认只给当前与两个近期采样观测，约覆盖 1–2 秒 | 观测包含对应机器人状态 | 短观测 horizon，不是全 episode |
 | Astranomy Agentic [@2] | 默认保留所有过去回答、计划、动作调用和原生 reasoning 记录 | 默认保留所有决策时图像 | 始终提供当前本体状态，但历史机器人状态与运动反馈消息被排除 | 全文本 + 全决策图像，仍非全原始传感器轨迹 |
 
+<figure class="frontier-figure"><img src="../../assets/astra-robomme-failure-rollouts.png" alt="RoboMME 的三组失败轨迹：MoveCube 提前宣布完成，StopCube 定位时误触按钮，VideoUnmask 的放置动作未在时限内完成"><figcaption>RoboMME 的三类典型失败。实线框是送入模型的采样观测；红色虚线框是动作执行中或终止时的帧，模型并未看到。它直观说明了「保留全 episode」仍不等于看见连续执行过程中的每一帧，也说明离散 waypoint 决策可能漏掉接触瞬间。图源：<a href="https://arxiv.org/abs/2610.17350">Jedlicki et al., Figure 5</a>。</figcaption></figure>
+
 这一区分很重要：一篇论文的「full history」可能是全文本历史，另一篇可能是所有决策时图像，但它们通常都不等于原始相机、关节、力矩与触觉信号的无损全轨迹。它证明长上下文可以在某些环境中同时承担记忆、规划和 waypoint 决策，但结论必须与具体的采样和保留策略绑定。对应的资源侧数字是：
 
 - 总计 7,563 次模型调用；
@@ -120,6 +122,8 @@ RoboDojo 的 22.48% 是 42 个任务的聚合结果，不表示 Astra 在每类�
 - **精密执行区间**：模型可能知道应该做什么，但成功取决于接触精度、动态时机、连续纠偏或双臂协调。Astra 在这类任务上显著更弱 [@1]。
 
 因此，这里不是指系统内实际存在两个 Policy，而是指**同一个 Policy 呈现两条截然不同的能力曲线**。只报告平均分，会把「理解了要做什么」和「能稳定地把它做出来」压成同一个数字。
+
+<figure class="frontier-figure evidence-grid-figure"><div class="evidence-grid"><div><strong>优势 · 语义匹配</strong><img src="../../assets/astra-robodojo-semantic.jpg" alt="RoboDojo 中按牌面语义匹配麻将牌的左腕、头部与右腕视角"></div><div><strong>短板 · 动态控制</strong><img src="../../assets/astra-robodojo-dynamic-limit.jpg" alt="RoboDojo 中匹配移动物体任务的左腕、头部与右腕视角"></div><div><strong>优势 · 主动视觉</strong><img src="../../assets/astra-robodojo-active-vision.jpg" alt="RoboDojo 中插入试管任务的左腕、头部与右腕视角"></div><div><strong>短板 · 双臂协调</strong><img src="../../assets/astra-robodojo-bimanual-limit.jpg" alt="RoboDojo 中双臂扫拢积木任务的左腕、头部与右腕视角"></div><div><strong>优势 · 灵活分配双臂角色</strong><img src="../../assets/astra-robodojo-bimanual-roles.jpg" alt="RoboDojo 中双臂将物品分拣入箱任务的左腕、头部与右腕视角"></div><div><strong>短板 · 周边物体感知</strong><img src="../../assets/astra-robodojo-awareness-limit.jpg" alt="RoboDojo 中积木装配任务的左腕、头部与右腕视角"></div></div><figcaption>RoboDojo 对 Astra 能力边界的案例归纳。每条图像从左到右依次为左腕、头部和右腕相机；左列是论文总结的优势，右列是限制。这里展示的是代表性任务，不是六项独立的成功率统计。图源：<a href="https://arxiv.org/abs/2609.24170">Zhang et al., Figure 3</a> 的原始子图，按论文分组重排。</figcaption></figure>
 
 跨六领域研究复现了同一条分界 [@4]：
 
