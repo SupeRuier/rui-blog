@@ -3,9 +3,11 @@
   if (!article) return;
 
   // 窄屏阈值：必须与 styles.css 里 .article-toc 的 @media (max-width: 1299px) 保持一致。
-  // 低于此宽度时目录是右上角浮层，需要「点外部/点链接自动收起」。
+  // 低于此宽度时目录是左上角浮层，需要「点外部/点链接自动收起」。
   const OVERLAY_MAX = 1300;
   const isOverlay = () => window.innerWidth < OVERLAY_MAX;
+
+  setupMarginReferences(article);
 
   const headings = [...article.querySelectorAll('h2, h3')];
   if (!headings.length) return;
@@ -66,4 +68,66 @@
   document.addEventListener('click', (event) => {
     if (!panel.hidden && isOverlay() && !aside.contains(event.target)) setOpen(false);
   });
+
+  /**
+   * 把文末参考文献复制到每一次正文引用旁边：宽屏排在正文右侧，窄屏紧跟
+   * 引用显示。原始 reference-list 完整保留，仍是引用链接的跳转目标。
+   */
+  function setupMarginReferences(root) {
+    const references = new Map(
+      [...root.querySelectorAll('.reference-list > li[id^="ref-"]')]
+        .map((item) => [item.id, item.innerHTML]),
+    );
+    if (!references.size) return;
+
+    const citations = [...root.querySelectorAll('.citation[href^="#ref-"]')]
+      .filter((citation) => !citation.closest('.reference-list'));
+
+    const pairs = [];
+    citations.forEach((citation, index) => {
+      const refId = citation.getAttribute('href').slice(1);
+      const reference = references.get(refId);
+      if (!reference) return;
+
+      const note = document.createElement('span');
+      note.className = 'citation-sidenote';
+      note.id = `sidenote-${index + 1}`;
+      note.setAttribute('role', 'note');
+      note.innerHTML = `<span class="sidenote-number">${citation.textContent}</span><span class="sidenote-text">${reference}</span>`;
+      citation.setAttribute('aria-describedby', note.id);
+      citation.after(note);
+      pairs.push({ citation, note });
+    });
+
+    const media = window.matchMedia(`(min-width: ${OVERLAY_MAX}px)`);
+    let frame;
+
+    function layout() {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        root.style.removeProperty('--sidenote-overflow');
+        pairs.forEach(({ citation, note }) => {
+          note.style.removeProperty('--sidenote-top');
+          if (media.matches) root.append(note);
+          else citation.after(note);
+        });
+        if (!media.matches) return;
+
+        const articleTop = root.getBoundingClientRect().top;
+        let nextTop = 0;
+        pairs.forEach(({ citation, note }) => {
+          const citedTop = citation.getBoundingClientRect().top - articleTop;
+          const top = Math.max(citedTop, nextTop);
+          note.style.setProperty('--sidenote-top', `${top}px`);
+          nextTop = top + note.offsetHeight + 14;
+        });
+        root.style.setProperty('--sidenote-overflow', `${Math.max(0, nextTop - root.scrollHeight)}px`);
+      });
+    }
+
+    layout();
+    window.addEventListener('resize', layout, { passive: true });
+    media.addEventListener('change', layout);
+    document.fonts?.ready.then(layout);
+  }
 })();
