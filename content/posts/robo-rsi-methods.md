@@ -47,6 +47,8 @@ cardMeta: Robo RSI · Methods
 - [Voyager（跨域参照） ↗](https://arxiv.org/abs/2305.16291)[@7]<span>Minecraft 中的可执行 Skill Library · 展示非参数技能积累，但不是物理真机实验。</span>
 - [SHAPER ↗](https://arxiv.org/abs/2608.11350)[@8]<span>文本技能与 Context / Code Harness · Rollout 反馈驱动可复用的技能和上下文演化，模型权重保持固定。</span>
 - [RoboRSI ↗](https://github.com/nssmd/RoboRSI)[@9]<span>分层 Skill Tree 与多角色 Harness · 失败根因定位 → 局部代码修订 → 仿真 no-regression gate → 版本复用；效果以项目自身报告为准。</span>
+- [PhysicalRSI 1.0 ↗](https://mmlab.hk/research/PhysicalRSI)[@12]<span>Embodied Self-Harness · 物理反馈驱动 Skill / Tool / Control Code 候选修订，经评测选择后跨轮继承；公开结果主要来自 RoboDojo 仿真。</span>
+- [R²SI ↗](https://r2si.worldscape.io/)[@13]<span>双层 Robot Agent · 外层同时修订 Harness 与训练 reactive model；Skill 候选经过测试门禁再发布，参数更新需与 Harness 收益分开归因。</span>
 :::
 
 ## 基础设施参照，不计作独立 RSI
@@ -72,3 +74,5 @@ cardMeta: Robo RSI · Methods
 9. [RoboRSI](https://github.com/nssmd/RoboRSI)，项目仓库与自述技术报告。
 10. [Towards the Harness of Embodied Agents (Thea)](https://arxiv.org/abs/2608.11246)，2026。
 11. [Beyond Imitation: Self-Improving Robot Policies via Off-Policy Q-Planning](https://arxiv.org/abs/2608.21204)，2026。
+12. [PhysicalRSI 1.0: Recursive Self-Harness for Scaling Embodied Skills](https://mmlab.hk/research/PhysicalRSI)，2026。
+13. [R²SI: Trial and Error, Distilled into Capability](https://r2si.worldscape.io/)，2026。

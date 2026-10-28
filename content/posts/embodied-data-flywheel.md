@@ -168,6 +168,27 @@ footer: Embodied Data Flywheel
 
 三类前置项值得单独点出：**评测数据**要先冻结任务定义与验收谓词（什么算完成、质量阈值、允许重试几次、人工介入如何计分），再做切片设计与泄漏检查；**训练数据**要保证观测与动作在执行时刻严格对齐，区分策略命令、控制器修正与真实运动，并重建每一步决策时**实际可见**的信息；**程序、记忆与工具修订**则分别需要前置条件与失效边界、来源与有效期、以及能在相同状态下重放失败的接口契约。
 
+### Case Study：FLORA 与 Argus 如何把 Rollout 变成监督
+
+FLORA 与 Argus 都处理 Raw Execution Record 到 Semantic Experience 的转换，但工作层级不同：FLORA 提供专用标注模型，Argus 提供跨数据格式的标注 Harness。把两者放在同一条链上，更容易看清模型能力和数据工程的边界。
+
+**FLORA 偏模型层。** 它把机器人与人类操作视频拆成三类任务：TempSeg 定位动作时间区间，Captioner 为区间生成时间对齐的动作指令，Rewarder 生成 outcome、dense 与 rubric reward[@10]。这些输出分别对应 Semantic Experience 中的 event boundary、action description 与 evaluation signal，可以继续派生训练片段、成功 / 失败筛选和过程奖励。
+
+**Argus 偏 Harness 层。** 它读取多种机器人数据格式，将多视角 RGB 与 state / action、depth、tactile 等记录按时间语义交给标注模型，再输出 action、subgoal、outcome、操作错误、恢复和对象状态变化等密集标签[@11]。它解决的是“原始记录怎样被一致地读取、检查、标注和导出”，而不是绑定某一个标注模型。
+
+两者可以压成一条简单链路：
+
+`异构 Raw Rollout → 时间与传感器对齐 → event / state / subgoal 分段 → caption / outcome / process reward → 训练与评测产品`
+
+| 层级 | FLORA | Argus |
+| --- | --- | --- |
+| 主要对象 | 分段、描述与奖励模型 | 数据摄取、检查、标注与导出 Harness |
+| 主要输入 | 人类或机器人多视角视频 | 视频 + state / action + depth / tactile 等异构记录 |
+| 主要输出 | 时间区间、动作指令、结果与过程奖励 | 动作、子目标、结果、错误、恢复、对象状态与评分 |
+| 在飞轮中的位置 | Semantic label / evaluator 生成 | Raw → Semantic 的流水线与数据契约 |
+
+二者都不是自我改进本身。只有这些标签进入明确的 Derived Data Product，推动 Model / Policy、Harness 或 Evaluator 发生候选变化，并通过回归门禁，数据引擎才成为能力闭环的一部分。自动标注结果仍要携带模型版本、证据帧、置信度与审阅状态；标注 benchmark 的提升也不能代替下游 Policy 收益验证。
+
 ## 04 · Failed rollout：从故障分类到可检验的归因
 
 失败记录至少分成六类：任务失败、局部步骤失败但已恢复、证据不足、超时或预算耗尽、安全停止、记录损坏。这个分类的意义在于**阻止过度归因**：超时只说明停止条件被触发，不自动等于能力失败；记录损坏既不是模型问题也不是现场问题。恢复前后的片段必须成对保存，并记录恢复动作是否真正改变了目标状态。
@@ -273,3 +294,5 @@ Raw 层不因标签或模型更新而改变；Semantic 与 Derived 层可以按�
 7. [RoboCat: A Self-Improving Generalist Agent for Robotic Manipulation](https://arxiv.org/abs/2306.11706)，2023。自主采集数据用于自我改进的实例。
 8. [AutoRT: Embodied Foundation Models for Large Scale Orchestration of Robotic Agents](https://arxiv.org/abs/2401.12963)，2024。大规模真机自主采集与安全约束。
 9. [Autonomous Improvement of Instruction Following Skills via Foundation Models](https://arxiv.org/abs/2407.20635)，2024。以自主采集与筛选驱动指令跟随技能的持续改进。
+10. [FLORA: An Open Model Suite for Scaling Robotics Data Engines](https://research.nvidia.com/labs/gear/flora/)，2026。动作时间分段、时间对齐描述与多种机器人奖励模型。
+11. [Pantheon Industries, Argus](https://github.com/Pantheon-Industries-Inc/argus)，2026。异构机器人数据的多模态检查与密集标注 Harness。

@@ -121,6 +121,24 @@ GOVERNANCE 不描述获得了哪一种能力，而是检查改进是否值得**�
 
 论文对 Skills 的讨论还给出一条接近 RSI 的演进路径：从生成 Code as Policies，到验证并保存 Skill Library，再到根据执行反馈修订技能并保留新版本，最后把轨迹用于 Policy 或代码生成模型训练[@10]。只有当修订被持久化、在后续任务上验证并通过回归与部署门禁时，这条功能链才跨过本文所定义的 RSI 边界。
 
+## Case Study：从 Harness 演化到 Harness–Policy 双路径演化
+
+PhysicalRSI 与 R²SI 都把 System 2 放在外层，把可执行 Skill / Tool 与底层 Policy 放在内层；两者的关键区别是改进出口的范围。
+
+**PhysicalRSI：主要修改 Harness。** 系统在 RoboDojo 中执行任务，利用观察、动作、成败和失败原因形成 embodied feedback，再由 Foundation Model 改写 Skill、Tool、Memory 或控制代码。候选 Harness 经评测选择后成为下一轮版本，即 `H_k → H_{k+1}`[@11]。按六轴定位：WHAT 主要落在 Skill / Code / Harness；WHEN 是跨 rollout 的轮次更新；HOW 是执行、反思、生成候选、评测、选择与继承；CAPABILITY 同时可能表现为效率 refinement、未见布局上的 generalization，以及原本失败任务上的 acquisition。
+
+**R²SI：同时修改 Harness 与 reactive model。** 外层 Recursion Agent 回看 rollout，提出 Skill 修订，经过 Tool 测试门禁后发布新 Harness；同一批执行记录还被转成训练数据，用于更新内层 reactive model。因此它有两条明确的变化路径：`ΔHarness` 与 `Δθ`[@12]。这比单一 Skill 修订多了一层数据—参数闭环，也使归因更难：结果改善可能来自规划与 Skill，也可能来自底层 Policy，实验需要分别固定其中一条路径。
+
+| 六轴 | PhysicalRSI | R²SI |
+| --- | --- | --- |
+| WHAT | Skill / Tool / Memory / Control Code / Harness | Harness + reactive model 参数 |
+| WHEN | 跨 rollout、按轮次 | 跨 rollout；Skill 发布与模型训练并行存在 |
+| HOW | 反思 → 候选改写 → 评测 → 选择与继承 | rollout review → Skill gate → release；记录 → 训练 → `Δθ` |
+| CAPABILITY | Refinement、Generalization，部分任务上的 Acquisition | Skill 效率与稳健性提升；模型侧能力变化需单独归因 |
+| GOVERNANCE | 候选评测与版本继承 | 测试门禁、版本发布与组件消融 |
+
+两项工作都比“任务内失败后重试”更接近持续 Robo RSI，因为修改被保存并用于后续 rollout。但公开证据主要来自 RoboDojo 仿真；它能证明仿真环境中的跨轮改进，不能直接替代真机安全、设备磨损、sim-to-real 与现场回归验证。另一个边界是“递归”：改进器反复改被执行的 Harness 或 Policy，不等于已经证明改进器自身的学习机制也获得了可归因的提升。
+
 ## 跨案例对照：同一套六轴，七类不同的系统 {#cross-case}
 
 六轴的价值在于能把方法横向摆开。下表按同一套轴定位几类公开工作。**定位依据是公开标题与自述，不是复现实验**，因此 CAPABILITY 一列写的是「结构上可能出现的变化类型」，不是效果评价。
@@ -197,3 +215,5 @@ GOVERNANCE 不描述获得了哪一种能力，而是检查改进是否值得**�
 8. [RoboCat: A Self-Improving Generalist Agent for Robotic Manipulation](https://arxiv.org/abs/2306.11706)，2023。
 9. [RISE: Self-Improving Robot Policy with Compositional World Model](https://arxiv.org/abs/2602.11075)，2026。
 10. [Towards Agentic Robots: Model, Data, Environment, and Harness](https://arxiv.org/abs/2610.20442)，2026。本文引用其四域十七类功能分类，以及 Harness 中 Orchestration、Memory、Monitoring and Recovery、Skills、Infrastructure 与 Layered Systems 的边界。
+11. [PhysicalRSI 1.0: Recursive Self-Harness for Scaling Embodied Skills](https://mmlab.hk/research/PhysicalRSI)，2026。以 embodied feedback 修订并选择可执行 Harness。
+12. [R²SI: Trial and Error, Distilled into Capability](https://r2si.worldscape.io/)，2026。外层 Recursion Agent 同时推动 Skill / Harness 修订与 reactive model 训练。
